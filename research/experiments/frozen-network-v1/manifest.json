@@ -1,0 +1,77 @@
+{
+  "assets": {
+    "AAPL": {
+      "calendar_gaps_over_7_days": [],
+      "count": 4024,
+      "download_options": {
+        "auto_adjust": true,
+        "end": "2026-01-01",
+        "interval": "1d",
+        "progress": false,
+        "start": "2010-01-01",
+        "threads": false
+      },
+      "duplicates": 0,
+      "exclusions": [],
+      "file": "AAPL.json",
+      "file_sha256": "2af7d41c35d3a2b789baf5ecf75a1134918e46ac7394a6208867c2040dc7a04a",
+      "first_date": "2010-01-04T00:00:00",
+      "invalid_prices": 0,
+      "last_date": "2025-12-31T00:00:00",
+      "sha256": "8482d5ee4a45257e776bf3ada15133b2da742fdbe8dc56b155c07927d196c042"
+    },
+    "PETR4.SA": {
+      "calendar_gaps_over_7_days": [],
+      "count": 3974,
+      "download_options": {
+        "auto_adjust": true,
+        "end": "2026-01-01",
+        "interval": "1d",
+        "progress": false,
+        "start": "2010-01-01",
+        "threads": false
+      },
+      "duplicates": 0,
+      "exclusions": [],
+      "file": "PETR4.SA.json",
+      "file_sha256": "d5643d19d2914f7f783607e14a5391d519a6018879e9ebff82e246628e6fd754",
+      "first_date": "2010-01-04T00:00:00",
+      "invalid_prices": 0,
+      "last_date": "2025-12-30T00:00:00",
+      "sha256": "939da88f6e7ed284396d15f822e52c061e6757d52362c157e00e5dc55dda30ec"
+    },
+    "SPY": {
+      "calendar_gaps_over_7_days": [],
+      "count": 4024,
+      "download_options": {
+        "auto_adjust": true,
+        "end": "2026-01-01",
+        "interval": "1d",
+        "progress": false,
+        "start": "2010-01-01",
+        "threads": false
+      },
+      "duplicates": 0,
+      "exclusions": [],
+      "file": "SPY.json",
+      "file_sha256": "98a05e9f012f17d3215bf3cfff0d2c3b8561f7f69da5636a03813e02912332c5",
+      "first_date": "2010-01-04T00:00:00",
+      "invalid_prices": 0,
+      "last_date": "2025-12-31T00:00:00",
+      "sha256": "9eb066372241f804318f91191a4a54845b8d7638cd9cb81313d4b04f3009db0b"
+    }
+  },
+  "failures": {},
+  "git": {
+    "commit": "43b8238f2a93979b08ede922f249168c4c1236ae",
+    "diff_sha256": "1a28eba0fdfe75e590bfd562f09eab55ac029fb66f049aabd62ed51090b4b59e",
+    "status": "M src/forecasting/core.py\n?? .gitattributes\n?? .pytest-study-focused/\n?? .pytest-study-full/\n?? research/experiments/\n?? research/volatility-protocol-v1.md\n?? src/forecasting/study.py\n?? src/forecasting/uncertainty.py\n?? tests/test_forecasting_dates.py\n?? tests/test_forecasting_study.py\n?? tests/test_forecasting_uncertainty.py"
+  },
+  "protocol_sha256": "f13722d94da33f6bc40d4ec9b0ec926e15f4e013396d05a773f1b95f046364af",
+  "versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scipy": "1.18.1",
+    "yfinance": "1.7.0"
+  }
+}

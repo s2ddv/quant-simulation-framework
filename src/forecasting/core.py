@@ -1,6 +1,7 @@
 """Compare one-session conditional second moments on shared forecast origins."""
 
 from dataclasses import asdict, dataclass
+from datetime import date
 from numbers import Real
 
 import numpy as np
@@ -17,7 +18,12 @@ FEATURE_WINDOWS = (1, 5, 22)
 
 @dataclass(frozen=True)
 class ForecastConfig:
-    """Sizes count labelled examples after the largest common lookback."""
+    """Split labelled targets by counts, or by paired inclusive start dates.
+
+    In date mode, local target-session dates before validation_start train;
+    [validation_start, test_start) validates; dates >= test_start test.
+    Count fields are ignored in date mode. The input defines the outer bounds.
+    """
 
     train_size: int = 126
     validation_size: int = 63
@@ -25,8 +31,23 @@ class ForecastConfig:
     historical_windows: tuple[int, ...] = (5, 22, 63)
     ewma_factors: tuple[float, ...] = (0.90, 0.94, 0.97)
     alpha: float = 0.95
+    validation_start: str | None = None
+    test_start: str | None = None
 
     def __post_init__(self):
+        if (self.validation_start is None) != (self.test_start is None):
+            raise ValueError("validation_start and test_start must be supplied together.")
+        if self.validation_start is not None:
+            for name in ("validation_start", "test_start"):
+                value = getattr(self, name)
+                try:
+                    valid = isinstance(value, str) and date.fromisoformat(value).isoformat() == value
+                except ValueError:
+                    valid = False
+                if not valid:
+                    raise ValueError(f"{name} must be an ISO date YYYY-MM-DD.")
+            if self.validation_start >= self.test_start:
+                raise ValueError("validation_start must precede test_start.")
         for name, minimum in (("train_size", 4), ("validation_size", 1),
                               ("refit_frequency", 1)):
             value = getattr(self, name)
@@ -143,7 +164,8 @@ def evaluate(prices, config=ForecastConfig()):
     if not isinstance(config, ForecastConfig):
         raise ValueError("config must be a ForecastConfig.")
     lookback = max(*FEATURE_WINDOWS, *config.historical_windows)
-    minimum = lookback + config.train_size + config.validation_size + 2
+    minimum = (lookback + config.train_size + config.validation_size + 2
+               if config.validation_start is None else lookback + 7)
     prices = validate_prices(prices, min_observations=minimum, require_dates=True)
     if prices.index.normalize().has_duplicates:
         raise ValueError("Daily prices require one adjusted close per session date.")
@@ -169,7 +191,17 @@ def _evaluate(prices, config, lookback):
     ewma = {f: _ewma(squared, f, lookback) for f in config.ewma_factors}
     features = np.column_stack([rolling[w] for w in FEATURE_WINDOWS])
     targets = squared[lookback:]
-    validation = slice(config.train_size, config.train_size + config.validation_size)
+    if config.validation_start is None:
+        validation = slice(config.train_size, config.train_size + config.validation_size)
+    else:
+        target_dates = np.array([stamp.date().isoformat()
+                                 for stamp in prices.index[lookback + 1:]])
+        train_stop, validation_stop = np.searchsorted(
+            target_dates, [config.validation_start, config.test_start], side="left")
+        if train_stop < 4 or validation_stop <= train_stop or validation_stop >= len(targets):
+            raise ValueError("Date splits require at least four training targets, "
+                             "one validation target and one test target.")
+        validation = slice(int(train_stop), int(validation_stop))
     val_targets = targets[validation]
     window, window_scores = _select(historical, val_targets, validation, "window")
     factor, factor_scores = _select(ewma, val_targets, validation, "factor")
@@ -218,6 +250,10 @@ def _evaluate(prices, config, lookback):
     validation_results = score_period(validation.start, validation.stop, is_validation=True)
     validation_results["candidate_scores"] = {"historical": window_scores, "ewma": factor_scores}
     configuration = asdict(config)
+    # Preserve the shape of legacy count-based reports for exact offline replay.
+    if config.validation_start is None:
+        configuration.pop("validation_start")
+        configuration.pop("test_start")
     for key in ("historical_windows", "ewma_factors"):
         configuration[key] = list(configuration[key])
     test = score_period(validation.stop, len(targets), is_validation=False)

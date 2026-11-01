@@ -1,0 +1,5 @@
+{
+  "commit": "43b8238f2a93979b08ede922f249168c4c1236ae",
+  "diff_sha256": "dbe8fb36d4af02bdf11c71f240f538ccdbeee5377116f0423e8198575edd1160",
+  "status": "M .gitignore\n M README.md\n M src/forecasting/core.py\n?? .gitattributes\n?? research/experiments/\n?? research/volatility-protocol-v1.md\n?? src/forecasting/study.py\n?? src/forecasting/uncertainty.py\n?? tests/test_forecasting_dates.py\n?? tests/test_forecasting_study.py\n?? tests/test_forecasting_uncertainty.py"
+}

@@ -1,0 +1,20 @@
+{
+  "assets": {},
+  "failures": {
+    "AAPL": "ValueError: Insufficient price history: require at least three prices.",
+    "PETR4.SA": "ValueError: Insufficient price history: require at least three prices.",
+    "SPY": "ValueError: Insufficient price history: require at least three prices."
+  },
+  "git": {
+    "commit": "43b8238f2a93979b08ede922f249168c4c1236ae",
+    "diff_sha256": "1a28eba0fdfe75e590bfd562f09eab55ac029fb66f049aabd62ed51090b4b59e",
+    "status": "M src/forecasting/core.py\n?? .pytest-study-focused/\n?? research/experiments/\n?? research/volatility-protocol-v1.md\n?? src/forecasting/study.py\n?? src/forecasting/uncertainty.py\n?? tests/test_forecasting_dates.py\n?? tests/test_forecasting_study.py\n?? tests/test_forecasting_uncertainty.py"
+  },
+  "protocol_sha256": "f13722d94da33f6bc40d4ec9b0ec926e15f4e013396d05a773f1b95f046364af",
+  "versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scipy": "1.18.1",
+    "yfinance": "1.7.0"
+  }
+}

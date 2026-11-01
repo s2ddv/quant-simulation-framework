@@ -775,3 +775,29 @@ This project is for **educational and research purposes only**. It does not cons
 ## License
 
 No license file is currently included in this repository.
+
+### Frozen historical volatility study
+
+The predeclared design is in `research/volatility-protocol-v1.md`. This separate
+study compares historical, EWMA and NNLS forecasts on identical next-session
+origins, with calendar splits and paired moving-block bootstrap uncertainty.
+Use the existing environment; no extra dependencies are required:
+
+```powershell
+$env:PYTHONPATH = 'src'
+$env:MPLBACKEND = 'Agg'
+.venv\Scripts\python.exe -m forecasting.study freeze research/experiments/new-study
+.venv\Scripts\python.exe -m forecasting.study run research/experiments/new-study
+.venv\Scripts\python.exe -m forecasting.study replay research/experiments/new-study
+```
+
+Only `freeze` accesses the provider. It requires a new destination and records
+failures without inventing data. `run` publishes a new `results/` bundle;
+`replay` verifies saved snapshot hashes and recomputes the scientific results
+offline. Outputs contain individual predictions, model fits, validation scores,
+metrics and intervals for the full test and fixed calendar segments. The figures
+show noisy realized volatility proxies, paired MSE intervals and accumulated
+loss differences. Block lengths 5/10/20 and 2,000 replicates are predeclared;
+intervals are pointwise and conditional, with no model refits inside bootstrap.
+These are educational retrospective comparisons, not point-in-time authenticated
+data, investment recommendations or evidence of general ML superiority.

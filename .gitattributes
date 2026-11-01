@@ -1,0 +1,3 @@
+research/experiments/** -text
+research/volatility-protocol-v1.md text eol=lf
+research/experiments/** whitespace=cr-at-eol
