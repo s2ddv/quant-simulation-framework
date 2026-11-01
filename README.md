@@ -532,6 +532,76 @@ with uncertainty; regimes can change. This diagnostic uses analytical forecasts,
 so it does not mix forecast error with Monte Carlo sampling error. It does not
 estimate parameter uncertainty or model error.
 
+### Experimental volatility forecasting (separate from GBM)
+
+`src/forecasting/` compares trailing historical second moments, causal EWMA,
+and SciPy nonnegative least squares with a nonnegative intercept and slopes.
+The features are trailing means of squared daily log returns over 1, 5 and
+22 sessions; the target is the next session's squared log return. This
+experiment assumes zero conditional daily log-return mean: its second moment
+approximates variance. It differs from GBM calibration's centered sample
+standard deviation (`ddof=1`); GBM calibration and default CLI are unchanged.
+
+Run from the repository root using a saved GBM report or a standalone snapshot:
+
+```powershell
+$env:PYTHONPATH = 'src'
+$env:MPLBACKEND = 'Agg'
+.venv\Scripts\python.exe -m forecasting --snapshot reports/petr4/report.json --report reports/volatility.json
+.venv\Scripts\python.exe -m forecasting --replay reports/volatility/report.json --report reports/volatility-replay.json
+```
+
+On POSIX use `PYTHONPATH=src MPLBACKEND=Agg .venv/bin/python -m forecasting ...`.
+Both commands are offline. `--ticker AAPL --period 5y` instead of `--snapshot`
+explicitly downloads adjusted daily closes. No company data or GBM paths are
+needed. Output is a new bundle containing `report.json` and `volatility.png`;
+publication is staged and refuses existing destinations. The graph shows final
+test annualized forecasts and `sqrt(252)*abs(realized log return)`, a noisy
+realized proxy, not an observed latent volatility.
+
+Optional `--config config.json` accepts, for example:
+
+```json
+{"train_size":126,"validation_size":63,"refit_frequency":22,
+ "historical_windows":[5,22,63],"ewma_factors":[0.90,0.94,0.97],"alpha":0.95}
+```
+
+These are also the defaults. Sizes count supervised examples after the common
+lookback (the largest feature/historical window). At least
+`lookback + train_size + validation_size + 2` closes are required, leaving at
+least one final test forecast. Periods are chronological; every model uses the
+same origins and next-session targets. Select each baseline's parameter by
+minimum validation MSE, breaking ties by grid order; final test data never
+select configurations. Selected validation scores are retrospective and must
+not be interpreted as untouched test performance. EWMA starts at the first
+squared return and updates through each origin close. ML uses an expanding
+sample and refits at each period's first origin and every configured number
+of origins thereafter, admitting only already observed targets. Final test
+evaluation is sequential: realized test observations may enter later fits,
+while all configurations remain frozen. No claim of ML superiority is made.
+
+Reports separate validation and final test, recording individual predictions,
+candidate scores, periods, fit coefficients, last known training target dates,
+snapshot checksum, configuration, numerical versions and units. Results use
+local session dates without timezone; the original snapshot retains its ISO
+timestamps and offsets, including daylight-saving transitions. Replay checks
+the snapshot and recomputed results; numerical identity requires compatible
+code and libraries. It does not authenticate the data provider.
+
+MSE and MAE score the daily squared-return target, with units log-return^4 and
+log-return^2. Risk diagnostics assume `r_next | information = Normal(0,v)`:
+`q_price = S_origin * exp(sqrt(v)*Phi^-1(1-alpha))`,
+`VaR = S_origin-q_price`. Annual volatility is `sqrt(252*v)`; the equivalent
+GBM price drift is `mu=sigma²/2`, not historical drift. Price quantile pinball
+loss uses probability `1-alpha` and price-currency units. Violations are strict
+`target_price < q_price`. Zero variance gives a point mass and zero model
+violation probability, while the displayed nominal reference stays `1-alpha`.
+Counts, rates and 95% Wilson intervals accompany the nominal reference; Wilson
+assumes approximately independent comparable violations, which market data
+may violate. Samples below 30 receive warnings. Proxy noise, calibration
+uncertainty, changing regimes and distribution misspecification limit inference.
+No price-mean RMSE, trading strategy or guaranteed forecast is implied.
+
 ### Tests
 
 ```bash
