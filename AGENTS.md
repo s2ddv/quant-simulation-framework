@@ -138,3 +138,23 @@ Var[S(T)] = S(0)^2*exp(2*mu*T)*(exp(sigma^2*T) - 1)
   de um especialista. Não enfraqueça sandbox ou aprovações para fazer um teste passar.
 
 Consulte `docs/equipe-multiagente.md` para compatibilidade, ativação e testes da equipe.
+
+
+<!-- BEGIN CODEX QUANT OBSIDIAN v1 -->
+## Contexto e registro no Obsidian
+
+Este projeto participa da integração persistente com o vault `AI Quant`.
+Leia `~/.codex/quant-obsidian.json` e a seção "Base de conhecimento Quant no Obsidian"
+de `~/.codex/AGENTS.md`. Antes de implementar modelos, consulte a página deste projeto,
+as pesquisas, decisões e experimentos pertinentes, além dos contratos do repositório.
+Confirme tudo contra o estado atual do Git e do código.
+
+Após tarefas relevantes, documente automaticamente objetivo/hipótese, implementação,
+arquivos, metodologia, testes realmente executados/resultados, limitações e próximos
+passos. Organize por projeto/modelo/experimento/decisão e use links internos do Obsidian.
+Não invente evidências, duplique registros nem documente alterações triviais. Crie
+notas novas sem sobrescrever notas pessoais ou excluir arquivos; releia para verificar.
+Se o vault estiver pendente ou inacessível, informe a limitação e guarde um rascunho.
+A integração não concede permissão para alterar lógica financeira, fazer commit/push
+ou publicar dados. As demais instruções deste arquivo continuam em vigor.
+<!-- END CODEX QUANT OBSIDIAN v1 -->
