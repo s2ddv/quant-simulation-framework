@@ -270,10 +270,13 @@ distinct colors for price paths, distribution references and convergence
 metrics. The color choices change only the presentation, not the simulation,
 reported numbers or risk definitions.
 
-`plot_paths` displays the first 50 paths by default, including the initial row.
-Its horizontal axis is the simulation step, since the path matrix does not
-contain the horizon. `plot_final_distribution` uses every terminal price and
-marks the initial price, mean and optional price at VaR (`s0 - var`).
+`plot_paths` displays up to 300 evenly spaced simulated paths by default,
+including the initial row. Thin lines are colored by terminal price, and the
+white line is the pointwise median of the displayed paths, not a historical
+price series. Its horizontal axis is the simulation step, since the path
+matrix does not contain the horizon. `plot_final_distribution` uses every
+terminal price and marks the initial price, mean and optional price at VaR
+(`s0 - var`).
 Both functions return a Matplotlib figure, accept an optional title and save
 path, and leave display and closing to the caller.
 
@@ -290,7 +293,7 @@ from risk.statistics import risk_summary
 
 paths = simulate_gbm(100, 0.08, 0.20, 1, 252, 10_000, seed=42)
 risk = risk_summary(paths, confidence=0.95)
-fan = plot_paths(paths, title="Synthetic GBM: first 50 of 10,000 paths",
+fan = plot_paths(paths, title="Synthetic GBM: 300 of 10,000 paths",
                  save_path="figures/example-paths.png")
 histogram = plot_final_distribution(
     paths, var=risk["var"], title="Synthetic GBM: final prices (95% VaR)",
