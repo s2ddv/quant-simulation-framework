@@ -1,5 +1,8 @@
 """Command-line parsing and an offline entry-point smoke test."""
 
+import json
+from datetime import datetime, timezone
+
 import pandas as pd
 import pytest
 
@@ -99,3 +102,68 @@ def test_unavailable_price_history_has_actionable_error(monkeypatch, capsys, tmp
     assert exc.value.code == 1
     assert "Confira o ticker, o período e a conexão" in capsys.readouterr().err
     assert not destination.exists()
+
+
+def test_repeated_implicit_runs_preserve_existing_output(monkeypatch, tmp_path, capsys):
+    """Reproduce the user's occupied default path and repeated PyCharm runs."""
+    original = tmp_path / "reports" / "simulation"
+    original.mkdir(parents=True)
+    saved = original / "report.json"
+    saved.write_bytes(b"previous report must remain unchanged\n")
+
+    class FrozenClock:
+        @staticmethod
+        def now(tz):
+            return datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+
+    monkeypatch.setattr(app, "datetime", FrozenClock)
+    monkeypatch.setattr("builtins.input", lambda prompt: "AAPL")
+    monkeypatch.setattr(app, "download_prices", lambda *a, **kw: pd.Series(
+        [100., 101., 100.5, 102.], index=pd.date_range("2026-01-01", periods=4)))
+    for _ in range(2):
+        app.main(["--no-plot", "--steps", "2", "--n-sims", "10"])
+
+    assert saved.read_bytes() == b"previous report must remain unchanged\n"
+    runs = sorted((tmp_path / "reports").glob("simulation-*"))
+    assert len(runs) == 2
+    for run in runs:
+        report = json.loads((run / "report.json").read_text())
+        assert len(report["calibration_sensitivity"]["scenarios"]) == 10_000
+        assert report["calibration_sensitivity"]["configuration"]["scenario_levels"] == 100
+        for name in ("convergence.png", "paths.png", "final-distribution.png"):
+            assert (run / name).read_bytes().startswith(b"\x89PNG")
+    assert "10000 cenários" in capsys.readouterr().out
+
+
+def test_implicit_name_avoids_existing_json(tmp_path):
+    occupied = tmp_path / "reports" / "simulation.json"
+    occupied.parent.mkdir()
+    occupied.write_text("previous JSON")
+    result = app.default_report_path()
+    assert result != app.Path("reports/simulation.json")
+    assert not result.exists()
+    assert not result.with_suffix("").exists()
+    assert occupied.read_text() == "previous JSON"
+
+
+def test_cli_operational_error_is_actionable_without_traceback(tmp_path):
+    occupied = tmp_path / "existing.json"
+    occupied.write_text("existing data")
+    with pytest.raises(SystemExit, match="Erro:.*Choose another --report"):
+        app.cli(["--ticker", "AAPL", "--report", str(occupied)])
+    assert occupied.read_text() == "existing data"
+
+
+def test_sensitivity_can_be_disabled(monkeypatch, tmp_path):
+    monkeypatch.setattr(app, "download_prices", lambda *a, **kw: pd.Series(
+        [100., 101., 102.], index=pd.date_range("2026-01-01", periods=3)))
+    app.main(["--ticker", "AAPL", "--no-plot", "--steps", "2", "--n-sims", "10",
+              "--no-calibration-sensitivity", "--report", str(tmp_path / "base.json")])
+    report = json.loads((tmp_path / "base" / "report.json").read_text())
+    assert "calibration_sensitivity" not in report
+
+
+@pytest.mark.parametrize("levels", ["0", "2", "4", "10", "1000", "nan"])
+def test_cli_rejects_invalid_scenario_levels(levels):
+    with pytest.raises(SystemExit):
+        app.build_parser().parse_args(["--scenario-levels", levels])

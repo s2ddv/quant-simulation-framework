@@ -51,7 +51,7 @@ This project aims to:
 - Analytical validation of terminal mean, sample variance and 5%/50%/95% quantiles
 - Nested-sample convergence analysis and saved error charts
 - Optional chronological historical forecasts with fixed, rolling or expanding calibration and observed VaR coverage
-- Analytical sensitivity of expected terminal price, terminal quantiles and VaR to explicit drift and volatility perturbations
+- Analytical sensitivity of expected terminal price, terminal quantiles and VaR to explicit drift and volatility perturbations (10,000 parameter scenarios by default in new CLI runs; 9, 25, 49 or 81 selectable)
 - JSON reports containing historical snapshots and offline replay
 - Risk metrics: Value at Risk (VaR) and Conditional Value at Risk (CVaR / Expected Shortfall)
 - Approximate 95% confidence interval for the simulated terminal-price mean under normal GBM
@@ -239,13 +239,36 @@ prices and company fundamentals and requires network access. `--ticker` skips
 the prompt, including for scripts and CI. If stdin ends before a ticker is
 provided, the CLI explains how to use `--ticker` and exits. `--no-plot` suppresses
 interactive windows; it still saves the JSON report and all three PNG figures.
+Without `--report`, the first run uses `reports/simulation/`; if that name is
+occupied, a new name such as `reports/simulation-20261117T120000000000Z/` is
+chosen automatically. Running `main.py` repeatedly in PyCharm is supported.
 The report name selects a sibling run directory (the `.json` suffix is removed).
-If either the requested JSON path or run directory already exists, the command
-fails and asks for another name. It never replaces an existing run. Files are
+An explicitly supplied `--report` still fails if its JSON path or run directory
+already exists and asks for another name. It never replaces an existing run. Files are
 prepared in a temporary sibling directory; a figure or JSON write failure
 removes that directory and leaves no apparently complete report.
 
+New runs calculate and save **10,000 parameter scenarios**: 100 annual drift
+levels crossed with 100 volatility levels. The console summarizes the first,
+baseline and last rows; all rows are in the JSON report. Select a smaller grid
+or disable it:
+
+```bash
+python main.py --ticker PETR4.SA --scenario-levels 5 --no-plot  # 25 scenarios
+python main.py --ticker PETR4.SA --no-calibration-sensitivity --no-plot
+```
+
+These are analytic sensitivity scenarios, separate from `--n-sims` (the number
+of Monte Carlo paths, still 1,000 by default). They increase JSON size and
+calculation time without multiplying path memory. If a perturbation is zero or
+fitted volatility is zero, some parameter pairs coincide despite 10,000 rows.
+
 ### Price charts
+
+The three saved figures use a dark financial-terminal-inspired palette with
+distinct colors for price paths, distribution references and convergence
+metrics. The color choices change only the presentation, not the simulation,
+reported numbers or risk definitions.
 
 `plot_paths` displays the first 50 paths by default, including the initial row.
 Its horizontal axis is the simulation step, since the path matrix does not
@@ -351,9 +374,18 @@ python main.py --ticker AAPL --period 5y --out-of-sample \
   --sigma-relative-delta 0.2 --no-plot --report reports/aapl-research.json
 ```
 
-Sensitivity evaluates the exact GBM terminal formulas on nine combinations
-of annual drift shifts `-delta, 0, +delta` and volatility multipliers
-`1-relative_delta, 1, 1+relative_delta`. The defaults are 0.02 annual drift
+Sensitivity evaluates the exact GBM terminal formulas on a parameter grid.
+The CLI defaults to 100 levels (10,000 pairs); 100 levels retain the exact
+baseline and both endpoints with slightly different spacing on each side.
+With five levels, annual drift shifts are
+`-delta, -delta/2, 0, +delta/2, +delta` crossed with volatility multipliers
+`1-relative_delta, 1-relative_delta/2, 1, 1+relative_delta/2, 1+relative_delta`.
+`--scenario-levels 3|5|7|9|100` selects 9, 25, 49, 81 or 10,000 combinations.
+Odd grids are uniformly spaced over the same endpoints and include the
+calibrated baseline.
+The Python API keeps its legacy default of three levels; use
+`calibration_sensitivity(..., scenario_levels=5)` to expand it.
+The defaults are 0.02 annual drift
 (two percentage points) and 0.2 relative volatility (20%). For horizon T in
 years, expected price is `S0 exp(mu T)`, price quantile p is
 `S0 exp((mu - sigma²/2)T + sigma sqrt(T) Phi^-1(p))`, and loss VaR at
@@ -365,7 +397,15 @@ Monte Carlo error, model error or future regime changes. Terminal price
 percentiles describe outcomes under one parameter pair; the separate
 confidence interval of the simulated mean describes sampling error of a
 Monte Carlo estimator with fixed parameters. The analytic sensitivity uses
-no random draws. Replay preserves the saved settings and prices offline.
+no random draws. Denser grids can retain the same extrema; more rows do not
+establish better predictions. Zero spreads or zero calibrated volatility can
+produce duplicate rows. The console table includes mean, P5/P50/P95 prices and
+loss VaR, in the asset's currency, with the baseline marked by `*`.
+Replay preserves the saved settings and prices offline, including legacy grids
+and reports without sensitivity. To add/recompute scenarios during replay, use
+`--calibration-sensitivity --scenario-levels 5`; to omit them from the new
+output, use `--no-calibration-sensitivity`. Input report integrity is checked
+before any requested diagnostic changes.
 
 ### Reproducible reports
 

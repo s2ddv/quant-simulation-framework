@@ -92,8 +92,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="VaR confidence level (default: 0.95)")
     parser.add_argument("--no-plot", action="store_true",
                         help="skip the interactive chart")
-    parser.add_argument("--report", type=Path, default=Path("reports/simulation.json"),
-                        help="output JSON (default: reports/simulation.json)")
+    parser.add_argument("--report", type=Path,
+                        help="output run name (default: a free name under reports/)")
     parser.add_argument("--replay", type=Path,
                         help="replay a report offline; uses its data and simulation settings")
     parser.add_argument("--out-of-sample", action="store_true",
@@ -108,13 +108,30 @@ def build_parser() -> argparse.ArgumentParser:
                         default="fixed", help="historical calibration window (default: fixed)")
     parser.add_argument("--recalibration-frequency", type=positive_int, default=1,
                         help="refit every N forecast origins (default: 1)")
-    parser.add_argument("--calibration-sensitivity", action="store_true",
-                        help="add analytic parameter-sensitivity scenarios")
+    parser.add_argument("--calibration-sensitivity", action=argparse.BooleanOptionalAction,
+                        default=None,
+                        help="analytic parameter scenarios (enabled for new runs; replay keeps saved settings)")
+    parser.add_argument("--scenario-levels", type=int, choices=(3, 5, 7, 9, 100), default=100,
+                        help="levels per parameter: 9/25/49/81/10000 scenarios (default: 100)")
     parser.add_argument("--mu-delta", type=nonnegative_float, default=0.02,
                         help="absolute annual drift perturbation (default: 0.02)")
     parser.add_argument("--sigma-relative-delta", type=unit_interval, default=0.2,
                         help="relative volatility perturbation (default: 0.2)")
     return parser
+
+
+def default_report_path() -> Path:
+    """Choose a free implicit name without altering any previous run."""
+    preferred = Path("reports/simulation.json")
+    if not preferred.exists() and not preferred.with_suffix("").exists():
+        return preferred
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    candidate = preferred.with_name(f"simulation-{stamp}.json")
+    suffix = 1
+    while candidate.exists() or candidate.with_suffix("").exists():
+        candidate = preferred.with_name(f"simulation-{stamp}-{suffix}.json")
+        suffix += 1
+    return candidate
 
 
 def check_destination(report_path: Path) -> Path:
@@ -140,6 +157,27 @@ def format_simulation_summary(report, config, terminal_mean, terminal_std) -> st
              f"Desvio padrão dos preços finais:  {terminal_std}",
              "Validação analítica (estimativa, teoria e erros):",
              str(report["results"]["terminal"])]
+    if "calibration_sensitivity" in report:
+        sensitivity = report["calibration_sensitivity"]
+        scenarios = sensitivity["scenarios"]
+        lines.extend([
+            f"\nSensibilidade: {len(scenarios)} cenários de drift e volatilidade (GBM).",
+            "Valores na moeda do ativo; mu anual e sigma anualizada. * = cenário-base.",
+            "       mu      sigma       Média          P5         P50         P95         VaR",
+        ])
+        displayed = scenarios if len(scenarios) <= 81 else (scenarios[0], sensitivity["baseline"], scenarios[-1])
+        for row in displayed:
+            marker = "*" if row == sensitivity["baseline"] else " "
+            quantiles = row["quantiles"]
+            lines.append(
+                f"{marker} {row['mu']:9.2%} {row['sigma']:9.2%} "
+                f"{row['mean']:11.2f} {quantiles['0.05']:11.2f} "
+                f"{quantiles['0.5']:11.2f} {quantiles['0.95']:11.2f} {row['var']:11.2f}")
+        if len(scenarios) > 81:
+            lines.append("Tabela resumida: primeiro, base e último cenário; todos constam no JSON.")
+        lines.append("P5/P50/P95 são percentis condicionais de preços; cenários não são "
+                     "previsões garantidas nem intervalos de confiança. Grades mais densas "
+                     "podem manter os mesmos extremos.")
     if "out_of_sample" in report:
         evaluation = report["out_of_sample"]["evaluation"]
         metrics = evaluation["metrics"]
@@ -199,6 +237,8 @@ def publish_run(report, paths, config, report_path, no_plot):
 def main(argv: list[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.report is None:
+        args.report = default_report_path()
     check_destination(args.report)
     company = None
     if args.replay:
@@ -220,6 +260,8 @@ def main(argv: list[str] | None = None) -> None:
             sensitivity_config = {
                 "mu_delta": saved["calibration_sensitivity"]["configuration"]["mu_delta"],
                 "sigma_relative_delta": saved["calibration_sensitivity"]["configuration"]["sigma_relative_delta"]}
+            if "scenario_levels" in saved["calibration_sensitivity"]["configuration"]:
+                sensitivity_config["scenario_levels"] = saved["calibration_sensitivity"]["configuration"]["scenario_levels"]
         if args.out_of_sample:
             if args.calibration_observations is None:
                 parser.error("--out-of-sample requires --calibration-observations")
@@ -231,7 +273,10 @@ def main(argv: list[str] | None = None) -> None:
                 "recalibration_frequency": args.recalibration_frequency}
         if args.calibration_sensitivity:
             sensitivity_config = {"mu_delta": args.mu_delta,
-                                  "sigma_relative_delta": args.sigma_relative_delta}
+                                  "sigma_relative_delta": args.sigma_relative_delta,
+                                  "scenario_levels": args.scenario_levels}
+        elif args.calibration_sensitivity is False:
+            sensitivity_config = None
     else:
         if args.out_of_sample and args.calibration_observations is None:
             parser.error("--out-of-sample requires --calibration-observations")
@@ -247,8 +292,9 @@ def main(argv: list[str] | None = None) -> None:
                               "recalibration_frequency": args.recalibration_frequency}
                              if args.out_of_sample else None)
         sensitivity_config = ({"mu_delta": args.mu_delta,
-                               "sigma_relative_delta": args.sigma_relative_delta}
-                              if args.calibration_sensitivity else None)
+                               "sigma_relative_delta": args.sigma_relative_delta,
+                               "scenario_levels": args.scenario_levels}
+                              if args.calibration_sensitivity is not False else None)
         if args.ticker is None:
             while True:
                 try:
@@ -288,5 +334,13 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Figura: {destination / name}")
 
 
+def cli(argv: list[str] | None = None) -> None:
+    """Show expected operational errors without an internal traceback."""
+    try:
+        main(argv)
+    except (OSError, ValueError) as exc:
+        raise SystemExit(f"Erro: {exc}") from None
+
+
 if __name__ == "__main__":
-    main()
+    cli()

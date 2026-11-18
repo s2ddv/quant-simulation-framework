@@ -187,6 +187,8 @@ def read_report(path):
         sensitivity_config = {
             "mu_delta": saved_sensitivity["configuration"]["mu_delta"],
             "sigma_relative_delta": saved_sensitivity["configuration"]["sigma_relative_delta"]}
+        if "scenario_levels" in saved_sensitivity["configuration"]:
+            sensitivity_config["scenario_levels"] = saved_sensitivity["configuration"]["scenario_levels"]
     expected, _ = run_simulation(snapshot, config, historical_config,
                                  sensitivity_config)
     for key in ("last_price", "parameters", "conventions", "results", "convergence"):

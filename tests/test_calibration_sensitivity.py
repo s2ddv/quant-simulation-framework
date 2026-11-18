@@ -8,17 +8,19 @@ from scipy.stats import norm
 from validation.calibration_sensitivity import calibration_sensitivity
 
 
-def test_scenario_grid_matches_independent_normal_reference():
+@pytest.mark.parametrize("levels", [3, 5, 7, 9])
+def test_scenario_grid_matches_independent_normal_reference(levels):
     result = calibration_sensitivity(123.0, -0.03, 0.28, 1.75, alpha=0.975,
-                                     mu_delta=0.04, sigma_relative_delta=0.25)
-    assert len(result["scenarios"]) == 9
-    assert result["baseline"] == result["scenarios"][4]
+                                     mu_delta=0.04, sigma_relative_delta=0.25,
+                                     scenario_levels=levels)
+    assert len(result["scenarios"]) == levels ** 2
+    assert result["baseline"] == result["scenarios"][levels ** 2 // 2]
     assert result["baseline"]["mu"] == -0.03
     assert result["baseline"]["sigma"] == 0.28
     assert sorted({row["mu"] for row in result["scenarios"]}) == pytest.approx(
-        [-0.07, -0.03, 0.01])
+        np.linspace(-0.07, 0.01, levels))
     assert sorted({row["sigma"] for row in result["scenarios"]}) == pytest.approx(
-        [0.21, 0.28, 0.35])
+        np.linspace(0.21, 0.35, levels))
     for row in result["scenarios"]:
         location = (row["mu"] - row["sigma"] ** 2 / 2) * 1.75
         scale = row["sigma"] * math.sqrt(1.75)
@@ -31,6 +33,75 @@ def test_scenario_grid_matches_independent_normal_reference():
         assert row["lower_quantile"] == pytest.approx(oracle_lower, rel=2e-14)
         assert row["var"] == pytest.approx(123.0 - oracle_lower, abs=2e-12)
     assert json.loads(json.dumps(result, allow_nan=False)) == result
+
+
+@pytest.mark.parametrize("levels", [5, 7, 9])
+def test_expanded_grid_contains_legacy_rows_and_preserves_exact_center(levels):
+    arguments = dict(s0=123, mu=-0.03, sigma=0.28, horizon=1.75,
+                     mu_delta=0.04, sigma_relative_delta=0.25)
+    legacy = calibration_sensitivity(**arguments)
+    result = calibration_sensitivity(**arguments, scenario_levels=levels)
+    assert result["baseline"] == legacy["baseline"]
+    assert all(row in result["scenarios"] for row in legacy["scenarios"])
+    assert result["configuration"]["scenario_levels"] == levels
+    assert f"over {levels ** 2} scenarios" in result["assumptions"][2]
+    for metric in ("mean", "var"):
+        values = [row[metric] for row in result["scenarios"]]
+        assert result["ranges"][metric] == {"min": min(values), "max": max(values)}
+    for p in ("0.05", "0.5", "0.95"):
+        values = [row["quantiles"][p] for row in result["scenarios"]]
+        assert result["ranges"]["quantiles"][p] == {"min": min(values), "max": max(values)}
+
+
+def test_ten_thousand_parameter_scenarios_have_distinct_pairs_and_baseline():
+    result = calibration_sensitivity(100, 0.08, 0.2, 1, scenario_levels=100)
+    rows = result["scenarios"]
+    assert len(rows) == 10_000
+    assert len({(row["mu"], row["sigma"]) for row in rows}) == 10_000
+    assert result["baseline"] == rows[4949]
+    assert result["baseline"]["mu"] == 0.08
+    assert result["baseline"]["sigma"] == 0.2
+    assert rows[0]["mu_shift"] == -0.02
+    assert rows[-1]["mu_shift"] == 0.02
+    assert rows[0]["sigma_multiplier"] == pytest.approx(0.8)
+    assert rows[-1]["sigma_multiplier"] == pytest.approx(1.2)
+
+
+def test_three_levels_preserves_entire_legacy_dictionary():
+    # Frozen schema and exact degenerate metrics: independent of libm rounding.
+    scenarios = [
+        {"mu_shift": shift, "sigma_multiplier": multiplier,
+         "mu": 0.1 + shift, "sigma": 0.2 * multiplier, "mean": 100.0,
+         "quantiles": {"0.05": 100.0, "0.5": 100.0, "0.95": 100.0},
+         "lower_quantile": 100.0, "var": 0.0}
+        for shift in (-0.02, 0.0, 0.02)
+        for multiplier in (0.8, 1.0, 1.2)
+    ]
+    expected = {
+        "method": "analytic_gbm_parameter_scenario_grid",
+        "assumptions": [
+            "Constant-parameter normal GBM in each scenario; historical price drift is not risk-neutral drift.",
+            "Drift shifts and volatility multipliers are user-selected sensitivity hypotheses, not statistically estimated uncertainty bounds.",
+            "Ranges are minima/maxima over nine scenarios, not confidence intervals or guaranteed future price ranges.",
+            "Conditional terminal quantiles describe the price distribution within each scenario.",
+            "No Monte Carlo sampling is used; Monte Carlo error and the confidence interval of a simulated mean are separate quantities.",
+            "The grid does not estimate parameter covariance, regime changes, or model error; zero fitted volatility stays zero under relative shocks.",
+        ],
+        "units": {"s0": "asset_price_currency", "mu": "year^-1",
+                  "sigma": "year^-1/2", "horizon": "years",
+                  "mu_delta": "year^-1", "sigma_relative_delta": "fraction",
+                  "mean_quantiles_var": "asset_price_currency"},
+        "configuration": {"s0": 100.0, "mu": 0.1, "sigma": 0.2,
+                          "horizon": 0.0, "alpha": 0.95, "mu_delta": 0.02,
+                          "sigma_relative_delta": 0.2},
+        "baseline": scenarios[4], "scenarios": scenarios,
+        "ranges": {"mean": {"min": 100.0, "max": 100.0},
+                   "var": {"min": 0.0, "max": 0.0},
+                   "quantiles": {p: {"min": 100.0, "max": 100.0}
+                                 for p in ("0.05", "0.5", "0.95")}},
+    }
+    assert calibration_sensitivity(100, 0.1, 0.2, 0) == expected
+    assert calibration_sensitivity(100, 0.1, 0.2, 0, scenario_levels=3) == expected
 
 
 def test_drift_monotonicity_and_volatility_mean_invariance():
@@ -55,8 +126,9 @@ def test_drift_monotonicity_and_volatility_mean_invariance():
 
 
 @pytest.mark.parametrize("sigma,horizon", [(0, 1), (0.2, 0)])
-def test_point_mass_and_negative_var(sigma, horizon):
-    result = calibration_sensitivity(100, 0.1, sigma, horizon)
+@pytest.mark.parametrize("levels", [3, 5, 7, 9])
+def test_point_mass_and_negative_var(sigma, horizon, levels):
+    result = calibration_sensitivity(100, 0.1, sigma, horizon, scenario_levels=levels)
     for row in result["scenarios"]:
         expected = 100 * math.exp(row["mu"] * horizon)
         assert row["mean"] == pytest.approx(expected)
@@ -65,13 +137,23 @@ def test_point_mass_and_negative_var(sigma, horizon):
         assert row["var"] <= 0
 
 
-def test_zero_spreads_and_maximum_volatility_spread():
+@pytest.mark.parametrize("levels", [3, 5, 7, 9])
+def test_zero_spreads_and_maximum_volatility_spread(levels):
     fixed = calibration_sensitivity(100, 0.05, 0.2, 1, mu_delta=0,
-                                    sigma_relative_delta=0)
+                                    sigma_relative_delta=0, scenario_levels=levels)
+    assert len(fixed["scenarios"]) == levels ** 2
     assert all(row == fixed["baseline"] for row in fixed["scenarios"])
-    extreme = calibration_sensitivity(100, 0.05, 0.2, 1, sigma_relative_delta=1)
+    extreme = calibration_sensitivity(100, 0.05, 0.2, 1, sigma_relative_delta=1,
+                                      scenario_levels=levels)
     assert extreme["scenarios"][0]["sigma"] == 0
-    assert extreme["scenarios"][2]["sigma"] == 0.4
+    assert extreme["scenarios"][levels - 1]["sigma"] == 0.4
+
+
+@pytest.mark.parametrize("levels", [None, True, False, 0, 1, 2, 4, 6, 8, 10,
+                                  -3, 3.0, "5", float("nan"), [5], np.int64(5)])
+def test_rejects_invalid_scenario_levels(levels):
+    with pytest.raises(ValueError, match="scenario_levels"):
+        calibration_sensitivity(100, 0.1, 0.2, 1, scenario_levels=levels)
 
 
 @pytest.mark.parametrize("name,value", [

@@ -56,30 +56,39 @@ def _terminal_metrics(s0, mu, sigma, horizon, alpha):
 
 
 def calibration_sensitivity(s0, mu, sigma, horizon, alpha=0.95,
-                            mu_delta=0.02, sigma_relative_delta=0.2):
-    """Return JSON-compatible analytic terminal metrics for a 3-by-3 grid.
+                            mu_delta=0.02, sigma_relative_delta=0.2,
+                            scenario_levels=3):
+    """Return JSON-compatible analytic terminal metrics for a bounded grid.
 
     Parameters are fitted historical price drift ``mu`` (year^-1), volatility
     ``sigma`` (year^-1/2), initial price ``s0`` (asset currency), and ``horizon``
     (years). ``mu_delta`` is an absolute annual drift shift; e.g. 0.02 means
     two percentage points. ``sigma_relative_delta`` is a fraction in [0, 1].
-    The grid crosses mu + {-mu_delta, 0, mu_delta} with
-    sigma * {1-sigma_relative_delta, 1, 1+sigma_relative_delta}.
+    ``scenario_levels`` is an integer in {3, 5, 7, 9, 100}, excluding bool. The
+    grid crosses drift shifts in [-mu_delta, mu_delta]
+    with volatility multipliers in [1-sigma_relative_delta,
+    1+sigma_relative_delta], including the exact unperturbed center. At 100
+    levels, spacing differs slightly on either side to retain both endpoints
+    and the exact baseline.
+    The default 3-by-3 output preserves the legacy report schema and values.
 
     For each constant-parameter GBM, E[S_T] = s0*exp(mu*T) and
     Q_p = s0*exp((mu-sigma^2/2)*T + sigma*sqrt(T)*Phi^-1(p)).
     VaR_alpha = s0-Q_(1-alpha), retaining negative VaR (gains). Quantiles
     describe individual terminal prices conditional on a scenario. Ranges
-    are extrema over these nine hypotheses, not confidence intervals for
+    are extrema over these hypotheses, not confidence intervals for
     parameters, future prices, or a simulated mean. Spreads are not fitted
     to history and do not estimate joint parameter uncertainty or model error.
 
     Zero spreads, zero sigma, or zero horizon can produce duplicate scenarios;
-    all nine rows remain present. With sigma=0 the relative volatility shock
+    all scenario_levels**2 rows remain present. With sigma=0 the volatility shock
     remains zero. Finite real scalars only; s0>0, sigma/horizon/mu_delta>=0,
     0<alpha<1. Unrepresentable positive prices raise ValueError rather than
-    silently returning zero or infinity. Memory is constant (nine small rows).
+    silently returning zero or infinity. Memory is O(scenario_levels**2),
+    bounded by 10,000 scalar records; no simulation matrices are allocated.
     """
+    if type(scenario_levels) is not int or scenario_levels not in (3, 5, 7, 9, 100):
+        raise ValueError("scenario_levels must be an integer in {3, 5, 7, 9, 100}")
     s0 = _finite_real("s0", s0)
     mu = _finite_real("mu", mu)
     sigma = _finite_real("sigma", sigma)
@@ -94,9 +103,27 @@ def calibration_sensitivity(s0, mu, sigma, horizon, alpha=0.95,
     if not 0 <= sigma_relative_delta <= 1:
         raise ValueError("sigma_relative_delta must be between 0 and 1")
 
+    # Keep the legacy operations (including signed zero) for exact replay.
+    if scenario_levels == 3:
+        shifts = (-mu_delta, 0.0, mu_delta)
+        multipliers = (1 - sigma_relative_delta, 1.0, 1 + sigma_relative_delta)
+    elif scenario_levels == 100:
+        # An even grid needs unequal counts either side of its exact baseline.
+        offsets = [index / 49 for index in range(-49, 0)]
+        offsets += [index / 50 for index in range(0, 51)]
+        shifts = [mu_delta * offset for offset in offsets]
+        multipliers = [1 + sigma_relative_delta * offset for offset in offsets]
+        shifts[49], multipliers[49] = 0.0, 1.0
+    else:
+        half = scenario_levels // 2
+        offsets = [index / half for index in range(-half, half + 1)]
+        shifts = [mu_delta * offset for offset in offsets]
+        multipliers = [1 + sigma_relative_delta * offset for offset in offsets]
+        shifts[half], multipliers[half] = 0.0, 1.0
+
     scenarios = []
-    for shift in (-mu_delta, 0.0, mu_delta):
-        for multiplier in (1 - sigma_relative_delta, 1.0, 1 + sigma_relative_delta):
+    for shift in shifts:
+        for multiplier in multipliers:
             scenario_mu = _finite_real("scenario mu", mu + shift)
             scenario_sigma = _finite_real("scenario sigma", sigma * multiplier)
             scenarios.append({
@@ -108,12 +135,19 @@ def calibration_sensitivity(s0, mu, sigma, horizon, alpha=0.95,
     def limits(values):
         return {"min": min(values), "max": max(values)}
 
+    configuration = {"s0": s0, "mu": mu, "sigma": sigma,
+                     "horizon": horizon, "alpha": alpha,
+                     "mu_delta": mu_delta,
+                     "sigma_relative_delta": sigma_relative_delta}
+    if scenario_levels != 3:
+        configuration["scenario_levels"] = scenario_levels
+    scenario_count = "nine" if scenario_levels == 3 else str(scenario_levels ** 2)
     return {
         "method": "analytic_gbm_parameter_scenario_grid",
         "assumptions": [
             "Constant-parameter normal GBM in each scenario; historical price drift is not risk-neutral drift.",
             "Drift shifts and volatility multipliers are user-selected sensitivity hypotheses, not statistically estimated uncertainty bounds.",
-            "Ranges are minima/maxima over nine scenarios, not confidence intervals or guaranteed future price ranges.",
+            f"Ranges are minima/maxima over {scenario_count} scenarios, not confidence intervals or guaranteed future price ranges.",
             "Conditional terminal quantiles describe the price distribution within each scenario.",
             "No Monte Carlo sampling is used; Monte Carlo error and the confidence interval of a simulated mean are separate quantities.",
             "The grid does not estimate parameter covariance, regime changes, or model error; zero fitted volatility stays zero under relative shocks.",
@@ -122,11 +156,9 @@ def calibration_sensitivity(s0, mu, sigma, horizon, alpha=0.95,
                   "sigma": "year^-1/2", "horizon": "years",
                   "mu_delta": "year^-1", "sigma_relative_delta": "fraction",
                   "mean_quantiles_var": "asset_price_currency"},
-        "configuration": {"s0": s0, "mu": mu, "sigma": sigma,
-                          "horizon": horizon, "alpha": alpha,
-                          "mu_delta": mu_delta,
-                          "sigma_relative_delta": sigma_relative_delta},
-        "baseline": scenarios[4],
+        "configuration": configuration,
+        "baseline": scenarios[(49 if scenario_levels == 100 else scenario_levels // 2)
+                              * (scenario_levels + 1)],
         "scenarios": scenarios,
         "ranges": {
             "mean": limits([row["mean"] for row in scenarios]),
