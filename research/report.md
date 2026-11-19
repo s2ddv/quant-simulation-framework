@@ -42,11 +42,53 @@ implied volatility. This diagnostic does not quantify calibration uncertainty,
 model error or future coverage. The existing convergence chart instead measures
 Monte Carlo sample error under fixed parameters.
 
+### Moving calibration windows
+
+`--calibration-mode fixed` (default) fits the first `n` closes once.
+`rolling` refits on the most recent `n` closes available at each
+recalibration origin; `expanding` refits on every close from the start through
+that origin. `--recalibration-frequency k` refits every `k` forecast origins
+and reuses the latest fit in between. No fit sees a close after its origin.
+Moving modes record per-forecast parameters and calibration dates, which make
+question 1 below measurable without new code.
+
+### Calibration sensitivity
+
+`--calibration-sensitivity` evaluates the closed-form GBM mean, quantiles and
+VaR on a symmetric grid of drift shifts (`--mu-delta`, year⁻¹) and relative
+volatility multipliers (`--sigma-relative-delta`). It uses no random draws.
+Ranges over the chosen scenarios are not confidence intervals: they exclude
+parameter sampling uncertainty, Monte Carlo error and model error.
+
+## Volatility forecasting experiment
+
+`src/forecasting/` (`python -m forecasting`) is separate from GBM calibration.
+It forecasts the next session's second moment of the log return,
+assuming zero conditional mean, and compares on shared origins:
+
+- historical: trailing mean of squared returns over a window in
+  `historical_windows`;
+- EWMA: `v_t = lambda*v_{t-1} + (1-lambda)*r_t²`, `lambda` in `ewma_factors`;
+- ML: nonnegative least squares of `r_{t+1}²` on trailing means over 1, 5 and
+  22 sessions plus a nonnegative intercept, refit on an expanding sample every
+  `refit_frequency` origins.
+
+Periods are chronological: train, validation (selects the historical window
+and EWMA factor by minimum MSE) and a reserved final test where all choices
+are frozen. Risk diagnostics assume `r_next ~ Normal(0, v)`, giving
+`q = S_origin*exp(sqrt(v)*Phi⁻¹(1-alpha))` and `VaR = S_origin - q` in price
+currency. Metrics: MSE (log-return⁴), MAE (log-return²), price pinball loss,
+strict violation count and rate with a 95% Wilson interval. The squared return
+is a noisy proxy for latent variance, so low MSE differences may not be
+meaningful; no model superiority is claimed here.
+
 ## Questions for future research
 
 1. How stable are drift and volatility across calibration windows?
 2. How well do predicted terminal quantiles and VaR cover held-out outcomes?
 3. How sensitive are tail estimates to simulation count and model assumptions?
+4. Does EWMA or NNLS improve out-of-sample one-session VaR coverage over a
+   trailing historical window, beyond the noise of the squared-return proxy?
 
 ## Evidence needed
 
