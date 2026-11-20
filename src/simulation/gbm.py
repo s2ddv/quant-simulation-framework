@@ -64,7 +64,8 @@ class GbmSimulator(BaseStochasticSimulator):
             raise ValueError("t fit returned invalid degrees of freedom")
         self.mu, self.sigma, self.calibrated_df = mu, sigma, float(df)
 
-    def generate_paths(self, dist_type: DistributionType = "normal") -> np.ndarray:
+    def generate_paths(self, dist_type: DistributionType = "normal", *,
+                       antithetic: bool = False) -> np.ndarray:
         """Return ``(steps + 1, n_sims)`` positive prices.
 
         The output holds the working shocks and cumulative log returns in
@@ -73,9 +74,25 @@ class GbmSimulator(BaseStochasticSimulator):
         Unrepresentable increments or prices raise ``ValueError``. In t
         mode ``mu`` controls the log-return location through the normal-mode
         convention; it is not a finite expected-price growth rate.
+
+        ``antithetic=True`` (normal mode only; off by default) requires an
+        even ``n_sims = 2*m`` and raises ``ValueError`` otherwise. Columns
+        ``0..m-1`` use a ``(steps, m)`` normal shock matrix ``Z`` and columns
+        ``m..2m-1`` use ``-Z``, so column ``i`` and ``i + m`` form a pair.
+        Each column is still an exact GBM path, but the columns are not
+        independent: use ``simulation.variance_reduction`` for pair-based
+        standard errors. A temporary ``(steps, m)`` shock array is used.
+        With the same seed, antithetic output is not a column subset of
+        the default output; the default output is unchanged.
         """
         if dist_type not in ("normal", "t_student"):
             raise ValueError("dist_type must be 'normal' or 't_student'")
+        if not isinstance(antithetic, bool):
+            raise ValueError("antithetic must be a bool")
+        if antithetic and dist_type != "normal":
+            raise ValueError("antithetic sampling is only available for normal GBM")
+        if antithetic and self.n_sims % 2:
+            raise ValueError("antithetic sampling requires an even n_sims")
         if self.mu is None or self.sigma is None:
             raise ValueError("calibrate or supply mu and sigma before generating paths")
         if (dist_type == "t_student" and
@@ -107,12 +124,22 @@ class GbmSimulator(BaseStochasticSimulator):
 
         # NumPy's t sampler returns a separate full shock matrix; the normal
         # sampler writes directly into the output. Check before either allocates.
-        self._check_memory(temporary_arrays=int(dist_type == "t_student"))
+        # The antithetic half-width shock matrix is counted as one full
+        # temporary (conservative: it is half the increment matrix).
+        self._check_memory(temporary_arrays=int(dist_type == "t_student" or antithetic))
 
         paths = np.empty((self.steps + 1, self.n_sims), dtype=np.float64)
         paths[0].fill(self.s0)
         increments = paths[1:]
-        if dist_type == "normal":
+        if antithetic:
+            # Strided column halves cannot be RNG ``out`` targets; draw into a
+            # contiguous temporary, then copy Z and write -Z in place.
+            half = self.n_sims // 2
+            shocks = self.rng.standard_normal(size=(self.steps, half))
+            increments[:, :half] = shocks
+            np.negative(shocks, out=increments[:, half:])
+            del shocks
+        elif dist_type == "normal":
             self.rng.standard_normal(size=increments.shape, out=increments)
         else:
             df = self.calibrated_df
@@ -142,7 +169,8 @@ class GbmSimulator(BaseStochasticSimulator):
         return paths
 
     def generate_terminal(self, *, batch_size: int = 10_000,
-                          max_working_bytes: int = 256 * 1024 * 1024) -> np.ndarray:
+                          max_working_bytes: int = 256 * 1024 * 1024,
+                          antithetic: bool = False) -> np.ndarray:
         """Return normal GBM terminal prices as a ``float64 (n_sims,)`` array.
 
         Draw one independent standard normal Z per simulation and evaluate
@@ -163,11 +191,22 @@ class GbmSimulator(BaseStochasticSimulator):
         No elementwise identity is promised with full paths, other sampling
         formats or other NumPy versions. Prices outside finite positive
         float64 precision raise ValueError, including underflow to zero.
+
+        ``antithetic=True`` (off by default) requires an even
+        ``n_sims = 2*m`` and raises ``ValueError`` otherwise. Elements
+        ``0..m-1`` use ``Z`` and elements ``m..2m-1`` use ``-Z``; batches
+        cover pairs, ``batch_size`` pairs at a time, with no extra memory.
+        Pairs are dependent: use ``simulation.variance_reduction`` for the
+        mean's standard error and confidence interval.
         """
         for name, value in (("batch_size", batch_size),
                             ("max_working_bytes", max_working_bytes)):
             if isinstance(value, bool) or not isinstance(value, Integral) or value <= 0:
                 raise ValueError(f"{name} must be a positive integer")
+        if not isinstance(antithetic, bool):
+            raise ValueError("antithetic must be a bool")
+        if antithetic and self.n_sims % 2:
+            raise ValueError("antithetic sampling requires an even n_sims")
         if self.mu is None or self.sigma is None:
             raise ValueError("calibrate or supply mu and sigma before generating terminal prices")
         required = 8 * self.n_sims
@@ -189,9 +228,26 @@ class GbmSimulator(BaseStochasticSimulator):
         terminal = np.empty(self.n_sims, dtype=np.float64)
         log_max = np.log(np.finfo(np.float64).max)
         log_tiny = np.log(np.finfo(np.float64).tiny)
+        if antithetic:
+            half = self.n_sims // 2
+            for start in range(0, half, int(batch_size)):
+                stop = min(start + int(batch_size), half)
+                batch, mirror = terminal[start:stop], terminal[half + start:half + stop]
+                self.rng.standard_normal(size=batch.shape, out=batch)
+                np.negative(batch, out=mirror)
+                self._terminal_transform((batch, mirror), scale, drift,
+                                         log_max, log_tiny)
+            return terminal
         for start in range(0, self.n_sims, int(batch_size)):
             batch = terminal[start:start + int(batch_size)]
             self.rng.standard_normal(size=batch.shape, out=batch)
+            self._terminal_transform((batch,), scale, drift, log_max, log_tiny)
+        return terminal
+
+    def _terminal_transform(self, batches, scale: float, drift: float,
+                            log_max: float, log_tiny: float) -> None:
+        """Map standard normal shocks to terminal prices in place."""
+        for batch in batches:
             with np.errstate(over="ignore", invalid="ignore", under="ignore"):
                 np.multiply(batch, scale, out=batch)
                 batch += drift
@@ -205,20 +261,24 @@ class GbmSimulator(BaseStochasticSimulator):
             low, high = np.min(batch), np.max(batch)
             if not np.isfinite(low) or not np.isfinite(high) or low <= 0:
                 raise ValueError("terminal prices exceed finite positive precision")
-        return terminal
 
 
 def simulate_gbm(s0: float, mu: float, sigma: float, horizon: float,
-                 steps: int, n_sims: int, seed: int | None = None) -> np.ndarray:
-    """Compatibility entry point for the existing normal GBM pipeline."""
+                 steps: int, n_sims: int, seed: int | None = None, *,
+                 antithetic: bool = False) -> np.ndarray:
+    """Compatibility entry point for the existing normal GBM pipeline.
+
+    ``antithetic`` is off by default; see ``GbmSimulator.generate_paths``.
+    """
     return GbmSimulator(s0, horizon, steps, n_sims, seed, mu=mu,
-                        sigma=sigma).generate_paths()
+                        sigma=sigma).generate_paths(antithetic=antithetic)
 
 
 def simulate_terminal_batched(s0: float, mu: float, sigma: float, horizon: float,
                               n_sims: int, seed: int | None = None, *,
                               batch_size: int = 10_000,
-                              max_working_bytes: int = 256 * 1024 * 1024) -> np.ndarray:
+                              max_working_bytes: int = 256 * 1024 * 1024,
+                              antithetic: bool = False) -> np.ndarray:
     """Sample exact normal GBM terminal prices with a local seeded RNG.
 
     See ``GbmSimulator.generate_terminal`` for units, memory accounting and
@@ -227,5 +287,6 @@ def simulate_terminal_batched(s0: float, mu: float, sigma: float, horizon: float
     those additional arrays are outside this function's memory budget.
     """
     return GbmSimulator(s0, horizon, 1, n_sims, seed, mu=mu, sigma=sigma).generate_terminal(
-        batch_size=batch_size, max_working_bytes=max_working_bytes
+        batch_size=batch_size, max_working_bytes=max_working_bytes,
+        antithetic=antithetic,
     )
