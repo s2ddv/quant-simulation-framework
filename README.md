@@ -692,7 +692,13 @@ is after the snapshot's last close, not necessarily after today's date. See
 pip install -e ".[dev]"
 python -m pytest -q
 PYTHONPATH=src python -m unittest discover -s tests -p 'test_statistics.py' -v
+python -m ruff check
+python -m mypy
 ```
+
+CI runs ruff (`E`, `F`, `B`, `UP`) and non-strict mypy configured in
+`pyproject.toml`. Known lint debt: no formatter or import sorting is enforced
+(`ruff format`/`I` would rewrite most files), pandas/SciPy are untyped (`Any`).
 
 The pytest suite runs offline using dated synthetic historical inputs. It checks
 analytical formulas against SciPy's lognormal distribution, explicit sample

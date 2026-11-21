@@ -9,6 +9,27 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # Static checks run once: ruff output does not depend on the interpreter and
+  # mypy checks against python_version = "3.10" (pyproject.toml) on any runner.
+  # `ruff format --check` is not enforced yet (40 of 56 files would change).
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Ruff
+        run: python -m ruff check --output-format=github
+      - name: Mypy
+        run: python -m mypy
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15

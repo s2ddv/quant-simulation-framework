@@ -323,7 +323,7 @@ def test_future_prices_cannot_change_any_available_forecast(mode, frequency):
                          "predicted_mean", "predicted_median", "lower_quantile", "var"]
     if mode != "fixed":
         prediction_fields += ["calibration", "calibration_reused"]
-    for index, row in enumerate(baseline["evaluation"]["rows"]):
+    for index, _row in enumerate(baseline["evaluation"]["rows"]):
         origin = 3 + 2 * index
         changed = prices.copy()
         changed.iloc[origin + 1:] *= np.linspace(0.7, 1.5, len(prices) - origin - 1)

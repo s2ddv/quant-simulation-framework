@@ -37,7 +37,7 @@ def test_same_seed_reproduces_paths():
 def test_base_cannot_be_instantiated_and_validates_dimensions():
     try:
         BaseStochasticSimulator(100, 1, 4, 5)
-        assert False, "abstract class should not instantiate"
+        raise AssertionError("abstract class should not instantiate")
     except TypeError:
         pass
     with raises_value_error():

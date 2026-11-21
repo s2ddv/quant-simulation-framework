@@ -85,9 +85,11 @@ def summarize(rows):
     columns, labels = [], []
     for a, b in PAIRS:
         for metric in ('mse', 'mae', 'quantile_loss'):
+            # losses() is called immediately below, so late binding of
+            # `metric` is safe; the closure never outlives this iteration.
             def losses(model):
                 error = np.array([r['models'][model]['daily_variance'] - r['realized_squared_return'] for r in rows])
-                return error**2 if metric == 'mse' else np.abs(error) if metric == 'mae' else np.array([r['models'][model]['quantile_loss'] for r in rows])
+                return error**2 if metric == 'mse' else np.abs(error) if metric == 'mae' else np.array([r['models'][model]['quantile_loss'] for r in rows])  # noqa: B023
             columns.append(losses(a) - losses(b))
             labels.append(f'{a}-{b}:{metric}')
     for model in MODELS:

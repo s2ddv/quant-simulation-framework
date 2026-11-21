@@ -17,7 +17,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest"]
+# Linters are pinned so new upstream rules cannot break CI without a review.
+dev = ["pytest", "ruff==0.17.6", "mypy==2.4.1"]
 notebooks = ["jupyterlab"]
 
 [tool.setuptools.packages.find]
@@ -26,3 +27,44 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+# Project packages live in src/ and are imported as top-level names.
+src = ["src", "."]
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+# "I" (isort) is not selected yet: enabling it reorders/rewraps imports in
+# 34 files, a mass style change left for a dedicated commit.
+select = ["E", "F", "B", "UP"]
+ignore = [
+    # The code is not ruff-formatted (no formatter adopted yet); line length
+    # is an author style choice and would flag ~300 lines without value.
+    "E501",
+    # Compact `a; b` statements are used deliberately in a few dense helpers.
+    "E702",
+    # zip(strict=True) would change runtime behaviour (raise on length
+    # mismatch) and strict=False only restates the default; revisit per call.
+    "B905",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The script inserts src/ into sys.path before importing project modules.
+"research/reproduce_daily.py" = ["E402"]
+
+[tool.mypy]
+# Non-strict on purpose: bodies of unannotated functions are not checked
+# (check_untyped_defs would report ~54 issues, mostly in tests).
+python_version = "3.10"
+mypy_path = "src"
+files = ["src", "main.py", "research", "tests"]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+# Third-party libraries without bundled type information. Stub packages
+# (pandas-stubs, scipy-stubs) are not installed, so these resolve to Any.
+module = ["pandas.*", "scipy.*", "yfinance.*"]
+ignore_missing_imports = true

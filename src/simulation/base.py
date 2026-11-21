@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from numbers import Integral, Real
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -32,12 +33,12 @@ class BaseStochasticSimulator(ABC):
                                  or not isinstance(seed, Integral) or seed < 0):
             raise ValueError("seed must be a nonnegative integer or None")
 
-        self.s0 = float(s0)
-        self.horizon = float(horizon)
-        self.steps = int(steps)
-        self.n_sims = int(n_sims)
-        self.seed = None if seed is None else int(seed)
-        self.dt = self.horizon / self.steps
+        self.s0: float = float(s0)
+        self.horizon: float = float(horizon)
+        self.steps: int = int(steps)
+        self.n_sims: int = int(n_sims)
+        self.seed: int | None = None if seed is None else int(seed)
+        self.dt: float = self.horizon / self.steps
         if not np.isfinite(self.dt) or self.dt <= 0:
             raise ValueError("horizon / steps must be finite and positive")
         self.rng: np.random.Generator = np.random.default_rng(self.seed)
@@ -63,5 +64,5 @@ class BaseStochasticSimulator(ABC):
         """Estimate model parameters from chronological historical prices."""
 
     @abstractmethod
-    def generate_paths(self, *args: object, **kwargs: object) -> np.ndarray:
+    def generate_paths(self, *args: Any, **kwargs: Any) -> np.ndarray:
         """Generate price paths, including the initial price in row zero."""

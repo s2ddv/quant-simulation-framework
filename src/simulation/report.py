@@ -169,7 +169,7 @@ def read_report(path):
     if report["schema_version"] != 1 or report["model"] != "single_asset_gbm":
         raise ValueError("Unsupported report schema/model.")
     snapshot = report["historical_data"]
-    prices = prices_from_snapshot(snapshot)
+    prices_from_snapshot(snapshot)  # Validates the saved snapshot; value unused.
     config = SimulationConfig(**report["simulation"])
     historical_config = None
     if "out_of_sample" in report:
