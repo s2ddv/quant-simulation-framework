@@ -86,6 +86,8 @@ def event_block(frame, key, x):
         if y.size >= 100: e["obs_over_exp_ci"] = ratio_ci(y, p)
         if m != "gaussian" and y.size >= 100:
             e["brier_minus_gaussian"], e["brier_diff_ci"] = diff_ci(p, frame[f"gaussian_{key}"].to_numpy(), y)
+        if m == "garch_t" and y.size >= 100:       # direct pairwise test: no superiority is assumed
+            e["brier_minus_student_t"], e["brier_diff_vs_t_ci"] = diff_ci(p, frame[f"student_t_{key}"].to_numpy(), y)
         ev["models"][m] = e
     return ev
 
@@ -149,8 +151,9 @@ for tag, blk in hist.items():
 for k, ev in res["events"].items():
     print(k, "obs", ev["observed"], "/", ev["n"], f(ev["freq"]), [f(c) for c in ev["ci_n_over_5"]])
     for m, v in ev["models"].items():
-        print("   %-9s pred %s O/E %s %s brier %.6f diff %s" % (m, f(v["mean_pred"]), None if v["obs_over_exp"] is None else round(v["obs_over_exp"], 2),
-              np.round(v.get("obs_over_exp_ci", [np.nan, np.nan]), 2), v["brier"], np.round(v.get("brier_diff_ci", [np.nan, np.nan]), 5)))
+        print("   %-9s pred %s O/E %s %s brier %.6f diff-vs-gauss CI %s%s" % (m, f(v["mean_pred"]), None if v["obs_over_exp"] is None else round(v["obs_over_exp"], 2),
+              np.round(v.get("obs_over_exp_ci", [np.nan, np.nan]), 2), v["brier"], np.round(v.get("brier_diff_ci", [np.nan, np.nan]), 5),
+              (" | garch-vs-t CI %s" % np.round(v["brier_diff_vs_t_ci"], 5)) if "brier_diff_vs_t_ci" in v else ""))
 for tag, b in res["var_es"].items():
     print("VaR/ES", tag)
     for m, v in b.items():

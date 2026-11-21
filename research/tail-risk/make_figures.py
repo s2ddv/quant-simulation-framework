@@ -21,7 +21,8 @@ met = json.load(open(f"{BT}/metrics.json"))
 fc = pd.read_csv(f"{BT}/forecasts.csv", index_col=0, parse_dates=True)
 val = json.load(open("research/tail-risk/validation_results.json"))
 d = meta["data"]; per = f"{met['period'][0]} to {met['period'][1]}"
-src = (f"Data: {d['ticker']} {d['price_field']} daily ({d['source']}, snapshot sha256 {d['sha256'][:10]}…, "
+FIELD = "close, price index (no dividends)" if d["ticker"].startswith("^") else d["price_field"].replace("_", " ")
+src = (f"Data: {d['ticker']} {FIELD} daily ({d['source']}, snapshot sha256 {d['sha256'][:10]}…, "
        f"{d['first_date'][:10]}–{d['last_date'][:10]}). 5-trading-day simple returns.")
 
 def cap(fig, text):
@@ -140,9 +141,11 @@ for m in COL:
 ax.axhline(0, color="#444", lw=.6)
 ax.set_ylabel("5-day loss (% of price)"); ax.set_ylim(-10, 20)
 ax.set_title("Out-of-sample VaR 99% vs. realized 5-day losses (shaded = ex-post crisis windows)", loc="left", fontweight="bold")
-ax.legend(frameon=False, fontsize=8, ncol=2, loc="upper left")
+ax.legend(frameon=False, fontsize=8, ncol=4, loc="upper center", bbox_to_anchor=(0.5, -0.09))
 cap(fig, f"HISTORICAL realized losses vs OUT-OF-SAMPLE forecasts, origins {per}. Shaded bands are ex-post calendar labels (peak-to-trough dates) used only for reading the chart. "
-         f"A loss above a VaR line is a violation of that model (expected 1% of windows). Windows overlap: neighbouring points are not independent. {src}")
+         f"A loss above a VaR line is a violation of that model (expected 1% of windows). Windows overlap: neighbouring points are not independent. "
+         f"The y-axis is clipped at 20%: GARCH-t VaR exceeds it in Oct–Nov 2008 and Mar 2020. {src}")
+fig.subplots_adjust(bottom=0.32)
 fig.savefig(f"{OUT}/fig5_var99_timeline.png", dpi=200); plt.close(fig)
 
 # ---------- Fig 6: regimes ----------
@@ -157,7 +160,7 @@ if met.get("regimes"):
     ob = [R[k]["events"]["p5"] for k, _ in groups]
     ax.errorbar(x + .3, [o["freq"] for o in ob], yerr=[[o["freq"] - o["ci_n_over_5"][0] for o in ob], [o["ci_n_over_5"][1] - o["freq"] for o in ob]], fmt="s", color=K, capsize=4, label="Historical frequency (95% CI, n/5)")
     ax.set_yscale("log"); ax.set_xticks(x + .1); ax.set_xticklabels([l for _, l in groups], fontsize=8); ax.set_ylabel("P(5-day loss ≥ 5%)")
-    ax.set_title("Probability of a ≥5% weekly loss", loc="left", fontweight="bold"); ax.legend(frameon=False, fontsize=7.5, loc="lower right")
+    ax.set_title("Probability of a ≥5% weekly loss", loc="left", fontweight="bold"); ax.set_ylim(top=0.6); ax.legend(frameon=False, fontsize=7.5, loc="upper center", ncol=2)
     ax = axs[1]
     for j, m in enumerate(COL):
         ax.plot(x + (j - 1) * .12, [R[k]["var_es"]["99"][m]["viol_rate_overlapping"] * 100 for k, _ in groups], "o", color=COL[m], ms=8, label=NAME[m])

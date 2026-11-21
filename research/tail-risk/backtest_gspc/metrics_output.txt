@@ -1,0 +1,89 @@
+period ['1994-12-23', '2026-11-13'] n 8026
+HIST full_sample ['1990-01-03', '2026-11-20']
+  loss>=0.03: 672/9286 7.237% CI['6.125%', '8.483%'] nonov[135, 124, 135, 139, 139] episodes=156
+  loss>=0.05: 183/9286 1.971% CI['1.449%', '2.734%'] nonov[36, 38, 37, 38, 34] episodes=58
+  loss>=0.08: 50/9286 0.538% CI['0.293%', '0.988%'] nonov[11, 11, 11, 11, 6] episodes=17
+  loss>=0.086: 43/9286 0.463% CI['0.255%', '0.919%'] nonov[10, 10, 10, 9, 4] episodes=14
+  loss>=0.1: 28/9286 0.302% CI['0.148%', '0.703%'] nonov[6, 6, 7, 6, 3] episodes=13
+HIST oos_origins 
+  loss>=0.03: 625/8026 7.787% CI['6.576%', '9.202%'] nonov[127, 116, 125, 126, 131] episodes=143
+  loss>=0.05: 177/8026 2.205% CI['1.572%', '3.018%'] nonov[35, 36, 35, 37, 34] episodes=56
+  loss>=0.08: 50/8026 0.623% CI['0.339%', '1.143%'] nonov[11, 11, 11, 11, 6] episodes=17
+  loss>=0.086: 43/8026 0.536% CI['0.295%', '1.062%'] nonov[10, 10, 10, 9, 4] episodes=14
+  loss>=0.1: 28/8026 0.349% CI['0.171%', '0.813%'] nonov[6, 6, 7, 6, 3] episodes=13
+p3 obs 625 / 8026 7.787% ['6.576%', '9.202%']
+   gaussian  pred 8.621% O/E 0.9 [0.76 1.05] brier 0.072709 diff-vs-gauss CI [nan nan]
+   student_t pred 7.198% O/E 1.08 [0.91 1.26] brier 0.072265 diff-vs-gauss CI [-9.2e-04  7.0e-05]
+   garch_t   pred 6.848% O/E 1.14 [0.98 1.29] brier 0.068519 diff-vs-gauss CI [-0.0062  -0.00234] | garch-vs-t CI [-0.00592 -0.00176]
+p5 obs 177 / 8026 2.205% ['1.572%', '3.018%']
+   gaussian  pred 1.400% O/E 1.58 [1.13 2.05] brier 0.021675 diff-vs-gauss CI [nan nan]
+   student_t pred 1.862% O/E 1.18 [0.85 1.54] brier 0.021637 diff-vs-gauss CI [-1.1e-04  3.0e-05]
+   garch_t   pred 2.261% O/E 0.98 [0.74 1.22] brier 0.020798 diff-vs-gauss CI [-0.00219  0.00023] | garch-vs-t CI [-0.00211  0.00024]
+p8 obs 50 / 8026 0.623% ['0.339%', '1.143%']
+   gaussian  pred 0.029% O/E 21.32 [10.58 34.37] brier 0.006227 diff-vs-gauss CI [nan nan]
+   student_t pred 0.389% O/E 1.6 [0.79 2.57] brier 0.006202 diff-vs-gauss CI [-6.e-05  0.e+00]
+   garch_t   pred 0.607% O/E 1.03 [0.56 1.59] brier 0.006086 diff-vs-gauss CI [-0.00063  0.00025] | garch-vs-t CI [-0.00058  0.00026]
+p8.6 obs 43 / 8026 0.536% ['0.295%', '1.062%']
+   gaussian  pred 0.011% O/E 47.61 [22.24 79.75] brier 0.005357 diff-vs-gauss CI [nan nan]
+   student_t pred 0.305% O/E 1.76 [0.84 2.9 ] brier 0.005336 diff-vs-gauss CI [-5.e-05  0.e+00]
+   garch_t   pred 0.486% O/E 1.1 [0.57 1.76] brier 0.005245 diff-vs-gauss CI [-0.00052  0.00021] | garch-vs-t CI [-0.00048  0.00022]
+p10 obs 28 / 8026 0.349% ['0.171%', '0.813%']
+   gaussian  pred 0.001% O/E 369.6 [148.5  682.24] brier 0.003489 diff-vs-gauss CI [nan nan]
+   student_t pred 0.183% O/E 1.9 [0.77 3.47] brier 0.003481 diff-vs-gauss CI [-2.e-05  0.e+00]
+   garch_t   pred 0.302% O/E 1.16 [0.54 1.99] brier 0.003392 diff-vs-gauss CI [-0.00037  0.00012] | garch-vs-t CI [-0.00036  0.00012]
+VaR/ES 95
+   gaussian  viol_ov 5.682% | nonov 88/1606 kupiec p 0.385 christ p 0.001 | ES z2 0.36 [0.08 0.69] | VaR 0.0362 ES 0.0456
+   student_t viol_ov 6.080% | nonov 91/1606 kupiec p 0.230 christ p 0.005 | ES z2 0.26 [-0.    0.56] | VaR 0.0351 ES 0.0518
+   garch_t   viol_ov 6.317% | nonov 95/1606 kupiec p 0.101 christ p 0.846 | ES z2 0.30 [0.05 0.59] | VaR 0.0339 ES 0.0458
+VaR/ES 99
+   gaussian  viol_ov 2.268% | nonov 37/1606 kupiec p 0.000 christ p 0.056 | ES z2 1.99 [1.04 3.13] | VaR 0.0515 ES 0.0590
+   student_t viol_ov 1.595% | nonov 28/1606 kupiec p 0.007 christ p 0.494 | ES z2 0.91 [0.23 1.72] | VaR 0.0598 ES 0.0834
+   garch_t   viol_ov 1.620% | nonov 27/1606 kupiec p 0.012 christ p 0.346 | ES z2 0.86 [0.16 1.65] | VaR 0.0528 ES 0.0650
+REGIME ex_ante_high_vol (vol21>=20%) n 1776 share 0.22
+   p3 obs 289 16.273% gauss 8.755% O/E 1.86 stude 7.279% O/E 2.24 garch 17.051% O/E 0.95
+   p5 obs 113 6.363% gauss 1.397% O/E 4.55 stude 1.853% O/E 3.43 garch 7.693% O/E 0.83
+   p8.6 obs 34 1.914% gauss 0.011% O/E 174.07 stude 0.294% O/E 6.52 garch 2.037% O/E 0.94
+   p10 obs 22 1.239% gauss 0.001% O/E 1332.47 stude 0.176% O/E 7.03 garch 1.300% O/E 0.95
+   VaR99 viol: {'gaussian': '5.856%', 'student_t': '4.842%', 'garch_t': '1.014%'}
+REGIME ex_ante_low_vol (vol21<20%) n 6250 share 0.78
+   p3 obs 336 5.376% gauss 8.583% O/E 0.63 stude 7.175% O/E 0.75 garch 3.949% O/E 1.36
+   p5 obs 64 1.024% gauss 1.401% O/E 0.73 stude 1.865% O/E 0.55 garch 0.717% O/E 1.43
+   p8.6 obs 9 0.144% gauss 0.011% O/E 12.71 stude 0.308% O/E 0.47 garch 0.046% O/E 3.14
+   p10 obs 6 0.096% gauss 0.001% O/E 101.27 stude 0.186% O/E 0.52 garch 0.018% O/E 5.26
+   VaR99 viol: {'gaussian': '1.248%', 'student_t': '0.672%', 'garch_t': '1.792%'}
+REGIME crisis(ex-post) dotcom_bear 2000-03-24..2002-10-09 n 638 share 0.08
+   p3 obs 104 16.301% gauss 6.596% O/E 2.47 stude 6.008% O/E 2.71 garch 12.473% O/E 1.31
+   p5 obs 30 4.702% gauss 0.687% O/E 6.84 stude 1.164% O/E 4.04 garch 4.329% O/E 1.09
+   p8.6 obs 6 0.940% gauss 0.001% O/E 765.83 stude 0.108% O/E 8.68 garch 0.644% O/E 1.46
+   p10 obs 4 0.627% gauss 0.000% O/E 13854.85 stude 0.056% O/E 11.24 garch 0.316% O/E 1.98
+   VaR99 viol: {'gaussian': '6.113%', 'student_t': '4.702%', 'garch_t': '2.038%'}
+REGIME crisis(ex-post) gfc 2007-10-09..2009-03-09 n 356 share 0.04
+   p3 obs 94 26.404% gauss 8.473% O/E 3.12 stude 7.261% O/E 3.64 garch 18.224% O/E 1.45
+   p5 obs 40 11.236% gauss 1.181% O/E 9.51 stude 1.619% O/E 6.94 garch 9.589% O/E 1.17
+   p8.6 obs 13 3.652% gauss 0.006% O/E 638.46 stude 0.189% O/E 19.28 garch 3.703% O/E 0.99
+   p10 obs 9 2.528% gauss 0.000% O/E 6443.23 stude 0.104% O/E 24.26 garch 2.649% O/E 0.95
+   VaR99 viol: {'gaussian': '10.112%', 'student_t': '8.989%', 'garch_t': '0.843%'}
+REGIME crisis(ex-post) covid 2020-02-19..2020-04-30 n 51 share 0.01
+   p3 obs 19 37.255% gauss 10.116% O/E 3.68 stude 7.822% O/E 4.76 garch 29.595% O/E 1.26
+   p5 obs 12 23.529% gauss 1.749% O/E 13.45 stude 2.229% O/E 10.56 garch 21.374% O/E 1.1
+   p8.6 obs 10 19.608% gauss 0.013% O/E 1491.97 stude 0.424% O/E 46.19 garch 11.546% O/E 1.7
+   p10 obs 9 17.647% gauss 0.001% O/E 17473.55 stude 0.266% O/E 66.37 garch 9.011% O/E 1.96
+   VaR99 viol: {'gaussian': '23.529%', 'student_t': '21.569%', 'garch_t': '7.843%'}
+REGIME crisis(ex-post) bear_2022 2022-01-03..2022-10-12 n 196 share 0.02
+   p3 obs 49 25.000% gauss 10.587% O/E 2.36 stude 8.006% O/E 3.12 garch 12.978% O/E 1.93
+   p5 obs 20 10.204% gauss 1.958% O/E 5.21 stude 2.334% O/E 4.37 garch 4.759% O/E 2.14
+   p8.6 obs 3 1.531% gauss 0.018% O/E 86.07 stude 0.444% O/E 3.45 garch 0.782% O/E 1.96
+   p10 obs 1 0.510% gauss 0.001% O/E 340.41 stude 0.275% O/E 1.85 garch 0.404% O/E 1.26
+   VaR99 viol: {'gaussian': '4.592%', 'student_t': '2.551%', 'garch_t': '4.082%'}
+REGIME ex_post_all_crisis_windows n 1241 share 0.15
+   p3 obs 266 21.434% gauss 7.909% O/E 2.71 stude 6.757% O/E 3.17 garch 14.906% O/E 1.44
+   p5 obs 102 8.219% gauss 1.073% O/E 7.66 stude 1.523% O/E 5.4 garch 6.606% O/E 1.24
+   p8.6 obs 32 2.579% gauss 0.006% O/E 458.75 stude 0.198% O/E 13.05 garch 1.991% O/E 1.29
+   p10 obs 23 1.853% gauss 0.000% O/E 4476.22 stude 0.113% O/E 16.4 garch 1.357% O/E 1.37
+   VaR99 viol: {'gaussian': '7.736%', 'student_t': '6.285%', 'garch_t': '2.256%'}
+REGIME ex_post_outside_crisis_windows n 6785 share 0.85
+   p3 obs 359 5.291% gauss 8.752% O/E 0.6 stude 7.278% O/E 0.73 garch 5.374% O/E 0.98
+   p5 obs 75 1.105% gauss 1.460% O/E 0.76 stude 1.925% O/E 0.57 garch 1.466% O/E 0.75
+   p8.6 obs 11 0.162% gauss 0.012% O/E 13.2 stude 0.324% O/E 0.5 garch 0.211% O/E 0.77
+   p10 obs 5 0.074% gauss 0.001% O/E 70.8 stude 0.196% O/E 0.38 garch 0.109% O/E 0.68
+   VaR99 viol: {'gaussian': '1.268%', 'student_t': '0.737%', 'garch_t': '1.503%'}
