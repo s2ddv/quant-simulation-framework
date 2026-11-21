@@ -233,3 +233,15 @@ def test_extreme_initial_price_and_drift_preserve_finite_price():
         paths = simulate_gbm(initial, drift, 0, 1, 1, 1, seed=0)
         np.testing.assert_array_equal(paths[0], [initial])
         np.testing.assert_allclose(paths[1], [expected], rtol=1e-12)
+
+
+def test_explicit_df_standardized_unit_variance_and_validation():
+    import pytest
+    from simulation.gbm import GbmSimulator
+    model = GbmSimulator(100.0, 1.0, 1, 400_000, 7, mu=0.0, sigma=0.2, df=6)
+    r = np.log(model.generate_paths("t_student")[-1] / 100.0)
+    # Unit-variance t shocks: Var[log return] = sigma^2 * T = 0.04 (finite 2nd moment).
+    assert abs(np.var(r) - 0.04) < 0.002
+    for bad in (2, 1.5, float("nan"), True):
+        with pytest.raises(ValueError):
+            GbmSimulator(100.0, 1.0, 1, 10, 1, mu=0.0, sigma=0.2, df=bad)
