@@ -24,7 +24,7 @@ class GbmSimulator(BaseStochasticSimulator):
 
     def __init__(self, s0: float, horizon: float, steps: int, n_sims: int,
                  seed: int | None = None, *, mu: float | None = None,
-                 sigma: float | None = None) -> None:
+                 sigma: float | None = None, df: float | None = None) -> None:
         super().__init__(s0, horizon, steps, n_sims, seed)
         self.mu: float | None = None
         self.sigma: float | None = None
@@ -37,6 +37,12 @@ class GbmSimulator(BaseStochasticSimulator):
                     or not np.isfinite(mu) or not np.isfinite(sigma) or sigma < 0):
                 raise ValueError("mu and sigma must be finite; sigma must be nonnegative")
             self.mu, self.sigma = float(mu), float(sigma)
+        if df is not None:
+            # Explicit daily-shock degrees of freedom (e.g. a stress scenario);
+            # validated again in generate_paths, which requires df > 2.
+            if isinstance(df, bool) or not isinstance(df, Real) or not np.isfinite(df) or df <= 2:
+                raise ValueError("df must be finite and greater than 2")
+            self.calibrated_df = float(df)
 
     def calibrate(self, historical_prices: pd.Series) -> None:
         """Fit annualized normal moments and t degrees of freedom to daily logs.

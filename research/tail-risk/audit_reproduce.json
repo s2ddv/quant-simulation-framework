@@ -1,0 +1,28 @@
+{
+ "sigma_week": 0.02817180849095055,
+ "thr_log_of_simple": -0.08992470752798701,
+ "simple -8.6% | loc=0": {
+  "normal": 0.0007064310676345779,
+  "t4_weekly_standardized": 0.005352881941602765,
+  "t4_daily_sum_MC": 0.003072,
+  "t4_daily_sum_hits": 3072
+ },
+ "simple -8.6% | loc=-s^2T/2 (GBM mu=0)": {
+  "normal": 0.0007416667019083382,
+  "t4_weekly_standardized": 0.005435107558575372,
+  "t4_daily_sum_MC": 0.003166,
+  "t4_daily_sum_hits": 3166
+ },
+ "log -8.6% | loc=0": {
+  "normal": 0.0011339734243020606,
+  "t4_weekly_standardized": 0.006237633992763917,
+  "t4_daily_sum_MC": 0.003825,
+  "t4_daily_sum_hits": 3825
+ },
+ "log -8.6% | loc=-s^2T/2 (GBM mu=0)": {
+  "normal": 0.001188356606776452,
+  "t4_weekly_standardized": 0.006336608869485925,
+  "t4_daily_sum_MC": 0.003823,
+  "t4_daily_sum_hits": 3823
+ }
+}

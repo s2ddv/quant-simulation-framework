@@ -1,0 +1,882 @@
+{
+ "event": "R_5d <= -8.6% (simple)",
+ "mu": 0.05,
+ "T": 0.01984126984126984,
+ "grid": [
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.1,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "normal",
+    "df": null,
+    "batch_size": 100000
+   },
+   "hits": 0,
+   "probability": 0.0,
+   "wilson": [
+    0.0,
+    3.841444063944942e-06
+   ],
+   "clopper_pearson": [
+    0.0,
+    3.688872650206488e-06
+   ],
+   "level": 0.95,
+   "analytic_normal": 5.6889784989355377e-11
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.1,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 8,
+    "batch_size": 100000
+   },
+   "hits": 1,
+   "probability": 1e-06,
+   "wilson": [
+    1.7652457674537176e-07,
+    5.664911804311444e-06
+   ],
+   "clopper_pearson": [
+    2.53178076637942e-08,
+    5.571630655166939e-06
+   ],
+   "level": 0.95,
+   "analytic_normal": 5.6889784989355377e-11
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.1,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 5,
+    "batch_size": 100000
+   },
+   "hits": 33,
+   "probability": 3.3e-05,
+   "wilson": [
+    2.3499029831028608e-05,
+    4.634216069760813e-05
+   ],
+   "clopper_pearson": [
+    2.2715787023770893e-05,
+    4.6343960052917e-05
+   ],
+   "level": 0.95,
+   "analytic_normal": 5.6889784989355377e-11
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.1,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 113,
+   "probability": 0.000113,
+   "wilson": [
+    9.399848989908428e-05,
+    0.00013584208599850222
+   ],
+   "clopper_pearson": [
+    9.312887224825462e-05,
+    0.0001358556125454684
+   ],
+   "level": 0.95,
+   "analytic_normal": 5.6889784989355377e-11
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.1,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 3,
+    "batch_size": 100000
+   },
+   "hits": 349,
+   "probability": 0.000349,
+   "wilson": [
+    0.00031426041095931857,
+    0.00038757835177666983
+   ],
+   "clopper_pearson": [
+    0.000313346438923874,
+    0.0003875978579288283
+   ],
+   "level": 0.95,
+   "analytic_normal": 5.6889784989355377e-11
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.15,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "normal",
+    "df": null,
+    "batch_size": 100000
+   },
+   "hits": 9,
+   "probability": 9e-06,
+   "wilson": [
+    4.735081123813386e-06,
+    1.7106293794138406e-05
+   ],
+   "clopper_pearson": [
+    4.1153810907519385e-06,
+    1.7084734387823754e-05
+   ],
+   "level": 0.95,
+   "analytic_normal": 8.837506977403838e-06
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.15,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 8,
+    "batch_size": 100000
+   },
+   "hits": 76,
+   "probability": 7.6e-05,
+   "wilson": [
+    6.0726954215499884e-05,
+    9.511390594894735e-05
+   ],
+   "clopper_pearson": [
+    5.987980859481358e-05,
+    9.512442330061624e-05
+   ],
+   "level": 0.95,
+   "analytic_normal": 8.837506977403838e-06
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.15,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 5,
+    "batch_size": 100000
+   },
+   "hits": 376,
+   "probability": 0.000376,
+   "wilson": [
+    0.0003398729439657008,
+    0.00041596561133230804
+   ],
+   "clopper_pearson": [
+    0.00033895683358281276,
+    0.00041598541799770975
+   ],
+   "level": 0.95,
+   "analytic_normal": 8.837506977403838e-06
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.15,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 703,
+   "probability": 0.000703,
+   "wilson": [
+    0.0006529342210664108,
+    0.0007569018219271803
+   ],
+   "clopper_pearson": [
+    0.0006520030734637115,
+    0.000756923878469614
+   ],
+   "level": 0.95,
+   "analytic_normal": 8.837506977403838e-06
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.15,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 3,
+    "batch_size": 100000
+   },
+   "hits": 1501,
+   "probability": 0.001501,
+   "wilson": [
+    0.00142701357382859,
+    0.001578816338220275
+   ],
+   "clopper_pearson": [
+    0.0014260699396718118,
+    0.0015788408176187936
+   ],
+   "level": 0.95,
+   "analytic_normal": 8.837506977403838e-06
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "normal",
+    "df": null,
+    "batch_size": 100000
+   },
+   "hits": 704,
+   "probability": 0.000704,
+   "wilson": [
+    0.0006538973339650896,
+    0.0007579387013456134
+   ],
+   "clopper_pearson": [
+    0.0006529661575690225,
+    0.0007579607625814272
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.0006564629252524284
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 8,
+    "batch_size": 100000
+   },
+   "hits": 1344,
+   "probability": 0.001344,
+   "wilson": [
+    0.001274084985904827,
+    0.0014177461323574745
+   ],
+   "clopper_pearson": [
+    0.0012731428376360147,
+    0.0014177702570427027
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.0006564629252524284
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 5,
+    "batch_size": 100000
+   },
+   "hits": 2191,
+   "probability": 0.002191,
+   "wilson": [
+    0.0021012508627331204,
+    0.0022845737481229362
+   ],
+   "clopper_pearson": [
+    0.0021003029132025896,
+    0.0022845995093895705
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.0006564629252524284
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 2981,
+   "probability": 0.002981,
+   "wilson": [
+    0.0028760408768073466,
+    0.0030897776645670903
+   ],
+   "clopper_pearson": [
+    0.0028750902581865176,
+    0.003089804609686882
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.0006564629252524284
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 3,
+    "batch_size": 100000
+   },
+   "hits": 4069,
+   "probability": 0.004069,
+   "wilson": [
+    0.00394612182550153,
+    0.0041956883568906225
+   ],
+   "clopper_pearson": [
+    0.003945169267474017,
+    0.004195716715481957
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.0006564629252524284
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.3,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "normal",
+    "df": null,
+    "batch_size": 100000
+   },
+   "hits": 16494,
+   "probability": 0.016494,
+   "wilson": [
+    0.01624621931226514,
+    0.01674549541024203
+   ],
+   "clopper_pearson": [
+    0.01624526947825378,
+    0.016745536778498084
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.01657117335307679
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.3,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 8,
+    "batch_size": 100000
+   },
+   "hits": 17648,
+   "probability": 0.017648,
+   "wilson": [
+    0.017391781594841015,
+    0.017907924261613254
+   ],
+   "clopper_pearson": [
+    0.01739083254735334,
+    0.01790796676956675
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.01657117335307679
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.3,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 5,
+    "batch_size": 100000
+   },
+   "hits": 18243,
+   "probability": 0.018243,
+   "wilson": [
+    0.017982544658507998,
+    0.018507156626627833
+   ],
+   "clopper_pearson": [
+    0.01798159602758652,
+    0.018507199720734415
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.01657117335307679
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.3,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 18502,
+   "probability": 0.018502,
+   "wilson": [
+    0.01823972316135438,
+    0.018767976133913428
+   ],
+   "clopper_pearson": [
+    0.018238774713895692,
+    0.01876801948288325
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.01657117335307679
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.3,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 20260101,
+    "dist_type": "t_student",
+    "df": 3,
+    "batch_size": 100000
+   },
+   "hits": 17131,
+   "probability": 0.017131,
+   "wilson": [
+    0.01687852468420434,
+    0.017387185144303086
+   ],
+   "clopper_pearson": [
+    0.016877575280669355,
+    0.01738722714215422
+   ],
+   "level": 0.95,
+   "analytic_normal": 0.01657117335307679
+  }
+ ],
+ "convergence": [
+  {
+   "params": {
+    "loss": 0.05,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 10000,
+    "seed": 7,
+    "dist_type": "normal",
+    "df": null,
+    "batch_size": 100000
+   },
+   "hits": 316,
+   "probability": 0.0316,
+   "wilson": [
+    0.028347190302313426,
+    0.0352125393713364
+   ],
+   "clopper_pearson": [
+    0.028258368799671574,
+    0.03521793363655379
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.05,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 100000,
+    "seed": 7,
+    "dist_type": "normal",
+    "df": null,
+    "batch_size": 100000
+   },
+   "hits": 3242,
+   "probability": 0.03242,
+   "wilson": [
+    0.031340099022879535,
+    0.03353582338348362
+   ],
+   "clopper_pearson": [
+    0.03133084205291698,
+    0.033536387160640384
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.05,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 7,
+    "dist_type": "normal",
+    "df": null,
+    "batch_size": 100000
+   },
+   "hits": 32775,
+   "probability": 0.032775,
+   "wilson": [
+    0.03242782480716084,
+    0.033125764830244715
+   ],
+   "clopper_pearson": [
+    0.03242688765763195,
+    0.03312582206185258
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.05,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 4000000,
+    "seed": 7,
+    "dist_type": "normal",
+    "df": null,
+    "batch_size": 100000
+   },
+   "hits": 131179,
+   "probability": 0.03279475,
+   "wilson": [
+    0.03262066437966004,
+    0.032969732994342506
+   ],
+   "clopper_pearson": [
+    0.03262042942342517,
+    0.03296974733622696
+   ],
+   "level": 0.95
+  }
+ ],
+ "seeds": [
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 0,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 3004,
+   "probability": 0.003004,
+   "wilson": [
+    0.0028986306770658063,
+    0.0031131876876022034
+   ],
+   "clopper_pearson": [
+    0.002897680001324517,
+    0.0031132146646175134
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 1,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 3095,
+   "probability": 0.003095,
+   "wilson": [
+    0.002988023040614581,
+    0.0032057946249106095
+   ],
+   "clopper_pearson": [
+    0.0029870721474743863,
+    0.003205821727046927
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 2,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 2856,
+   "probability": 0.002856,
+   "wilson": [
+    0.002753298672343914,
+    0.0029625208293915383
+   ],
+   "clopper_pearson": [
+    0.0027523483805548623,
+    0.0029625475991182314
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 3,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 2950,
+   "probability": 0.00295,
+   "wilson": [
+    0.0028455962880818706,
+    0.0030582224914620978
+   ],
+   "clopper_pearson": [
+    0.0028446457478936596,
+    0.0030582493934118737
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 4,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 2892,
+   "probability": 0.002892,
+   "wilson": [
+    0.0027886434057204884,
+    0.002999175819430991
+   ],
+   "clopper_pearson": [
+    0.0027876930168733265,
+    0.002999202640036945
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 5,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 3031,
+   "probability": 0.003031,
+   "wilson": [
+    0.002925151153884737,
+    0.003140667003345293
+   ],
+   "clopper_pearson": [
+    0.002924200412227715,
+    0.0031406940176609156
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 6,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 3042,
+   "probability": 0.003042,
+   "wilson": [
+    0.0029359564104274095,
+    0.003151861662290851
+   ],
+   "clopper_pearson": [
+    0.0029350056422625228,
+    0.0031518886917595856
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 7,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 2920,
+   "probability": 0.00292,
+   "wilson": [
+    0.002816136591717733,
+    0.003027682418312879
+   ],
+   "clopper_pearson": [
+    0.0028151861290484767,
+    0.003027709278283307
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 8,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 2945,
+   "probability": 0.002945,
+   "wilson": [
+    0.0028406861456581924,
+    0.0030531326723002164
+   ],
+   "clopper_pearson": [
+    0.0028397356182782753,
+    0.003053159567267366
+   ],
+   "level": 0.95
+  },
+  {
+   "params": {
+    "loss": 0.086,
+    "mu": 0.05,
+    "sigma": 0.2,
+    "horizon": 0.01984126984126984,
+    "steps": 5,
+    "n_sims": 1000000,
+    "seed": 9,
+    "dist_type": "t_student",
+    "df": 4,
+    "batch_size": 100000
+   },
+   "hits": 2939,
+   "probability": 0.002939,
+   "wilson": [
+    0.0028347940763410423,
+    0.0030470247877146957
+   ],
+   "clopper_pearson": [
+    0.0028338435643896487,
+    0.0030470516742953776
+   ],
+   "level": 0.95
+  }
+ ],
+ "analytic_normal_5pct": 0.032747801689921495
+}
