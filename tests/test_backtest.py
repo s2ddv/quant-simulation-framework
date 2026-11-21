@@ -100,3 +100,15 @@ def test_garch_simulation_unconditional_variance_close():
     cum = simulate_cumulative(f, f["h_next"], 5, 200_000, np.random.default_rng(1))
     assert np.std(cum) == pytest.approx(np.sqrt(5 * np.var(r)), rel=0.35)
     assert next_variance(r, f) == pytest.approx(f["h_next"], rel=1e-6)
+
+
+def test_threshold_keys_do_not_collide_and_trailing_vol_is_past_only():
+    from backtest.engine import THRESHOLDS, threshold_key
+    keys = [threshold_key(x) for x in THRESHOLDS]
+    assert keys == ["p3", "p5", "p8", "p8.6", "p10"] and len(set(keys)) == len(keys)
+    r = pd.Series(_sim_garch(900, 2), index=pd.bdate_range("2012-01-02", periods=900))
+    cfg = BacktestConfig(min_train=400, refit_every=100, t_draws=500, garch_draws=300, seed=1)
+    f, _ = run_backtest(r, cfg)
+    i = f["index"].iloc[10]
+    assert f["trailing_vol21"].iloc[10] == pytest.approx(np.std(r.to_numpy()[i - 20:i + 1], ddof=1) * np.sqrt(252))
+    assert "gaussian_p8.6" in f.columns

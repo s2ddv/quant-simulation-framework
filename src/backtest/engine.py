@@ -17,7 +17,8 @@ from scipy import stats
 
 from backtest.garch import NU_MAX, NU_MIN, fit_garch_t, next_variance, simulate_cumulative
 
-THRESHOLDS = (0.03, 0.05, 0.08, 0.10)
+THRESHOLDS = (0.03, 0.05, 0.08, 0.086, 0.10)
+VOL_WINDOW = 21                  # trailing days for the ex-ante regime indicator
 LEVELS = (0.95, 0.99)
 MODELS = ("gaussian", "student_t", "garch_t")
 
@@ -32,8 +33,13 @@ class BacktestConfig:
     seed: int = 20260101
 
 
+def threshold_key(x: float) -> str:
+    """Column name for a loss threshold: 0.03 -> 'p3', 0.086 -> 'p8.6' (no collisions)."""
+    return f"p{round(100 * x, 6):g}"
+
+
 def _summarize_loss(loss: np.ndarray) -> dict:
-    out = {f"p{int(100 * x)}": float(np.mean(loss > x)) for x in THRESHOLDS}
+    out = {threshold_key(x): float(np.mean(loss > x)) for x in THRESHOLDS}
     for a in LEVELS:
         var = float(np.quantile(loss, a))
         out[f"var{int(100 * a)}"] = var
@@ -48,7 +54,7 @@ def _loss_from_log(cum: np.ndarray) -> np.ndarray:
 def gaussian_forecast(mean_d: float, sd_d: float, h: int) -> dict:
     """Exact lognormal summary: log R_h ~ N(h*mean, h*sd^2)."""
     m, s = h * mean_d, sd_d * np.sqrt(h)
-    out = {f"p{int(100 * x)}": float(stats.norm.cdf((np.log1p(-x) - m) / s)) for x in THRESHOLDS}
+    out = {threshold_key(x): float(stats.norm.cdf((np.log1p(-x) - m) / s)) for x in THRESHOLDS}
     for a in LEVELS:
         z = stats.norm.ppf(1 - a)                       # lower-tail quantile of log return
         out[f"var{int(100 * a)}"] = float(-np.expm1(m + s * z))
@@ -100,7 +106,10 @@ def run_backtest(returns: pd.Series, config: BacktestConfig = BacktestConfig()) 
         g_params = g_state
         h_next = next_variance(r[:i + 1], g_params)
         cum = simulate_cumulative(g_params, h_next, h, config.garch_draws, _rng(config.seed, 2, i))
-        row = {"index": i, "date": returns.index[i], "realized_loss": float(-np.expm1(cs[i + 1 + h] - cs[i + 1]))}
+        row = {"index": i, "date": returns.index[i],
+               # known at the origin: std of the last VOL_WINDOW returns, annualized (252)
+               "trailing_vol21": float(np.std(r[i + 1 - VOL_WINDOW:i + 1], ddof=1) * np.sqrt(252)),
+               "realized_loss": float(-np.expm1(cs[i + 1 + h] - cs[i + 1]))}
         for name, summ in (("gaussian", gaussian_forecast(mean_d, sd_d, h)), ("student_t", t_state),
                            ("garch_t", _summarize_loss(_loss_from_log(cum)))):
             for k, v in summ.items():
