@@ -1,0 +1,63 @@
+{
+  "candidate_scores": {
+    "ewma": [
+      {
+        "factor": 0.9,
+        "mse": 2.667864500725973e-07
+      },
+      {
+        "factor": 0.94,
+        "mse": 2.635287638780428e-07
+      },
+      {
+        "factor": 0.97,
+        "mse": 2.633337851206379e-07
+      }
+    ],
+    "historical": [
+      {
+        "mse": 3.025527132368191e-07,
+        "window": 5
+      },
+      {
+        "mse": 2.689672698183282e-07,
+        "window": 22
+      },
+      {
+        "mse": 2.64406603173942e-07,
+        "window": 63
+      }
+    ]
+  },
+  "configuration": {
+    "alpha": 0.95,
+    "ewma_factors": [
+      0.9,
+      0.94,
+      0.97
+    ],
+    "historical_windows": [
+      5,
+      22,
+      63
+    ],
+    "refit_frequency": 22,
+    "test_start": "2019-01-01",
+    "train_size": 126,
+    "validation_size": 63,
+    "validation_start": "2016-01-01"
+  },
+  "first_close": "2010-01-04T00:00:00",
+  "first_validation_target": "2016-01-04T00:00:00",
+  "last_validation_target": "2018-12-31T00:00:00",
+  "method": "Minimum validation MSE per baseline, grid order breaks ties.",
+  "prefix_sha256": "7286d56bd99cad51b8a6cc3c3e08b9243999b1008ef4649ef50428ea777e1667",
+  "schema": "validation_selection_v1",
+  "selected_parameters": {
+    "ewma_factor": 0.97,
+    "historical_window": 63
+  },
+  "sha256": "c7ed8de105953f111e2dca58984706c9a299b3e221ac0558adf4112e1811c425",
+  "source": "research/volatility-protocol-v1.md; frozen-network-v1/AAPL.json; validation only",
+  "validation_count": 754
+}

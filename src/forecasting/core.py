@@ -103,10 +103,19 @@ def fit_nonnegative(features, targets):
     return coefficients
 
 
+def _log_returns(closes):
+    """Stable daily log returns, including tiny changes and extreme price ratios."""
+    previous, following = closes[:-1], closes[1:]
+    returns = np.diff(np.log(closes))
+    near = np.minimum(previous, following) >= 0.5 * np.maximum(previous, following)
+    returns[near] = np.log1p((following[near] - previous[near]) / previous[near])
+    return returns
+
+
 def _rolling(squared, window, lookback):
-    """Row i ends at close i+lookback. Its target return is squared[i+lookback]."""
+    """Row i ends at close i+lookback. The last row has no observed target."""
     means = np.convolve(squared, np.full(window, 1 / window), mode="valid")
-    return means[lookback - window:-1]
+    return means[lookback - window:]
 
 
 def _ewma(squared, factor, lookback):
@@ -114,7 +123,11 @@ def _ewma(squared, factor, lookback):
     moments[0] = squared[0]
     for i in range(1, len(moments)):
         moments[i] = factor * moments[i - 1] + (1 - factor) * squared[i]
-    return moments[lookback - 1:-1]
+    return moments[lookback - 1:]
+
+
+def _predict_nnls(features, coefficients):
+    return coefficients[0] + features @ coefficients[1:]
 
 
 def _select(candidates, targets, validation, parameter):
@@ -178,12 +191,7 @@ def evaluate(prices, config=ForecastConfig()):
 
 def _evaluate(prices, config, lookback):
     closes = prices.to_numpy()
-    # log1p retains small changes at high price levels. Log differences
-    # handle extreme ratios without overflowing S_next / S_origin.
-    previous, following = closes[:-1], closes[1:]
-    returns = np.diff(np.log(closes))
-    near = np.minimum(previous, following) >= 0.5 * np.maximum(previous, following)
-    returns[near] = np.log1p((following[near] - previous[near]) / previous[near])
+    returns = _log_returns(closes)
     squared = returns**2
     rolling = {w: _rolling(squared, w, lookback)
                for w in set((*FEATURE_WINDOWS, *config.historical_windows))}
@@ -228,7 +236,7 @@ def _evaluate(prices, config, lookback):
                                 "last_target_date": dates[origin],
                                 "training_count": i, "coefficients": beta.tolist()})
             forecasts = {"historical": historical[window][i], "ewma": ewma[factor][i],
-                         "ml": beta[0] + features[i] @ beta[1:]}
+                         "ml": _predict_nnls(features[i], beta)}
             row = {"origin_date": dates[origin], "target_date": dates[origin + 1],
                    "origin_price": float(closes[origin]), "target_price": float(closes[origin+1]),
                    "realized_return": float(returns[origin]),

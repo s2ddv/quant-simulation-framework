@@ -77,6 +77,8 @@ def nonnegative_int(value: str) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--next-session', action='store_true',
+                        help='experimental daily forecast mode; use --next-session --help')
     parser.add_argument("--ticker", type=normalize_ticker,
                         help="market ticker (asks when omitted; e.g. PETR4.SA, AAPL)")
     parser.add_argument("--period", default="3y", help="price history period")
@@ -235,6 +237,11 @@ def publish_run(report, paths, config, report_path, no_plot):
 
 
 def main(argv: list[str] | None = None) -> None:
+    tokens = list(sys.argv[1:] if argv is None else argv)
+    if '--next-session' in tokens:
+        from forecasting.daily import main as daily_main
+        tokens.remove('--next-session')
+        return daily_main(tokens)
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.report is None:

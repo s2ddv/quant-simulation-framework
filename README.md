@@ -651,6 +651,43 @@ No price-mean RMSE, trading strategy or guaranteed forecast is implied.
 
 ### Tests
 
+### Experimental next-session simulation (offline)
+
+Choose the model explicitly; the final test never chooses a production winner.
+The default GBM flow remains unchanged. From the repository root:
+
+```powershell
+.venv\Scripts\python.exe main.py --next-session --snapshot research/experiments/frozen-network-v1/AAPL.json --model ewma --factor 0.97 --n-sims 100000 --seed 42 --no-plot --report reports/aapl-daily.json
+.venv\Scripts\python.exe main.py --next-session --replay reports/aapl-daily/report.json --no-plot --report reports/aapl-daily-replay.json
+```
+
+Use `--model historical --window 63` for a trailing second moment, or `--model ml`
+for expanding NNLS with 1/5/22-session features. Fixed defaults are 22 and .94;
+the example EWMA factor .97 was selected on AAPL validation in the frozen study.
+ML refits through the latest known close using observed labels only. Refit is
+not a new performance evaluation. `--selection selection.json` instead accepts
+a verified validation artifact produced by `forecasting.origin.make_selection`;
+it freezes the baseline choices and common lookback, records their provenance,
+and rejects future validation targets or mismatched history. Explicit window or
+factor overrides cannot accompany that artifact.
+
+The conditional law is `r_next ~ Normal(0,v)`, with `sigma=sqrt(252*v)`,
+`mu=sigma²/2`, horizon `1/252` year and exactly one step. Incompatible horizons
+or steps are rejected. This drift follows zero expected log return; it is not
+risk-neutral. Paths have shape `(2,n_sims)` and zero variance is deterministic.
+Mean is `S0*exp(v/2)`, variance is `S0²*exp(v)*expm1(v)`, and quantiles are
+`S0*exp(sqrt(v)*Phi^-1(p))`. The report compares sampling results to these
+references and retains losses `S0-terminal` and CVaR ties. The mean confidence
+interval measures Monte Carlo uncertainty conditional on the predicted variance;
+it excludes forecast/model uncertainty. Price percentiles describe the price
+distribution. Conditional normality and the noisy squared-return proxy remain
+model assumptions.
+
+Both commands are offline, publish a new staged JSON/three-PNG bundle, refuse
+overwrites, and verify scientific results on replay. The unscored next session
+is after the snapshot's last close, not necessarily after today's date. See
+`research/daily-integration-validation.md` for historical reproduction and limits.
+
 ```bash
 pip install -e ".[dev]"
 python -m pytest -q
