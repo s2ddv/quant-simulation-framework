@@ -269,12 +269,18 @@ fitted volatility is zero, some parameter pairs coincide despite 10,000 rows.
 
 ### Price charts
 
-The three saved figures use a dark financial-terminal-inspired palette with
+The three saved figures (the CLI's `paths.png` is now a percentile fan chart) use a dark financial-terminal-inspired palette with
 distinct colors for price paths, distribution references and convergence
 metrics. The color choices change only the presentation, not the simulation,
 reported numbers or risk definitions.
 
-`plot_paths` displays up to 300 evenly spaced simulated paths by default,
+`plot_paths(paths, style="fan")` draws a clean fan chart instead: shaded 5%-95%
+and 25%-75% bands plus the pointwise median, computed over every simulation (not
+only a displayed sample). The CLI uses this style for `paths.png`; the default
+`style="paths"` keeps the line chart below. Bands are percentiles of the
+simulated distribution at each step, not confidence intervals of an estimator.
+
+`plot_paths` (default style) displays up to 300 evenly spaced simulated paths by default,
 including the initial row. Thin lines are colored by terminal price, and the
 white line is the pointwise median of the displayed paths, not a historical
 price series. Its horizontal axis is the simulation step, since the path
@@ -303,12 +309,17 @@ histogram = plot_final_distribution(
     paths, var=risk["var"], title="Synthetic GBM: final prices (95% VaR)",
     save_path="figures/example-final-distribution.png",
 )
+band = plot_paths(paths, title="Synthetic GBM fan chart: 10,000 paths",
+                  save_path="figures/example-fan.png", style="fan")
+plt.close(band)
 plt.close(fan)
 plt.close(histogram)
 PY
 ```
 
-![Synthetic GBM path fan chart](figures/example-paths.png)
+![Synthetic GBM percentile fan chart](figures/example-fan.png)
+
+![Synthetic GBM sample paths (style="paths")](figures/example-paths.png)
 
 ![Synthetic GBM final price distribution](figures/example-final-distribution.png)
 
