@@ -57,6 +57,8 @@ This project aims to:
 - Approximate 95% confidence interval for the simulated terminal-price mean under normal GBM
 - An abstract simulator interface and an optional Student t shock scenario through the Python API
 - 95% Wilson score intervals for observed VaR violation rates in historical validation
+- Event-probability estimation for multi-day losses with binomial-proportion confidence intervals (`validation.tail_probability`)
+- Expanding-window 5-day tail-risk backtest comparing Gaussian GBM, Student t and GARCH(1,1)-t, with Kupiec/Christoffersen tests (`src/backtest/`, research in `research/tail-risk/`)
 - Experimental one-session volatility forecasting (`python -m forecasting`) comparing historical, EWMA and nonnegative least-squares second moments, separate from the GBM workflow
 
 **Planned**
@@ -171,7 +173,7 @@ convergence reference do not apply there.
 ## Project Structure
 
 ```
-monte-carlo-gbm/
+quant-simulation-framework/
 ├── README.md
 ├── pyproject.toml
 ├── main.py                  # Simulation and replay CLI
@@ -179,12 +181,17 @@ monte-carlo-gbm/
 │   ├── simulation/          # GBM paths, plots and JSON reports
 │   ├── calibration/         # Historical prices, parameter estimates and fundamentals
 │   ├── risk/                # Terminal loss statistics
-│   ├── validation/          # Analytical benchmarks, convergence, backtests, sensitivity
+│   ├── validation/          # Analytical benchmarks, convergence, backtests, sensitivity, tail probabilities
+│   ├── backtest/            # Expanding-window tail backtest (GBM, Student t, GARCH-t)
 │   └── forecasting/         # Experimental volatility forecasting (python -m forecasting)
 ├── tests/                   # Offline tests, including test_gbm.py and test_statistics.py
 ├── notebooks/research.ipynb # Empty research workspace
 ├── research/report.md       # Research questions; no experimental results
 ├── research/notes/          # Dated execution and design notes
+├── research/tail-risk/      # SPY tail-risk study: audit, validation, backtest, figures
+├── research/experiments/    # Frozen snapshots, protocols and results
+├── docs/                    # Multi-agent team documentation
+├── .github/workflows/ci.yml # Offline pytest on Python 3.10 and 3.12
 └── figures/                 # Existing synthetic example charts and future figures
 ```
 
@@ -205,8 +212,8 @@ A run named by `--report reports/simulation.json` writes four files under
 
 ```bash
 # Clone the repository
-git clone https://github.com/s2ddv/monte-carlo-gbm.git
-cd monte-carlo-gbm
+git clone https://github.com/s2ddv/quant-simulation-framework.git
+cd quant-simulation-framework
 
 # Create and activate a virtual environment
 python3 -m venv .venv
@@ -649,7 +656,31 @@ may violate. Samples below 30 receive warnings. Proxy noise, calibration
 uncertainty, changing regimes and distribution misspecification limit inference.
 No price-mean RMSE, trading strategy or guaranteed forecast is implied.
 
-### Tests
+### Frozen historical volatility study
+
+The predeclared design is in `research/volatility-protocol-v1.md`. This separate
+study compares historical, EWMA and NNLS forecasts on identical next-session
+origins, with calendar splits and paired moving-block bootstrap uncertainty.
+Use the existing environment; no extra dependencies are required:
+
+```powershell
+$env:PYTHONPATH = 'src'
+$env:MPLBACKEND = 'Agg'
+.venv\Scripts\python.exe -m forecasting.study freeze research/experiments/new-study
+.venv\Scripts\python.exe -m forecasting.study run research/experiments/new-study
+.venv\Scripts\python.exe -m forecasting.study replay research/experiments/new-study
+```
+
+Only `freeze` accesses the provider. It requires a new destination and records
+failures without inventing data. `run` publishes a new `results/` bundle;
+`replay` verifies saved snapshot hashes and recomputes the scientific results
+offline. Outputs contain individual predictions, model fits, validation scores,
+metrics and intervals for the full test and fixed calendar segments. The figures
+show noisy realized volatility proxies, paired MSE intervals and accumulated
+loss differences. Block lengths 5/10/20 and 2,000 replicates are predeclared;
+intervals are pointwise and conditional, with no model refits inside bootstrap.
+These are educational retrospective comparisons, not point-in-time authenticated
+data, investment recommendations or evidence of general ML superiority.
 
 ### Experimental next-session simulation (offline)
 
@@ -685,8 +716,11 @@ model assumptions.
 
 Both commands are offline, publish a new staged JSON/three-PNG bundle, refuse
 overwrites, and verify scientific results on replay. The unscored next session
-is after the snapshot's last close, not necessarily after today's date. See
-`research/daily-integration-validation.md` for historical reproduction and limits.
+is after the snapshot's last close, not necessarily after today's date.
+Historical reproduction scripts and results are in
+`research/reproduce_daily.py` and `research/experiments/daily-integration-v1/`.
+
+### Tests
 
 ```bash
 pip install -e ".[dev]"
@@ -773,6 +807,7 @@ mu = log_returns.mean() * 252 + 0.5 * sigma**2
 - [x] Chronological backtests with fixed, rolling and expanding calibration
 - [x] Analytical calibration sensitivity grid
 - [x] Experimental causal volatility forecasting
+- [x] Tail-risk backtest: GBM vs. Student t vs. GARCH(1,1)-t (SPY, see `research/tail-risk/report.md`)
 - [ ] European option pricing and comparison with Black-Scholes
 - [ ] Variance reduction (antithetic and control variates)
 - [ ] Correlated multi-asset simulation
@@ -788,7 +823,7 @@ GBM is a simple and widely used model, but it relies on assumptions that real ma
 - **No jumps:** sudden price gaps (earnings, macro events) are not captured.
 - **Constant drift:** expected returns are estimated from the past and are inherently noisy.
 
-Extensions such as stochastic volatility models (Heston), jump-diffusion models (Merton), and GARCH-based simulation are natural next steps beyond the scope of this project.
+Student t shocks and GARCH(1,1)-t are explored in the tail-risk study (`research/tail-risk/`) to probe the first two limitations; they are research diagnostics and do not change the default GBM workflow. Stochastic volatility (Heston) and jump-diffusion (Merton) models remain natural next steps.
 
 ---
 
@@ -812,29 +847,3 @@ This project is for **educational and research purposes only**. It does not cons
 ## License
 
 No license file is currently included in this repository.
-
-### Frozen historical volatility study
-
-The predeclared design is in `research/volatility-protocol-v1.md`. This separate
-study compares historical, EWMA and NNLS forecasts on identical next-session
-origins, with calendar splits and paired moving-block bootstrap uncertainty.
-Use the existing environment; no extra dependencies are required:
-
-```powershell
-$env:PYTHONPATH = 'src'
-$env:MPLBACKEND = 'Agg'
-.venv\Scripts\python.exe -m forecasting.study freeze research/experiments/new-study
-.venv\Scripts\python.exe -m forecasting.study run research/experiments/new-study
-.venv\Scripts\python.exe -m forecasting.study replay research/experiments/new-study
-```
-
-Only `freeze` accesses the provider. It requires a new destination and records
-failures without inventing data. `run` publishes a new `results/` bundle;
-`replay` verifies saved snapshot hashes and recomputes the scientific results
-offline. Outputs contain individual predictions, model fits, validation scores,
-metrics and intervals for the full test and fixed calendar segments. The figures
-show noisy realized volatility proxies, paired MSE intervals and accumulated
-loss differences. Block lengths 5/10/20 and 2,000 replicates are predeclared;
-intervals are pointwise and conditional, with no model refits inside bootstrap.
-These are educational retrospective comparisons, not point-in-time authenticated
-data, investment recommendations or evidence of general ML superiority.
