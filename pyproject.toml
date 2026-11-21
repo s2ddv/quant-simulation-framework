@@ -20,6 +20,7 @@ dependencies = [
 # Linters are pinned so new upstream rules cannot break CI without a review.
 dev = ["pytest", "ruff==0.17.6", "mypy==2.4.1"]
 notebooks = ["jupyterlab"]
+interactive = ["plotly"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

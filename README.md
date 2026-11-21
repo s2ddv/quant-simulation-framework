@@ -269,6 +269,18 @@ fitted volatility is zero, some parameter pairs coincide despite 10,000 rows.
 
 ### Price charts
 
+For an interactive version of the path chart, install the optional extra
+(`pip install -e ".[interactive]"`) and add `--interactive`. The run then also
+saves `paths.html`: a dark, standalone page (plotly.js embedded, about 5 MB,
+opens offline) with zoom, pan and hover values for the median and the 5%/95%
+percentiles. It shows the same percentile bands as the PNG fan chart plus 40
+faint sample paths; it never replaces the PNG figures, and `--no-plot` does not
+suppress it.
+
+```bash
+python main.py --ticker AAPL --period 3y --no-plot --interactive
+```
+
 The three saved figures (the CLI's `paths.png` is now a percentile fan chart) use a dark financial-terminal-inspired palette with
 distinct colors for price paths, distribution references and convergence
 metrics. The color choices change only the presentation, not the simulation,
