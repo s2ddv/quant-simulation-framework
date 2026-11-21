@@ -85,7 +85,7 @@ Para perdas ≥ 8,6% (poucos eventos, leia com cautela): em crises observam-se 3
 - **H1 (o Gaussian subestima a frequência e a severidade de perdas extremas): suportada**, com forte evidência neste conjunto (1995–2026): O÷E de 21–370 em ≥ 8%; rejeição robusta de Kupiec a 99%; ES a 99% subestimado (Z2 IC acima de 0).
 - **Modelos de cauda pesada com volatilidade dinâmica:** o GARCH-t é o mais bem calibrado em estimativa pontual e é decisivamente melhor que os modelos estáticos em crises. **Não se mostrou superioridade estatística sobre a Student-t nos eventos extremos incondicionais** (ICs de Brier e O÷E não separam; só em ≥ 3%).
 - **A Student-t estática** corrige a ordem de grandeza da cauda incondicional, mas erra por regime (subestima em crise, superestima em calma) e não elimina a subestimação do VaR/ES a 99%.
-- Pela evidência, não se pode afirmar que a vantagem venha das *caudas pesadas* ou da *volatilidade condicional*: falta um GARCH com inovações normais para separar os dois efeitos (não executado).
+- **Ablação (GARCH com inovações normais, [`ablation_garch_normal.md`](ablation_garch_normal.md)):** o grosso da vantagem vem da **volatilidade condicional**. O GARCH-normal iguala o GARCH-t em Brier (diferença ≈ 0,00002) e fica próximo em O÷E (1,26 vs 1,10 em ≥ 8,6%, ICs sobrepostos). As caudas pesadas das inovações dão um refinamento pequeno e inconclusivo (um pouco menos de violações do VaR 99%, 1,62% vs 1,78%), visível sobretudo em surpresas saindo de volatilidade baixa (O÷E 3,1 vs 8,8; só 9 eventos).
 
 ## 4. Limitações estatísticas
 1. **Poucos episódios:** 14 episódios de ≥ 8,6% (4 em 2008–09) em ~37 anos; as janelas sobrepostas (43) não são independentes. ICs n/5 e bloco-bootstrap são aproximações.

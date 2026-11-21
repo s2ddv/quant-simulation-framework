@@ -112,3 +112,30 @@ def test_threshold_keys_do_not_collide_and_trailing_vol_is_past_only():
     i = f["index"].iloc[10]
     assert f["trailing_vol21"].iloc[10] == pytest.approx(np.std(r.to_numpy()[i - 20:i + 1], ddof=1) * np.sqrt(252))
     assert "gaussian_p8.6" in f.columns
+
+
+def _sim_garch_normal(n, seed, mu=0.0004, omega=2e-6, a=0.08, b=0.90):
+    rng = np.random.default_rng(seed); z = rng.standard_normal(n)
+    h = omega / (1 - a - b); r = np.empty(n)
+    for t in range(n):
+        e = np.sqrt(h) * z[t]; r[t] = mu + e; h = omega + a * e * e + b * h
+    return r
+
+
+def test_garch_normal_recovery_and_ablation_engine_alignment():
+    from backtest.garch import fit_garch_normal
+    from backtest.engine import run_garch_normal_backtest
+    f = fit_garch_normal(_sim_garch_normal(6000, 4))
+    assert f["converged"] and f["nu"] is None
+    assert abs(f["alpha"] - 0.08) < 0.03 and abs(f["beta"] - 0.90) < 0.04
+    r = pd.Series(_sim_garch_normal(900, 2), index=pd.bdate_range("2012-01-02", periods=900))
+    cfg = BacktestConfig(min_train=400, refit_every=100, t_draws=500, garch_draws=2000, seed=1)
+    main, _ = run_backtest(r, cfg)
+    abl, meta = run_garch_normal_backtest(r, cfg)
+    assert abl.index.equals(main.index) and meta["nonconverged_refits"] == 0
+    assert abl["garch_n_p5"].between(0, 1).all() and (abl["garch_n_var99"] > abl["garch_n_var95"]).all()
+    # future data cannot change past forecasts
+    r2 = r.copy(); r2.iloc[700:] = 0.5
+    alt, _ = run_garch_normal_backtest(r2, cfg)
+    cut = abl.index < r.index[700]
+    pd.testing.assert_frame_equal(abl[cut].drop(columns="index"), alt[cut].drop(columns="index"))

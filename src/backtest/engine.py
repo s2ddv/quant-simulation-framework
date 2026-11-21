@@ -15,7 +15,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from backtest.garch import NU_MAX, NU_MIN, fit_garch_t, next_variance, simulate_cumulative
+from backtest.garch import (NU_MAX, NU_MIN, fit_garch_normal, fit_garch_t, next_variance,
+                            simulate_cumulative)
 
 THRESHOLDS = (0.03, 0.05, 0.08, 0.086, 0.10)
 VOL_WINDOW = 21                  # trailing days for the ex-ante regime indicator
@@ -119,4 +120,34 @@ def run_backtest(returns: pd.Series, config: BacktestConfig = BacktestConfig()) 
             "garch_nonconverged_refits": sum(not x["garch_converged"] for x in refits),
             "garch_previous_params_used": garch_fallbacks, "refits": refits,
             "convention": "loss = -(exp(sum of 5 daily log returns)-1); VaR=quantile of loss; ES=mean loss>=VaR"}
+    return pd.DataFrame(rows).set_index("date"), meta
+
+
+def run_garch_normal_backtest(returns: pd.Series, config: BacktestConfig = BacktestConfig()) -> tuple[pd.DataFrame, dict]:
+    """Ablation: GARCH(1,1) with Gaussian innovations on the SAME origins, refit schedule and seed
+    stream as ``run_backtest`` (same data, window, horizon). Columns are prefixed ``garch_n_``."""
+    r = returns.to_numpy(dtype=float)
+    h, n = config.horizon, r.size
+    first, last = config.min_train - 1, n - h - 1
+    if last < first:
+        raise ValueError("series too short for min_train and horizon")
+    rows, refits, state, fallbacks = [], [], None, 0
+    for i in range(first, last + 1):
+        if (i - first) % config.refit_every == 0:
+            fit = fit_garch_normal(r[:i + 1], None if state is None else state["theta_pct"])
+            used_prev = False
+            if not fit["converged"] and state is not None:
+                fallbacks += 1; used_prev = True
+            else:
+                state = fit
+            refits.append({"index": i, "date": returns.index[i].isoformat(), "converged": fit["converged"],
+                           "used_previous_params": used_prev, "message": fit["message"],
+                           "params": {k: fit[k] for k in ("mu", "omega", "alpha", "beta")}})
+        cum = simulate_cumulative(state, next_variance(r[:i + 1], state), h, config.garch_draws, _rng(config.seed, 3, i))
+        row = {"index": i, "date": returns.index[i]}
+        row.update({f"garch_n_{k}": v for k, v in _summarize_loss(_loss_from_log(cum)).items()})
+        rows.append(row)
+    meta = {"config": asdict(config), "n_origins": len(rows), "n_refits": len(refits),
+            "nonconverged_refits": sum(not x["converged"] for x in refits), "previous_params_used": fallbacks,
+            "refits": refits}
     return pd.DataFrame(rows).set_index("date"), meta

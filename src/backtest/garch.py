@@ -69,6 +69,42 @@ def fit_garch_t(returns: np.ndarray, start: np.ndarray | None = None) -> dict:
             "theta_pct": best.x.copy()}
 
 
+def _nll_normal(theta, r, h0):
+    mu, omega, alpha, beta = theta
+    e = r - mu
+    h = _variance_path(e * e, omega, alpha, beta, h0)[:-1]
+    if np.any(h <= 0) or not np.all(np.isfinite(h)):
+        return 1e12
+    return float(0.5 * np.sum(np.log(2 * np.pi * h) + e * e / h))
+
+
+def fit_garch_normal(returns: np.ndarray, start: np.ndarray | None = None) -> dict:
+    """GARCH(1,1) with Gaussian innovations (ablation: same recursion, no fat-tailed shocks).
+
+    Same conventions, bounds and failure reporting as ``fit_garch_t``; ``nu`` is None.
+    """
+    r = np.asarray(returns, dtype=float) * 100.0
+    if r.size < 250 or not np.isfinite(r).all():
+        raise ValueError("need at least 250 finite returns")
+    var = float(np.var(r)); h0 = var
+    default = np.array([float(np.mean(r)), var * 0.05, 0.08, 0.90])
+    bounds = [(-1.0, 1.0), (1e-8, 10 * var), (0.0, 0.5), (0.0, 0.9999)]
+    cons = [{"type": "ineq", "fun": lambda t: 0.9999 - t[2] - t[3]}]
+    best = None
+    for x0 in (default if start is None else start, default):
+        res = minimize(_nll_normal, x0, args=(r, h0), method="SLSQP", bounds=bounds,
+                       constraints=cons, options={"maxiter": 300, "ftol": 1e-9})
+        if best is None or res.fun < best.fun:
+            best = res
+        if res.success:
+            break
+    mu, omega, alpha, beta = best.x
+    h = _variance_path((r - mu) ** 2, omega, alpha, beta, h0)
+    return {"mu": mu / 100.0, "omega": omega / 1e4, "alpha": alpha, "beta": beta, "nu": None,
+            "converged": bool(best.success), "message": str(best.message), "nll": float(best.fun),
+            "n_obs": int(r.size), "h_next": float(h[-1]) / 1e4, "theta_pct": best.x.copy()}
+
+
 def next_variance(returns: np.ndarray, params: dict) -> float:
     """One-step-ahead variance using frozen parameters and returns up to t."""
     r = np.asarray(returns, dtype=float) * 100.0
@@ -81,12 +117,13 @@ def next_variance(returns: np.ndarray, params: dict) -> float:
 def simulate_cumulative(params: dict, h_next: float, horizon: int, n: int,
                         rng: np.random.Generator) -> np.ndarray:
     """Draw ``n`` cumulative log returns over ``horizon`` days from the filtered state."""
-    mu, omega, a, b, nu = (params[k] for k in ("mu", "omega", "alpha", "beta", "nu"))
-    sd = np.sqrt((nu - 2) / nu)
+    mu, omega, a, b = (params[k] for k in ("mu", "omega", "alpha", "beta"))
+    nu = params.get("nu")                      # None -> Gaussian innovations
+    sd = None if nu is None else np.sqrt((nu - 2) / nu)
     h = np.full(n, h_next)
     total = np.zeros(n)
     for _ in range(horizon):
-        z = rng.standard_t(nu, size=n) * sd
+        z = rng.standard_normal(n) if nu is None else rng.standard_t(nu, size=n) * sd
         e = np.sqrt(h) * z
         total += mu + e
         h = omega + a * e * e + b * h
