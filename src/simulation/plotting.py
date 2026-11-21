@@ -68,8 +68,12 @@ def plot_paths(
     n_display: int = 300,
     title: str | None = None,
     save_path: str | Path | None = None,
+    style: str = "paths",
 ) -> Figure:
     """Plot evenly spaced sample paths without opening a window.
+
+    style="fan" draws a clean percentile fan (5-95% and 25-75% bands plus the
+    median, computed over ALL simulations at each step) instead of lines.
 
     Args:
         paths: Prices shaped (steps + 1, n_sims), including initial prices.
@@ -88,6 +92,10 @@ def plot_paths(
             or not isinstance(n_display, (int, np.integer))
             or n_display <= 0):
         raise ValueError("n_display must be a positive integer.")
+    if style not in ("paths", "fan"):
+        raise ValueError("style must be 'paths' or 'fan'.")
+    if style == "fan":
+        return _plot_fan(paths, title, save_path)
 
     import matplotlib.pyplot as plt
     from matplotlib import colormaps
@@ -128,6 +136,31 @@ def plot_paths(
         colorbar.outline.set_visible(False)
         colorbar.set_label("Terminal price (asset currency)", color=_MUTED)
     ax.set_title(title if title is not None else "GBM simulated price paths")
+    ax.set_xlabel("Simulation step")
+    ax.set_ylabel("Price (asset currency)")
+    _save_figure(figure, save_path)
+    return figure
+
+
+def _plot_fan(paths: np.ndarray, title: str | None,
+              save_path: str | Path | None) -> Figure:
+    """Percentile fan chart: pointwise quantiles of the simulated prices."""
+    import matplotlib.pyplot as plt
+
+    figure, ax = plt.subplots(figsize=(12, 6.5), layout="constrained")
+    _style_axes(figure, ax)
+    steps = np.arange(paths.shape[0])
+    p5, p25, p50, p75, p95 = np.percentile(paths, [5, 25, 50, 75, 95], axis=1)
+    ax.fill_between(steps, p5, p95, color=_BLUE, alpha=0.18, linewidth=0,
+                    label="5%-95% of simulations")
+    ax.fill_between(steps, p25, p75, color=_BLUE, alpha=0.38, linewidth=0,
+                    label="25%-75% of simulations")
+    ax.plot(steps, p50, color=_TEXT, linewidth=2.2, label="Median (each step)")
+    ax.axhline(paths[0, 0], color=_AMBER, linestyle="--", linewidth=1.1,
+               alpha=0.85, label=f"Initial price: {paths[0, 0]:.2f}")
+    ax.set_xlim(0, steps[-1])
+    _style_legend(ax)
+    ax.set_title(title if title is not None else "GBM price fan chart")
     ax.set_xlabel("Simulation step")
     ax.set_ylabel("Price (asset currency)")
     _save_figure(figure, save_path)

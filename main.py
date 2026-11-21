@@ -211,8 +211,8 @@ def publish_run(report, paths, config, report_path, no_plot):
         import matplotlib.pyplot as plt
         ticker = report["historical_data"]["ticker"]
         figures.append(plot_convergence(report["convergence"], staging / "convergence.png"))
-        figures.append(plot_paths(paths, title=f"GBM price paths: {ticker}",
-                                  save_path=staging / "paths.png"))
+        figures.append(plot_paths(paths, title=f"GBM price fan chart: {ticker}",
+                                  save_path=staging / "paths.png", style="fan"))
         figures.append(plot_final_distribution(
             paths, var=report["results"]["risk"]["var"],
             title=f"Final prices: {ticker} (VaR confidence: {config.confidence:.1%})",
