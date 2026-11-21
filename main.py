@@ -166,6 +166,9 @@ def format_simulation_summary(report, config, terminal_mean, terminal_std) -> st
             item = intervals[key]
             lines.append(f"  {label}: [{bound(item['lower'])}, {bound(item['upper'])}] "
                          "(moeda do ativo)")
+        if "warning" in intervals["cvar"]:
+            lines.append(f"  Aviso CVaR: cauda com ~{intervals['cvar']['tail_points']:.0f} "
+                         "pontos; o IC bootstrap pode ter cobertura bem abaixo da nominal.")
         item = intervals["prob_loss"]
         lines.append(f"  P(perda): [{item['lower']:.2%}, {item['upper']:.2%}]")
     if "calibration_sensitivity" in report:

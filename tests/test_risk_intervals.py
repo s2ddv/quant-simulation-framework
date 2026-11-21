@@ -108,6 +108,16 @@ class OrderStatisticTests(unittest.TestCase):
 
 
 class CvarBootstrapTests(unittest.TestCase):
+    def test_warns_when_tail_is_small(self):
+        rng = np.random.default_rng(3)
+        small = cvar_bootstrap_interval(rng.normal(size=100), 0.99,
+                                        n_bootstrap=50, seed=1)
+        self.assertAlmostEqual(small["tail_points"], 1.0)
+        self.assertIn("warning", small)
+        large = cvar_bootstrap_interval(rng.normal(size=2000), 0.95,
+                                        n_bootstrap=50, seed=1)
+        self.assertNotIn("warning", large)
+
     def test_reproducible_with_seed_and_contains_estimate(self):
         rng = np.random.default_rng(7)
         losses = terminal_losses(rng, 3000)
@@ -235,3 +245,4 @@ class CombinedAndValidationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

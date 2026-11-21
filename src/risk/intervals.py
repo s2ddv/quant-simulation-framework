@@ -30,7 +30,11 @@ import numpy as np
 from risk.statistics import risk_summary
 
 PARAMETER_SCOPE = "fixed_gbm_parameters_monte_carlo_error_only"
-_BOOTSTRAP_CHUNK_ELEMENTS = 2_000_000  # ~16 MB of float64 per resample chunk
+# 2e6 float64 = ~16 MB per array; a chunk holds ~4 such temporaries at once
+# (indices, sample, quantile copy, tail products/mask), so ~66 MB peak.
+_BOOTSTRAP_CHUNK_ELEMENTS = 2_000_000
+# Below this many tail points the percentile bootstrap undercovers markedly.
+MIN_RELIABLE_TAIL_POINTS = 50
 
 
 def _validate_probability(value, name):
@@ -142,7 +146,12 @@ def cvar_bootstrap_interval(losses, confidence=0.95, *, level=0.95,
         "n_bootstrap": int(n_bootstrap), "seed": seed,
         "rng": "NumPy default_rng/PCG64, integers(0, n) row-chunked",
         "lower": None, "upper": None,
+        "tail_points": float(n * (1 - confidence)),
     }
+    if result["tail_points"] < MIN_RELIABLE_TAIL_POINTS:
+        result["warning"] = (
+            f"fewer than {MIN_RELIABLE_TAIL_POINTS} expected tail points; the "
+            "percentile bootstrap can cover well below the nominal level")
     if n < 2:
         return result
 
@@ -216,7 +225,10 @@ def risk_confidence_intervals(paths, confidence=0.95, *, level=0.95,
         ``{"var": ..., "cvar": ..., "prob_loss": ...}``; each entry holds the
         ``estimate`` (identical to ``risk_summary``) and its interval. The
         intervals are marginal (not simultaneous) and exclude calibration
-        and model uncertainty.
+        and model uncertainty. All three assume i.i.d. simulated terminal
+        prices: do not apply them to antithetic samples, whose pairs are
+        dependent. The CVaR entry carries ``tail_points`` and a ``warning``
+        when the tail is small.
     """
     summary = risk_summary(paths, confidence)
     paths = np.asarray(paths, dtype=float)
