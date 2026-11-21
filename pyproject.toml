@@ -52,6 +52,11 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # The script inserts src/ into sys.path before importing project modules.
 "research/reproduce_daily.py" = ["E402"]
+# Technical debt: exploratory scripts of the tail-risk study (PR #1) predate
+# the lint job and are exempted rather than restyled, so their published
+# outputs stay tied to the exact code that produced them. Only the codes that
+# occur are listed; library code in src/backtest and src/validation is linted.
+"research/tail-risk/*.py" = ["B007", "E401", "E701", "E731", "E741", "F401", "UP031"]
 
 [tool.mypy]
 # Non-strict on purpose: bodies of unannotated functions are not checked
@@ -59,6 +64,11 @@ ignore = [
 python_version = "3.10"
 mypy_path = "src"
 files = ["src", "main.py", "research", "tests"]
+# Technical debt: the exploratory tail-risk scripts of PR #1 are not type
+# checked (25 errors, mostly untyped dict/list literals). The hyphenated
+# directory is not an importable package, so a module override cannot target
+# it; the scripts are excluded from discovery instead.
+exclude = ['^research/tail-risk/']
 warn_unused_configs = true
 warn_redundant_casts = true
 warn_unused_ignores = true

@@ -11,7 +11,7 @@ from __future__ import annotations
 import numpy as np
 from scipy import stats
 
-from simulation.gbm import GbmSimulator
+from simulation.gbm import DistributionType, GbmSimulator
 
 
 def wilson_interval(k: int, n: int, level: float = 0.95) -> tuple[float, float]:
@@ -48,7 +48,7 @@ def normal_loss_probability(loss: float, mu: float, sigma: float, horizon: float
 
 def estimate_loss_probability(loss: float, *, mu: float, sigma: float, horizon: float,
                               steps: int, n_sims: int, seed: int,
-                              dist_type: str = "normal", df: float | None = None,
+                              dist_type: DistributionType = "normal", df: float | None = None,
                               batch_size: int = 100_000, level: float = 0.95) -> dict:
     """Batched Monte Carlo estimate of P(simple return <= -loss) with CIs.
 

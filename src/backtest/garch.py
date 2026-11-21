@@ -59,6 +59,8 @@ def fit_garch_t(returns: np.ndarray, start: np.ndarray | None = None) -> dict:
             best = res
         if res.success:
             break
+    # The loop body runs at least once, so ``best`` is always set here.
+    assert best is not None
     mu, omega, alpha, beta, nu = best.x
     e = r - mu
     h = _variance_path(e * e, omega, alpha, beta, h0)

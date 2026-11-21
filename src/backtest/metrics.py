@@ -94,7 +94,9 @@ def es_residual_tests(loss: np.ndarray, var: np.ndarray, es: np.ndarray, alpha: 
     for _ in range(n_boot):
         i = rng.integers(0, n, n)
         b1.append(z1(i)); b2.append(z2(i))
-    ci = lambda b: [float(x) for x in np.nanpercentile(b, [2.5, 97.5])] if np.isfinite(b).any() else [np.nan, np.nan]
+    def ci(b):
+        return [float(x) for x in np.nanpercentile(b, [2.5, 97.5])] if np.isfinite(b).any() else [np.nan, np.nan]
+
     return {"n": n, "violations": int(viol.sum()), "z1": float(z1(allidx)), "z1_ci": ci(b1),
             "z2": float(z2(allidx)), "z2_ci": ci(b2), "bootstrap": n_boot, "seed": seed}
 

@@ -98,6 +98,8 @@ def run_backtest(returns: pd.Series, config: BacktestConfig = BacktestConfig()) 
                            "garch_message": fit["message"]})
             mean_d, sd_d = float(np.mean(window)), float(np.std(window, ddof=1))
         g_params = g_state
+        # The first origin (i == first) always refits, so both states are set.
+        assert g_params is not None and t_state is not None
         h_next = next_variance(r[:i + 1], g_params)
         cum = simulate_cumulative(g_params, h_next, h, config.garch_draws, _rng(config.seed, 2, i))
         row = {"index": i, "date": returns.index[i], "realized_loss": float(-np.expm1(cs[i + 1 + h] - cs[i + 1]))}

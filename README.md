@@ -699,6 +699,9 @@ python -m mypy
 CI runs ruff (`E`, `F`, `B`, `UP`) and non-strict mypy configured in
 `pyproject.toml`. Known lint debt: no formatter or import sorting is enforced
 (`ruff format`/`I` would rewrite most files), pandas/SciPy are untyped (`Any`).
+The exploratory tail-risk scripts in `research/tail-risk/*.py` are exempt from
+mypy and from the ruff codes they trigger (see `pyproject.toml`); the library
+code they use (`src/backtest`, `src/validation`) is fully linted.
 
 The pytest suite runs offline using dated synthetic historical inputs. It checks
 analytical formulas against SciPy's lognormal distribution, explicit sample
