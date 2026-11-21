@@ -57,13 +57,14 @@ This project aims to:
 - Approximate 95% confidence interval for the simulated terminal-price mean under normal GBM
 - An abstract simulator interface and an optional Student t shock scenario through the Python API
 - 95% Wilson score intervals for observed VaR violation rates in historical validation
+- Monte Carlo confidence intervals for VaR (order statistics), CVaR (bootstrap) and probability of loss (Wilson), included in JSON reports; they cover simulation error with fixed mu/sigma, not calibration or model error
+- Opt-in antithetic variates in the Python API (`antithetic=True`, pair-based mean error in `simulation.variance_reduction`); not yet exposed in the CLI because the risk intervals and nested-prefix convergence assume i.i.d. samples
 - Experimental one-session volatility forecasting (`python -m forecasting`) comparing historical, EWMA and nonnegative least-squares second moments, separate from the GBM workflow
 
 **Planned**
 
 - European option pricing via Monte Carlo, validated against the Black-Scholes closed-form solution
 - Variance reduction techniques (antithetic variates, control variates)
-- Confidence intervals for simulated VaR, CVaR and probability of loss
 - Multi-asset simulation with correlated returns (Cholesky decomposition)
 - Configuration files
 
@@ -727,7 +728,7 @@ mu = log_returns.mean() * 252 + 0.5 * sigma**2
 - [x] Terminal distribution histogram with initial, mean and VaR price lines
 - [x] Confidence interval for the simulated terminal mean
 - [x] Wilson intervals for observed VaR violation rates
-- [ ] Confidence intervals for simulated VaR, CVaR and probability of loss
+- [x] Confidence intervals for simulated VaR, CVaR and probability of loss (Monte Carlo error only)
 - [x] VaR and CVaR computation
 - [x] Unit tests and validation against analytical results
 - [x] Command-line arguments for the simulation

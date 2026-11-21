@@ -157,6 +157,17 @@ def format_simulation_summary(report, config, terminal_mean, terminal_std) -> st
              f"Desvio padrão dos preços finais:  {terminal_std}",
              "Validação analítica (estimativa, teoria e erros):",
              str(report["results"]["terminal"])]
+    intervals = report["results"].get("risk_intervals")
+    if intervals:
+        def bound(value):
+            return "ilimitado" if value is None else f"{value:.2f}"
+        lines.append(f"IC {intervals['var']['level']:.0%} (erro Monte Carlo, mu/sigma fixos):")
+        for label, key in (("VaR", "var"), ("CVaR", "cvar")):
+            item = intervals[key]
+            lines.append(f"  {label}: [{bound(item['lower'])}, {bound(item['upper'])}] "
+                         "(moeda do ativo)")
+        item = intervals["prob_loss"]
+        lines.append(f"  P(perda): [{item['lower']:.2%}, {item['upper']:.2%}]")
     if "calibration_sensitivity" in report:
         sensitivity = report["calibration_sensitivity"]
         scenarios = sensitivity["scenarios"]

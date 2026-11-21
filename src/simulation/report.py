@@ -14,6 +14,7 @@ import pandas as pd
 from calibration.estimation import TRADING_DAYS, estimate_gbm_params
 from calibration.prices import validate_prices
 from simulation.gbm import simulate_gbm
+from risk.intervals import risk_confidence_intervals
 from risk.statistics import risk_summary
 from validation.statistics import compare_terminal, convergence_analysis, terminal_theory
 from validation.out_of_sample import evaluate_out_of_sample
@@ -130,7 +131,11 @@ def run_simulation(snapshot, config, out_of_sample_config=None, sensitivity_conf
         "results": {"terminal": comparison,
                     "terminal_mean_confidence_interval":
                         terminal_mean_confidence_interval(paths[-1]),
-                    "risk": risk_summary(paths, config.confidence)},
+                    "risk": risk_summary(paths, config.confidence),
+                    # Monte Carlo error only, fixed mu/sigma; iid (non-antithetic) sample.
+                    "risk_intervals": risk_confidence_intervals(
+                        paths, config.confidence, level=0.95,
+                        n_bootstrap=1000, seed=config.seed)},
         "convergence": convergence_analysis(paths[-1], theory),
         "environment": {"python": platform.python_version(),
                         **{name: version(name) for name in
@@ -191,6 +196,9 @@ def read_report(path):
             sensitivity_config["scenario_levels"] = saved_sensitivity["configuration"]["scenario_levels"]
     expected, _ = run_simulation(snapshot, config, historical_config,
                                  sensitivity_config)
+    # Risk intervals were added after the original results schema.
+    if "risk_intervals" not in report.get("results", {}):
+        expected["results"].pop("risk_intervals", None)
     for key in ("last_price", "parameters", "conventions", "results", "convergence"):
         if key not in report or report[key] != expected[key]:
             raise ValueError(f"Replay result mismatch in {key}: saved values differ from the reproduced run.")
