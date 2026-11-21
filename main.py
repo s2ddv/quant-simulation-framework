@@ -94,6 +94,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="VaR confidence level (default: 0.95)")
     parser.add_argument("--no-plot", action="store_true",
                         help="skip the interactive chart")
+    parser.add_argument("--interactive", action="store_true",
+                        help="also save paths.html, an interactive dark fan chart "
+                             "(requires: pip install -e \".[interactive]\")")
     parser.add_argument("--report", type=Path,
                         help="output run name (default: a free name under reports/)")
     parser.add_argument("--replay", type=Path,
@@ -196,7 +199,7 @@ def format_simulation_summary(report, config, terminal_mean, terminal_std) -> st
     return "\n".join(lines)
 
 
-def publish_run(report, paths, config, report_path, no_plot):
+def publish_run(report, paths, config, report_path, no_plot, interactive=False):
     """Write a complete bundle to staging, then publish it atomically."""
     destination = report_path.with_suffix("")
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -211,12 +214,16 @@ def publish_run(report, paths, config, report_path, no_plot):
         import matplotlib.pyplot as plt
         ticker = report["historical_data"]["ticker"]
         figures.append(plot_convergence(report["convergence"], staging / "convergence.png"))
-        figures.append(plot_paths(paths, title=f"GBM price paths: {ticker}",
-                                  save_path=staging / "paths.png"))
+        figures.append(plot_paths(paths, title=f"GBM price fan chart: {ticker}",
+                                  save_path=staging / "paths.png", style="fan"))
         figures.append(plot_final_distribution(
             paths, var=report["results"]["risk"]["var"],
             title=f"Final prices: {ticker} (VaR confidence: {config.confidence:.1%})",
             save_path=staging / "final-distribution.png"))
+        if interactive:
+            from simulation.interactive import plot_fan_html
+            plot_fan_html(paths, title=f"GBM price fan chart: {ticker}",
+                          save_path=staging / "paths.html")
         write_report(report, staging / "report.json")
         if destination.exists() or report_path.exists():
             raise FileExistsError(f"Execution already exists: {destination} or {report_path}.")
@@ -244,6 +251,11 @@ def main(argv: list[str] | None = None) -> None:
         return daily_main(tokens)
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.interactive:
+        try:
+            import plotly  # noqa: F401
+        except ImportError:
+            parser.error('--interactive needs plotly: pip install -e ".[interactive]"')
     if args.report is None:
         args.report = default_report_path()
     check_destination(args.report)
@@ -335,10 +347,13 @@ def main(argv: list[str] | None = None) -> None:
     terminal_mean = paths[-1].mean()
     terminal_std = paths[-1].std()
     print(format_simulation_summary(report, config, terminal_mean, terminal_std))
-    destination = publish_run(report, paths, config, args.report, args.no_plot)
+    destination = publish_run(report, paths, config, args.report, args.no_plot,
+                               interactive=args.interactive)
     print(f"Relatório: {destination / 'report.json'}")
     for name in ("convergence.png", "paths.png", "final-distribution.png"):
         print(f"Figura: {destination / name}")
+    if args.interactive:
+        print(f"Figura interativa: {destination / 'paths.html'}")
 
 
 def cli(argv: list[str] | None = None) -> None:

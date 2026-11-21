@@ -20,6 +20,7 @@ dependencies = [
 # Linters are pinned so new upstream rules cannot break CI without a review.
 dev = ["pytest", "ruff==0.17.6", "mypy==2.4.1"]
 notebooks = ["jupyterlab"]
+interactive = ["plotly"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -74,7 +75,7 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-# Third-party libraries without bundled type information. Stub packages
+# Third-party libraries without bundled type information (plotly is an optional extra, absent in CI). Stub packages
 # (pandas-stubs, scipy-stubs) are not installed, so these resolve to Any.
-module = ["pandas.*", "scipy.*", "yfinance.*"]
+module = ["pandas.*", "scipy.*", "yfinance.*", "plotly.*"]
 ignore_missing_imports = true
