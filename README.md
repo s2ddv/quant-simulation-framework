@@ -706,6 +706,9 @@ it excludes forecast/model uncertainty. Price percentiles describe the price
 distribution. Conditional normality and the noisy squared-return proxy remain
 model assumptions.
 
+`--interactive` (with the optional plotly extra) also saves `paths.html` here;
+the two-row path matrix gives a simple one-step fan, not a daily path history.
+
 Both commands are offline, publish a new staged JSON/three-PNG bundle, refuse
 overwrites, and verify scientific results on replay. The unscored next session
 is after the snapshot's last close, not necessarily after today's date. See
