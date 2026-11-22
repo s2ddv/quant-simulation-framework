@@ -175,6 +175,7 @@ monte-carlo-gbm/
 ├── README.md
 ├── pyproject.toml
 ├── main.py                  # Simulation and replay CLI
+├── dashboard.py             # Offline Streamlit dashboard for saved reports
 ├── src/
 │   ├── simulation/          # GBM paths, plots and JSON reports
 │   ├── calibration/         # Historical prices, parameter estimates and fundamentals
@@ -280,6 +281,33 @@ suppress it.
 ```bash
 python main.py --ticker AAPL --period 3y --no-plot --interactive
 ```
+
+### Report dashboard (offline)
+
+A Streamlit dashboard opens saved reports in one dark, terminal-style page:
+history followed by the percentile fan with analytical mean and 5%/95%
+quantiles, the terminal histogram with the exact lognormal density and VaR/CVaR
+thresholds, simulated vs analytical statistics, mean convergence, the
+calibration sensitivity grid and, when present, the historical VaR backtest.
+
+```bash
+pip install -e ".[dashboard]"
+streamlit run dashboard.py
+```
+
+It lists every `report.json` under a folder (default `reports/`) or accepts an
+upload. It never downloads data or writes files. Paths are not stored in the
+report, so the dashboard regenerates them from the saved seed and refuses to
+show charts if the regenerated terminal mean differs from the saved value (for
+example under another NumPy version). Memory is the same as the original run:
+`(steps + 1) * n_sims` float64 values. Future dates on the fan chart are
+approximate weekdays; the model's time axis is in years.
+
+The chart series come from `simulation.dashboard_data.build_dashboard_data`,
+a JSON-safe builder with no plotting dependency, and the figures from
+`simulation.dashboard_figures`. Both can be reused in notebooks or another
+front end. Bands are distribution percentiles under fixed calibrated
+parameters; they exclude calibration uncertainty and model error.
 
 The three saved figures (the CLI's `paths.png` is now a percentile fan chart) use a dark financial-terminal-inspired palette with
 distinct colors for price paths, distribution references and convergence

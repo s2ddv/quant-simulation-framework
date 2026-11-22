@@ -1,0 +1,10 @@
+# Dark theme matching the dashboard's Plotly figures (dashboard.py).
+[theme]
+base = "dark"
+primaryColor = "#f5a524"
+backgroundColor = "#0b0d10"
+secondaryBackgroundColor = "#12161b"
+textColor = "#d8dde3"
+
+[browser]
+gatherUsageStats = false
