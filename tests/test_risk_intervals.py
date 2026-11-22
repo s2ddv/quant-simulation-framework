@@ -702,3 +702,19 @@ def test_var_output_contract_and_json_safe():
     assert 0.0 <= out["coverage"] <= 1.0
     assert out["level"] == 0.9 and out["confidence"] == 0.75
     assert json.loads(json.dumps(out, allow_nan=False)) == out
+
+
+_TQ_ARGS = {"s0": 1.0, "mu": 0.05, "sigma": 0.2, "horizon": 1.0}
+
+
+@pytest.mark.parametrize("name,bad", [
+    *[(n, b) for n in _TQ_ARGS for b in (True, np.bool_(True))],
+    ("s0", "1"),
+])
+def test_terminal_quantile_rejects_bool_and_non_real_params(name, bad):
+    # Regression: bool was silently cast (s0=True -> 1.03) and str raised
+    # TypeError; the contract is ValueError (plan section 2.4).
+    kwargs = {**_TQ_ARGS, name: bad}
+    with pytest.raises(ValueError, match=name):
+        terminal_quantile(kwargs["s0"], kwargs["mu"], kwargs["sigma"],
+                          kwargs["horizon"], 0.5)
