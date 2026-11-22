@@ -23,9 +23,9 @@ import math
 
 import numpy as np
 import pytest
-from scipy import stats
+from scipy import integrate, stats
 
-from risk.intervals import prob_loss_interval, var_interval
+from risk.intervals import cvar_interval, prob_loss_interval, var_interval
 from risk.statistics import risk_summary
 from simulation.gbm import simulate_gbm, simulate_terminal_batched
 from validation.statistics import terminal_quantile, terminal_theory
@@ -715,6 +715,333 @@ def test_terminal_quantile_rejects_bool_and_non_real_params(name, bad):
     # Regression: bool was silently cast (s0=True -> 1.03) and str raised
     # TypeError; the contract is ValueError (plan section 2.4).
     kwargs = {**_TQ_ARGS, name: bad}
+    with pytest.raises(ValueError, match=name):
+        terminal_quantile(kwargs["s0"], kwargs["mu"], kwargs["sigma"],
+                          kwargs["horizon"], 0.5)
+
+
+# ==========================================================================
+# E1.3: CVaR interval (asymptotic and percentile bootstrap)
+# ==========================================================================
+#
+# Analytic GBM CVaR at level p (losses L = s0 - S_T, x = Q_{1-p}(S_T)):
+#   CVaR_p = s0 - E[S_T | S_T <= x]
+#          = s0 - s0 e^{mu T} Phi(d - sigma sqrt(T)) / Phi(d),
+#   d = (ln(x/s0) - (mu - sigma^2/2) T) / (sigma sqrt(T)) = Phi^{-1}(1 - p).
+# Cross-checked below against scipy.integrate.quad over the lognormal pdf.
+
+CVAR_METHODS = ("asymptotic", "bootstrap")
+CVAR_P = 0.95
+CVAR_N = 2_000  # expected tail size N (1 - p) = 100
+
+
+def _lognormal_params(s0, mu, sigma, horizon):
+    return sigma * math.sqrt(horizon), s0 * math.exp((mu - sigma**2 / 2) * horizon)
+
+
+def _cvar_closed_form(s0, mu, sigma, horizon, p):
+    shape, scale = _lognormal_params(s0, mu, sigma, horizon)
+    x = stats.lognorm.ppf(1 - p, s=shape, scale=scale)
+    d = (math.log(x / s0) - (mu - sigma**2 / 2) * horizon) / shape
+    return s0 - s0 * math.exp(mu * horizon) * stats.norm.cdf(d - shape) / stats.norm.cdf(d)
+
+
+def _cvar_quad(s0, mu, sigma, horizon, p):
+    shape, scale = _lognormal_params(s0, mu, sigma, horizon)
+    x = stats.lognorm.ppf(1 - p, s=shape, scale=scale)
+    tail_mass, _ = integrate.quad(lambda s: stats.lognorm.pdf(s, s=shape, scale=scale),
+                                  0.0, x, epsabs=0, epsrel=1e-12, limit=200)
+    partial_mean, _ = integrate.quad(
+        lambda s: s * stats.lognorm.pdf(s, s=shape, scale=scale),
+        0.0, x, epsabs=0, epsrel=1e-12, limit=200)
+    return s0 - partial_mean / tail_mass
+
+
+CVAR_TRUE = _cvar_closed_form(S0, MU, SIGMA, T, CVAR_P)
+
+
+def _cvar_kwargs(method, **extra):
+    kwargs = {"method": method}
+    if method == "bootstrap":
+        kwargs.update({"n_bootstrap": 200, "seed": 12345})
+    kwargs.update(extra)
+    return kwargs
+
+
+# --------------------------------------------------------------------------
+# Analytic reference
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("params", [(S0, MU, SIGMA, T), (100.0, 0.05, 0.2, 1.0),
+                                    (50.0, -0.1, 0.5, 0.25)])
+@pytest.mark.parametrize("p", [0.9, 0.95, 0.99])
+def test_cvar_closed_form_matches_quadrature(params, p):
+    assert _cvar_closed_form(*params, p) == pytest.approx(_cvar_quad(*params, p),
+                                                          rel=1e-9)
+
+
+def test_cvar_estimate_converges_to_analytic_value():
+    """One large sample (N = 200,000, tail 10,000 points): |est - CVaR| <= 4 SE
+    with SE the asymptotic one (validated by simulation below)."""
+    terminal = simulate_terminal_batched(S0, MU, SIGMA, T, 200_000, seed=8080)
+    out = cvar_interval(terminal, S0, CVAR_P)
+    assert abs(out["estimate"] - CVAR_TRUE) <= 4 * out["standard_error"]
+    assert out["var"] == pytest.approx(
+        S0 - terminal_quantile(S0, MU, SIGMA, T, 1 - CVAR_P), abs=0.5)
+
+
+# --------------------------------------------------------------------------
+# Consistency with risk_summary (ties at VaR included in the tail)
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("method", CVAR_METHODS)
+@pytest.mark.parametrize("confidence", [0.5, 0.9, 0.95, 0.99])
+def test_cvar_estimate_and_var_equal_risk_summary(method, confidence):
+    paths = simulate_gbm(S0, MU, SIGMA, T, steps=3, n_sims=1_001, seed=31)
+    out = cvar_interval(paths[-1], paths[0, 0], confidence, **_cvar_kwargs(method))
+    summary = risk_summary(paths, confidence)
+    assert out["estimate"] == summary["cvar"]
+    assert out["var"] == summary["var"]
+    assert out["n"] == 1_001
+
+
+@pytest.mark.parametrize("method", CVAR_METHODS)
+def test_cvar_ties_at_var_are_in_tail(method):
+    # Losses: 20 x 5.0 (at VaR), 70 x 0.0, 10 x -3.0; VaR(0.9) = 5.0 exactly.
+    terminal = np.repeat([95.0, 100.0, 103.0], [20, 70, 10])
+    paths = np.vstack([np.full(terminal.size, S0), terminal])
+    out = cvar_interval(terminal, S0, 0.9, **_cvar_kwargs(method))
+    summary = risk_summary(paths, 0.9)
+    assert out["var"] == summary["var"] == 5.0
+    assert out["estimate"] == summary["cvar"] == 5.0
+    assert out["n_tail"] == 20  # every tie at VaR, not just N (1 - p) = 10
+
+
+# --------------------------------------------------------------------------
+# Asymptotic SE vs simulation; empirical coverage
+# --------------------------------------------------------------------------
+
+def test_cvar_asymptotic_se_matches_replicate_sd():
+    """R = 500 independent replicates (disjoint blocks), N = 2000, p = 0.95.
+
+    The empirical SD of the estimator over R replicates has relative standard
+    error ~ 1/sqrt(2 (R - 1)) ~ 0.032 (near-normal estimator); 4 x that is
+    0.127. The mean asymptotic SE must match within that relative band. The
+    mean of the estimates must be within 4 SD/sqrt(R) + an O(1/N) bias
+    allowance of the analytic CVaR (bias allowance: 0.1 price units, ~0.13 SD).
+    """
+    n_reps = 500
+    outs = [cvar_interval(row, S0, CVAR_P)
+            for row in _var_replicates(n_reps, CVAR_N, seed=4401)]
+    est = np.array([o["estimate"] for o in outs])
+    se = np.array([o["standard_error"] for o in outs])
+    sd = float(est.std(ddof=1))
+    assert abs(se.mean() / sd - 1) <= 4 / math.sqrt(2 * (n_reps - 1))
+    assert abs(est.mean() - CVAR_TRUE) <= 4 * sd / math.sqrt(n_reps) + 0.1
+
+
+def _cvar_coverage(n_reps, seed, method, n_bootstrap=200):
+    hits = 0
+    for i, row in enumerate(_var_replicates(n_reps, CVAR_N, seed)):
+        kwargs = {"n_bootstrap": n_bootstrap, "seed": i} if method == "bootstrap" else {}
+        out = cvar_interval(row, S0, CVAR_P, LEVEL, method, **kwargs)
+        hits += out["lower"] <= CVAR_TRUE <= out["upper"]
+    return hits / n_reps
+
+
+# Threshold rationale (plan E1.3): nominal 0.95, but both intervals are
+# approximate with only N (1 - p) = 100 tail points: the asymptotic normal
+# ignores the estimator's skewness and the percentile bootstrap of a tail mean
+# under-covers in tails, so true coverage of ~0.93 is plausible. Plan floor:
+# 0.90 for 500 replicates, i.e. ~3 binomial SE (sqrt(.93*.07/500) ~ 0.011)
+# below 0.93.
+
+@pytest.mark.parametrize("method", CVAR_METHODS)
+def test_cvar_empirical_coverage_fast(method):
+    """80 replicates, B = 200: SE ~ sqrt(.93*.07/80) ~ 0.029, floor
+    0.93 - 3 SE ~ 0.84 (same 3 SE margin as the plan's 0.90 at R = 500)."""
+    assert _cvar_coverage(80, seed=4502, method=method) >= 0.84
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("method", CVAR_METHODS)
+def test_cvar_empirical_coverage_plan_500_replicates(method):
+    """Plan E1.3: 500 replicates, N = 2000, p = 0.95, coverage >= 0.90.
+
+    Bootstrap uses B = 400 instead of the default 1000 to keep cost ~12 s
+    (one call with B = 1000 at N = 2000 takes ~0.09 s, i.e. ~45 s in total).
+    B only adds Monte Carlo noise to the 2.5%/97.5% percentile endpoints
+    (about 10 replicates beyond each endpoint at B = 400), which perturbs
+    each interval slightly but does not bias the coverage materially.
+    """
+    assert _cvar_coverage(500, seed=4603, method=method, n_bootstrap=400) >= 0.90
+
+
+# --------------------------------------------------------------------------
+# Determinism and RNG
+# --------------------------------------------------------------------------
+
+def _small_sample(n=50, seed=99):
+    return S0 * np.exp(np.random.default_rng(seed).normal(0.0, 0.2, n))
+
+
+def test_cvar_bootstrap_same_seed_identical_different_seed_differs():
+    x = _small_sample()
+    a = cvar_interval(x, S0, 0.9, method="bootstrap", n_bootstrap=50, seed=7)
+    b = cvar_interval(x, S0, 0.9, method="bootstrap", n_bootstrap=50, seed=7)
+    c = cvar_interval(x, S0, 0.9, method="bootstrap", n_bootstrap=50, seed=8)
+    assert a == b
+    assert (a["lower"], a["upper"], a["bootstrap_standard_error"]) != (
+        c["lower"], c["upper"], c["bootstrap_standard_error"])
+    assert a["estimate"] == c["estimate"]  # point estimate is RNG-free
+
+
+def test_cvar_bootstrap_independent_of_batch_size():
+    x = _small_sample()
+    outs = [cvar_interval(x, S0, 0.9, method="bootstrap", n_bootstrap=23, seed=3,
+                          batch_size=bs) for bs in (1, 7, None, 23, 1000)]
+    assert all(o == outs[0] for o in outs)
+
+
+def test_cvar_bootstrap_seed_none_runs_and_reports_none():
+    out = cvar_interval(_small_sample(), S0, 0.9, method="bootstrap", n_bootstrap=20)
+    assert out["seed"] is None
+    assert out["lower"] <= out["upper"]
+    assert isinstance(out["rng"], str) and out["rng"]
+    json.dumps(out, allow_nan=False)
+
+
+@pytest.mark.parametrize("method", CVAR_METHODS)
+def test_cvar_input_not_modified(method):
+    x = _small_sample()
+    original = x.copy()
+    as_list = x.tolist()
+    cvar_interval(x, S0, 0.9, **_cvar_kwargs(method))
+    cvar_interval(as_list, S0, 0.9, **_cvar_kwargs(method))
+    np.testing.assert_array_equal(x, original)
+    assert as_list == original.tolist()
+
+
+# --------------------------------------------------------------------------
+# Degenerate cases
+# --------------------------------------------------------------------------
+
+def test_cvar_n_equals_one():
+    asym = cvar_interval([90.0], S0, 0.95)
+    assert asym["estimate"] == asym["var"] == 10.0 and asym["n_tail"] == 1
+    assert asym["lower"] is None and asym["upper"] is None
+    assert asym["standard_error"] is None and isinstance(asym["note"], str)
+    json.dumps(asym, allow_nan=False)
+    boot = cvar_interval([90.0], S0, 0.95, method="bootstrap", n_bootstrap=10, seed=1)
+    assert boot["lower"] == boot["upper"] == boot["estimate"] == 10.0
+    assert boot["bootstrap_standard_error"] == 0.0
+
+
+def test_cvar_asymptotic_single_tail_point_gives_none_and_note():
+    # N = 5, p = 0.95: VaR interpolates between the two largest losses, so
+    # only the maximum is >= VaR.
+    out = cvar_interval(S0 - np.array([1.0, 2.0, 3.0, 4.0, 10.0]), S0, 0.95)
+    assert out["n_tail"] == 1 and out["estimate"] == 10.0
+    assert out["lower"] is None and out["upper"] is None
+    assert out["standard_error"] is None and "note" in out
+    assert json.loads(json.dumps(out, allow_nan=False)) == out
+
+
+@pytest.mark.parametrize("method", CVAR_METHODS)
+def test_cvar_sigma_zero_degenerate(method):
+    paths = simulate_gbm(S0, 0.05, 0.0, 1.0, steps=2, n_sims=300, seed=5)
+    v = S0 - paths[-1, 0]
+    out = cvar_interval(paths[-1], S0, 0.95, **_cvar_kwargs(method))
+    assert out["estimate"] == out["var"] == out["lower"] == out["upper"] == v
+    se_key = "standard_error" if method == "asymptotic" else "bootstrap_standard_error"
+    assert out[se_key] == 0.0
+
+
+@pytest.mark.parametrize("method", CVAR_METHODS)
+@pytest.mark.parametrize("scale", [1e-300, 1e300])
+def test_cvar_extreme_scales_finite(method, scale):
+    x = _small_sample(200, seed=11)
+    out = cvar_interval(x * (scale / S0), scale, 0.9, **_cvar_kwargs(method))
+    values = [out["estimate"], out["var"], out["lower"], out["upper"]]
+    assert np.isfinite(values).all()
+    assert out["lower"] <= out["upper"]
+    se_key = "standard_error" if method == "asymptotic" else "bootstrap_standard_error"
+    assert np.isfinite(out[se_key]) and out[se_key] > 0
+    # Scale-equivariance against the same sample at unit scale.
+    ref = cvar_interval(x, S0, 0.9, **_cvar_kwargs(method))
+    assert out["estimate"] == pytest.approx(ref["estimate"] * scale / S0, rel=1e-9)
+    assert out[se_key] == pytest.approx(ref[se_key] * scale / S0, rel=1e-9)
+
+
+# --------------------------------------------------------------------------
+# Validation and output contract
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("kwargs", [
+    {"method": "Asymptotic"}, {"method": "normal"}, {"method": None},
+    *({"method": "bootstrap", "n_bootstrap": v} for v in (1, 0, True, 2.0, "10")),
+    *({"method": "bootstrap", "seed": v} for v in (-1, True, 1.5, "1")),
+    *({"method": "bootstrap", "batch_size": v} for v in (0, -3, False, 2.5)),
+    *({"confidence": v} for v in (0, 1, 1.5, True, float("nan"))),
+    *({"level": v} for v in (0, 1, -0.2, np.bool_(True), float("nan"))),
+])
+def test_cvar_invalid_arguments_raise(kwargs):
+    with pytest.raises(ValueError):
+        cvar_interval(_small_sample(20), S0, **kwargs)
+
+
+@pytest.mark.parametrize("terminal,s0", [
+    (np.array([]), S0), (np.ones((2, 2)), S0), (np.array([1.0, np.nan]), S0),
+    (np.array([True, False]), S0), (GOOD, True), (GOOD, float("inf")),
+])
+def test_cvar_invalid_terminal_or_s0_raise(terminal, s0):
+    with pytest.raises(ValueError):
+        cvar_interval(terminal, s0)
+
+
+@pytest.mark.parametrize("method", CVAR_METHODS)
+def test_cvar_output_contract_and_json_safe(method):
+    out = cvar_interval(np.float32(_small_sample(40)), np.float64(S0), np.float64(0.9),
+                        np.float64(0.8), **_cvar_kwargs(method))
+    common = {"estimate", "lower", "upper", "method", "level", "confidence", "n",
+              "n_tail", "var"}
+    extra = ({"standard_error"} if method == "asymptotic"
+             else {"bootstrap_standard_error", "n_bootstrap", "seed", "rng"})
+    assert set(out) == common | extra
+    assert out["method"] == method
+    for key in ("estimate", "lower", "upper", "level", "confidence", "var",
+                *(k for k in extra if k.endswith("standard_error"))):
+        assert type(out[key]) is float, key
+    for key in ("n", "n_tail", *(("n_bootstrap", "seed") if method == "bootstrap" else ())):
+        assert type(out[key]) is int, key
+    assert out["level"] == 0.8 and out["confidence"] == 0.9
+    assert out["lower"] <= out["upper"]
+    assert json.loads(json.dumps(out, allow_nan=False)) == out
+
+
+@pytest.mark.parametrize("n,p", [(1, 0.99), (10, 0.99)])
+def test_cvar_bootstrap_single_tail_point_has_note(n, p):
+    # Regression: with n_tail < 2 the bootstrap returned a [CVaR, CVaR]
+    # interval with no warning; the numeric bounds stay, plus a ``note``.
+    out = cvar_interval(_small_sample(n), S0, p, method="bootstrap",
+                        n_bootstrap=20, seed=0)
+    assert out["n_tail"] < 2
+    assert isinstance(out["note"], str) and "coverage" in out["note"]
+    assert isinstance(out["lower"], float) and isinstance(out["upper"], float)
+    json.dumps(out, allow_nan=False)
+
+
+def test_cvar_bootstrap_regular_tail_has_no_note():
+    out = cvar_interval(_small_sample(2000), S0, 0.95, method="bootstrap",
+                        n_bootstrap=20, seed=0)
+    assert out["n_tail"] >= 2
+    assert "note" not in out
+
+
+@pytest.mark.parametrize("name", list(_TQ_ARGS))
+def test_terminal_quantile_huge_int_param_raises_value_error(name):
+    # Regression: 10**400 reached np.isfinite and raised TypeError.
+    kwargs = {**_TQ_ARGS, name: 10**400}
     with pytest.raises(ValueError, match=name):
         terminal_quantile(kwargs["s0"], kwargs["mu"], kwargs["sigma"],
                           kwargs["horizon"], 0.5)

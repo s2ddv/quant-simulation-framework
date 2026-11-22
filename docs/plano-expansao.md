@@ -871,10 +871,10 @@ O usuário precisa aprovar o contrato antes da implementação (§2.2).
 
 | ID | Status | Commit | Revisado por | Notas |
 | --- | --- | --- | --- | --- |
-| E1.1 | pendente | — | — | — |
-| E1.2 | pendente | — | — | — |
-| E1.3 | pendente | — | — | — |
-| E1.4 | pendente | — | — | — |
+| E1.1 | concluído | `764c1e7` + `3ca0d5d` | `revisor_quant` (P3 corrigidos) | Wilson/Clopper-Pearson; cobertura exata 0,9547, empírica 0,9485 |
+| E1.2 | concluído | `3c49052` + `1c6fa80`, `64eeb51` | `revisor_quant` (P3 corrigidos) | Estatísticas de ordem com `coverage` exata e `saturated`; `terminal_quantile` só por adição |
+| E1.3 | concluído | `6312d1c` + `64eeb51` | `revisor_quant` (P3 corrigidos) | Assintótico e bootstrap em lotes; desvio: `spawn_key=(crc32(b"cvar_bootstrap"),)` (NumPy rejeita string) |
+| E1.4 | concluído | `459a4d6` (outra sessão) + `5530b79`, `f522b73` | `revisor_quant` (P2 da CLI corrigido) | Campo opcional da v1; P3 pendentes: `unit`/`parameter_scope` (E9.2) e cobertura com `.1%` na CLI |
 | E2.1 | pendente | — | — | — |
 | E2.2 | pendente | — | — | — |
 | E2.3 | pendente | — | — | — |

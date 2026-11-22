@@ -14,6 +14,7 @@ import pandas as pd
 from calibration.estimation import TRADING_DAYS, estimate_gbm_params
 from calibration.prices import validate_prices
 from simulation.gbm import simulate_gbm
+from risk.intervals import cvar_interval, prob_loss_interval, var_interval
 from risk.statistics import risk_summary
 from validation.statistics import compare_terminal, convergence_analysis, terminal_theory
 from validation.out_of_sample import evaluate_out_of_sample
@@ -107,6 +108,25 @@ def terminal_mean_confidence_interval(terminal, *, level=0.95):
     return result
 
 
+def risk_intervals(terminal, s0, confidence, *, level=0.95):
+    """Monte Carlo estimator intervals for the risk metrics (E1.4).
+
+    These quantify only Monte Carlo error of the point estimates with mu and
+    sigma held fixed; they are not price percentiles and do not include
+    calibration uncertainty (see ``calibration_sensitivity``). The samples
+    are assumed i.i.d. (plain Monte Carlo). The CVaR uses the asymptotic
+    interval: it is O(N), deterministic and needs no extra RNG stream.
+    """
+    return {
+        "interval_kind": "monte_carlo_estimator",
+        "level": level,
+        "prob_loss": prob_loss_interval(terminal, s0, level=level, method="wilson"),
+        "var": var_interval(terminal, s0, confidence=confidence, level=level),
+        "cvar": cvar_interval(terminal, s0, confidence=confidence, level=level,
+                              method="asymptotic"),
+    }
+
+
 def run_simulation(snapshot, config, out_of_sample_config=None, sensitivity_config=None):
     """Return a deterministic, JSON-safe report and its simulated paths."""
     prices = prices_from_snapshot(snapshot)
@@ -130,11 +150,12 @@ def run_simulation(snapshot, config, out_of_sample_config=None, sensitivity_conf
         "results": {"terminal": comparison,
                     "terminal_mean_confidence_interval":
                         terminal_mean_confidence_interval(paths[-1]),
-                    "risk": risk_summary(paths, config.confidence)},
+                    "risk": risk_summary(paths, config.confidence),
+                    "risk_intervals": risk_intervals(paths[-1], s0, config.confidence)},
         "convergence": convergence_analysis(paths[-1], theory),
         "environment": {"python": platform.python_version(),
                         **{name: version(name) for name in
-                           ("numpy", "pandas", "matplotlib", "yfinance")}},
+                           ("numpy", "pandas", "scipy", "matplotlib", "yfinance")}},
     }
     if out_of_sample_config is not None:
         if not isinstance(out_of_sample_config, dict):
@@ -191,6 +212,10 @@ def read_report(path):
             sensitivity_config["scenario_levels"] = saved_sensitivity["configuration"]["scenario_levels"]
     expected, _ = run_simulation(snapshot, config, historical_config,
                                  sensitivity_config)
+    # Risk intervals were added after schema v1 was published; older v1
+    # reports without them still replay against the remaining results.
+    if isinstance(report.get("results"), dict) and "risk_intervals" not in report["results"]:
+        expected["results"].pop("risk_intervals", None)
     for key in ("last_price", "parameters", "conventions", "results", "convergence"):
         if key not in report or report[key] != expected[key]:
             raise ValueError(f"Replay result mismatch in {key}: saved values differ from the reproduced run.")
