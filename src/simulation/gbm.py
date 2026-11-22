@@ -10,6 +10,7 @@ from scipy.stats import t as student_t
 from calibration.estimation import TRADING_DAYS
 from calibration.prices import validate_prices
 from simulation.base import BaseStochasticSimulator
+from simulation.variance_reduction import VarianceReduction, validate_variance_reduction
 
 DistributionType = Literal["normal", "t_student"]
 
@@ -70,7 +71,18 @@ class GbmSimulator(BaseStochasticSimulator):
             raise ValueError("t fit returned invalid degrees of freedom")
         self.mu, self.sigma, self.calibrated_df = mu, sigma, float(df)
 
-    def generate_paths(self, dist_type: DistributionType = "normal") -> np.ndarray:
+    def _antithetic_pairs(self, variance_reduction: str, dist_type: str) -> int:
+        """Validate the sampling mode; return ``m`` pairs (0 for ``"none"``)."""
+        if validate_variance_reduction(variance_reduction) == "none":
+            return 0
+        if dist_type != "normal":
+            raise ValueError("antithetic sampling requires dist_type='normal'")
+        if self.n_sims % 2:
+            raise ValueError("antithetic sampling requires an even n_sims")
+        return self.n_sims // 2
+
+    def generate_paths(self, dist_type: DistributionType = "normal", *,
+                       variance_reduction: VarianceReduction = "none") -> np.ndarray:
         """Return ``(steps + 1, n_sims)`` positive prices.
 
         The output holds the working shocks and cumulative log returns in
@@ -79,9 +91,18 @@ class GbmSimulator(BaseStochasticSimulator):
         Unrepresentable increments or prices raise ``ValueError``. In t
         mode ``mu`` controls the log-return location through the normal-mode
         convention; it is not a finite expected-price growth rate.
+
+        ``variance_reduction="antithetic"`` (normal mode, even ``n_sims = 2m``)
+        draws the ``(steps, m)`` shocks ``Z`` into columns ``0..m-1`` and
+        writes ``-Z`` into columns ``m..2m-1``; column ``i`` pairs with
+        ``i + m``. Shocks are drawn row by row into the output, which gives
+        the same values as one C-order ``(steps, m)`` draw and needs no
+        extra matrix. See ``simulation.variance_reduction``. The default
+        ``"none"`` keeps the historical draw order and arithmetic.
         """
         if dist_type not in ("normal", "t_student"):
             raise ValueError("dist_type must be 'normal' or 't_student'")
+        pairs = self._antithetic_pairs(variance_reduction, dist_type)
         if self.mu is None or self.sigma is None:
             raise ValueError("calibrate or supply mu and sigma before generating paths")
         if (dist_type == "t_student" and
@@ -118,7 +139,13 @@ class GbmSimulator(BaseStochasticSimulator):
         paths = np.empty((self.steps + 1, self.n_sims), dtype=np.float64)
         paths[0].fill(self.s0)
         increments = paths[1:]
-        if dist_type == "normal":
+        if pairs:
+            # Generator.standard_normal needs a contiguous ``out``; each row
+            # prefix is contiguous and rows are filled in C order.
+            for row in increments:
+                self.rng.standard_normal(size=pairs, out=row[:pairs])
+            np.negative(increments[:, :pairs], out=increments[:, pairs:])
+        elif dist_type == "normal":
             self.rng.standard_normal(size=increments.shape, out=increments)
         else:
             df = self.calibrated_df
@@ -148,7 +175,8 @@ class GbmSimulator(BaseStochasticSimulator):
         return paths
 
     def generate_terminal(self, *, batch_size: int = 10_000,
-                          max_working_bytes: int = 256 * 1024 * 1024) -> np.ndarray:
+                          max_working_bytes: int = 256 * 1024 * 1024,
+                          variance_reduction: VarianceReduction = "none") -> np.ndarray:
         """Return normal GBM terminal prices as a ``float64 (n_sims,)`` array.
 
         Draw one independent standard normal Z per simulation and evaluate
@@ -169,6 +197,12 @@ class GbmSimulator(BaseStochasticSimulator):
         No elementwise identity is promised with full paths, other sampling
         formats or other NumPy versions. Prices outside finite positive
         float64 precision raise ValueError, including underflow to zero.
+
+        ``variance_reduction="antithetic"`` requires an even ``n_sims = 2m``
+        and returns ``[originals..., mirrors...]``: ``m`` normals are drawn
+        in batches of ``batch_size`` into ``terminal[:m]`` and negated into
+        ``terminal[m:]`` before the transform, within the same
+        ``8 * n_sims``-byte budget. Element ``i`` pairs with ``i + m``.
         """
         for name, value in (("batch_size", batch_size),
                             ("max_working_bytes", max_working_bytes)):
@@ -176,6 +210,7 @@ class GbmSimulator(BaseStochasticSimulator):
                 raise ValueError(f"{name} must be a positive integer")
         if self.mu is None or self.sigma is None:
             raise ValueError("calibrate or supply mu and sigma before generating terminal prices")
+        pairs = self._antithetic_pairs(variance_reduction, "normal")
         required = 8 * self.n_sims
         if required > max_working_bytes:
             raise ValueError(
@@ -195,9 +230,8 @@ class GbmSimulator(BaseStochasticSimulator):
         terminal = np.empty(self.n_sims, dtype=np.float64)
         log_max = np.log(np.finfo(np.float64).max)
         log_tiny = np.log(np.finfo(np.float64).tiny)
-        for start in range(0, self.n_sims, int(batch_size)):
-            batch = terminal[start:start + int(batch_size)]
-            self.rng.standard_normal(size=batch.shape, out=batch)
+
+        def transform(batch: np.ndarray) -> None:
             with np.errstate(over="ignore", invalid="ignore", under="ignore"):
                 np.multiply(batch, scale, out=batch)
                 batch += drift
@@ -211,20 +245,37 @@ class GbmSimulator(BaseStochasticSimulator):
             low, high = np.min(batch), np.max(batch)
             if not np.isfinite(low) or not np.isfinite(high) or low <= 0:
                 raise ValueError("terminal prices exceed finite positive precision")
+
+        if pairs:
+            for start in range(0, pairs, int(batch_size)):
+                batch = terminal[start:min(start + int(batch_size), pairs)]
+                mirror = terminal[pairs + start:pairs + start + batch.size]
+                self.rng.standard_normal(size=batch.shape, out=batch)
+                np.negative(batch, out=mirror)
+                transform(batch)
+                transform(mirror)
+            return terminal
+        for start in range(0, self.n_sims, int(batch_size)):
+            batch = terminal[start:start + int(batch_size)]
+            self.rng.standard_normal(size=batch.shape, out=batch)
+            transform(batch)
         return terminal
 
 
 def simulate_gbm(s0: float, mu: float, sigma: float, horizon: float,
-                 steps: int, n_sims: int, seed: int | None = None) -> np.ndarray:
+                 steps: int, n_sims: int, seed: int | None = None, *,
+                 variance_reduction: VarianceReduction = "none") -> np.ndarray:
     """Compatibility entry point for the existing normal GBM pipeline."""
     return GbmSimulator(s0, horizon, steps, n_sims, seed, mu=mu,
-                        sigma=sigma).generate_paths()
+                        sigma=sigma).generate_paths(
+                            variance_reduction=variance_reduction)
 
 
 def simulate_terminal_batched(s0: float, mu: float, sigma: float, horizon: float,
                               n_sims: int, seed: int | None = None, *,
                               batch_size: int = 10_000,
-                              max_working_bytes: int = 256 * 1024 * 1024) -> np.ndarray:
+                              max_working_bytes: int = 256 * 1024 * 1024,
+                              variance_reduction: VarianceReduction = "none") -> np.ndarray:
     """Sample exact normal GBM terminal prices with a local seeded RNG.
 
     See ``GbmSimulator.generate_terminal`` for units, memory accounting and
@@ -233,5 +284,6 @@ def simulate_terminal_batched(s0: float, mu: float, sigma: float, horizon: float
     those additional arrays are outside this function's memory budget.
     """
     return GbmSimulator(s0, horizon, 1, n_sims, seed, mu=mu, sigma=sigma).generate_terminal(
-        batch_size=batch_size, max_working_bytes=max_working_bytes
+        batch_size=batch_size, max_working_bytes=max_working_bytes,
+        variance_reduction=variance_reduction,
     )
