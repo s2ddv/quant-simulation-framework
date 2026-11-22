@@ -59,7 +59,7 @@ ativos:
      simetria put-call de Bates/Haug, monotonicidade, convexidade e
      continuidade nos limites.
    - O revisor não achou erro de fórmula, sinal ou unidade. Apontou duas
-     lacunas de teste (P2), confirmadas por mutação, encaminhadas ao testador.
+     lacunas de teste (P2), confirmadas por mutação, que o testador fechou com 12 testes novos.
      Apontou também itens de robustez em extremos (P3), deixados como
      pendência.
 
@@ -119,10 +119,14 @@ há SE nem semente neste escopo.
 | Ida e volta da volatilidade implícita | 120 casos: 116 bem condicionados com erro máximo 2,7e-13 (< 1e-8); 4 com vega ~1e-10 recuperam o preço a ≤ 1e-12·max(S,K), com erro em σ até ~2e-5 |
 | Preço vs. integral sob Q (`quad`) | 48 pontos × call/put; maior erro relativo à tolerância 4,7e-6 |
 | PDE de BSM com q | Fecha a 1e-9 do maior termo |
-| Mutação (revisor) | 15 de 21 mutantes mortos pelo arquivo original; lacunas P2 em correção pelo `testador_quant` |
+| Mutação (revisor) | 15 de 21 mutantes mortos pelo arquivo original; lacunas P2 fechadas: os 4 mutantes (sinais de theta/rho/delta da put degenerada e limite superior não estrito da IV) passam a falhar |
 
-Os comandos e contagens da validação final estão no commit que fecha
-E3.1/E3.2 e no relatório da sessão.
+Validação final na raiz, com `.venv` (Python 3.13, NumPy 2.5.5, SciPy 1.18.1):
+
+- `MPLBACKEND=Agg .venv/bin/python -m pytest -q` → 1550 passed, 51 subtests passed;
+- `.venv/bin/python -m ruff check` → All checks passed;
+- `.venv/bin/python -m mypy` → Success: no issues found in 59 source files;
+- só os dois arquivos de BSM: 928 passed.
 
 ## Limitações
 
