@@ -192,7 +192,10 @@ def var_interval(terminal: Any, s0: Any, confidence: float = 0.95,
 
     Point vs interval: the linear percentile interpolates between the order
     statistics of 1-based ranks ``floor(h) + 1`` and ``ceil(h) + 1`` with
-    ``h = (N - 1) p``, an O(1/N) rank offset from ``N p``. Usually
+    ``h = (N - 1) p``. The interpolated 1-based rank is
+    ``h + 1 = N p + (1 - p)``: an O(1) offset in rank, i.e. O(1/N) in
+    probability level (``(1 - p) / N``), which for a smooth density ``f`` is
+    about ``(1 - p) / (N f(q))`` in price. Usually
     ``j <= floor(h) + 1`` and ``ceil(h) + 1 <= k``, so the estimate lies in
     the interval, but this is not enforced: for very small N or a small
     ``level`` (ranks near the binomial median) the estimate can fall outside

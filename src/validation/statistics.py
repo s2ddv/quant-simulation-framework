@@ -118,6 +118,13 @@ def terminal_quantile(s0, mu, sigma, horizon, p):
         ValueError: On invalid parameters or ``p`` (bool rejected), or if the
             quantile overflows or underflows to zero in float64.
     """
+    for name, value in (("s0", s0), ("mu", mu), ("sigma", sigma),
+                        ("horizon", horizon)):
+        if isinstance(value, (bool, np.bool_)) or not isinstance(value, Real):
+            raise ValueError(
+                f"{name} must be a real number (bool rejected), "
+                f"got {type(value).__name__}."
+            )
     if (not np.isfinite([s0, mu, sigma, horizon]).all()
             or s0 <= 0 or sigma < 0 or horizon < 0):
         raise ValueError("Require finite parameters, s0 > 0, sigma/horizon >= 0.")
