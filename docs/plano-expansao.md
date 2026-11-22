@@ -876,7 +876,7 @@ O usuário precisa aprovar o contrato antes da implementação (§2.2).
 | E1.3 | concluído | `6312d1c` + `64eeb51` | `revisor_quant` (P3 corrigidos) | Assintótico e bootstrap em lotes; desvio: `spawn_key=(crc32(b"cvar_bootstrap"),)` (NumPy rejeita string) |
 | E1.4 | concluído | `459a4d6` (outra sessão) + `5530b79`, `f522b73` | `revisor_quant` (P2 da CLI corrigido) | Campo opcional da v1; P3 pendentes: `unit`/`parameter_scope` (E9.2) e cobertura com `.1%` na CLI |
 | E2.1 | concluído | `cb73857` + testes `tests/test_antithetic.py` | `revisor_quant` (sem P0–P2) | VRF m=2^14: σ=0,2 → 25,76 (teór. 25,50), σ=0,5 → 4,408 (teór. 4,521); straddle 0,540. Desvio aceito: `VarianceReduction` = `Literal["none","antithetic"]` em E2.1 (`"qmc"` entra em E2.3; `"control"` é estimador, não amostragem). P3: VRF `inf` (σ√T=0) precisa virar `null` no JSON (E2.4) |
-| E2.2 | pendente | — | — | — |
+| E2.2 | concluído | `30e1a12` + `3f02cae` (P2) | `revisor_quant` (P2 corrigido e revisado) | Call K=100 sob P, N=2e5, seed 2202: VRF 6,88 (teór. 6,88), SE 0,0132 vs 0,0346 simples; viés same_sample O(1/N), piloto sem viés. Decisões: `vrf` = razão obtida Var(Y)/Var(res); same_sample ddof=2; piloto = prefixo; antitéticas+controle não suportado. P3 abertos: cancelamento com offsets ~1e12; vrf enorme em relação afim exata |
 | E2.3 | pendente | — | — | — |
 | E2.4 | pendente | — | — | — |
 | E3.0 | concluído | `e8ac17b` (correções do plano) | principal | Parecer do `pesquisador_quant` (somente leitura); fontes primárias não lidas no original |
