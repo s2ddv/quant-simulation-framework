@@ -362,6 +362,11 @@ def control_variate_mean(values: object, control: object,
     Computations run on power-of-two rescaled copies of ``X`` and ``Y`` so
     sums, variances and covariances do not overflow; a result that still
     exceeds finite precision raises ``ValueError``.
+
+    The standard error and any normal interval built from it are asymptotic
+    and under-cover at small ``N`` (e.g. for an at-the-money call under P a
+    nominal 95% interval covered about 0.76 at N=10 and 0.89 at N=30 with the
+    same-sample beta, approaching 0.95 only near N=1000).
     """
     y = _real_vector("values", values)
     x = _real_vector("control", control)
@@ -428,6 +433,10 @@ def control_variate_mean(values: object, control: object,
         estimate_scaled = (float(np.mean(main_b))
                            - beta_scaled * (float(np.mean(main_a)) - centre))
         residual = main_b - beta_scaled * main_a
+        if not np.all(np.isfinite(residual)):
+            raise ValueError(
+                "control-variate residual exceeds finite precision"
+            )
         if np.ptp(residual) > 0:
             centred = residual - np.mean(residual)
             residual_ss = float(centred @ centred)
