@@ -148,6 +148,26 @@ def check_destination(report_path: Path) -> Path:
     return destination
 
 
+def _risk_interval_lines(intervals) -> list[str]:
+    """Monte Carlo estimator intervals; absent in reports saved before E1."""
+    if not intervals:
+        return []
+    level = intervals["level"]
+    lines = [f"IC {level:.0%} do estimador Monte Carlo (erro de amostragem, "
+             "mu/sigma fixos; não é percentil de preço):"]
+    for key, label in (("prob_loss", "P(perda)"), ("var", "VaR"), ("cvar", "CVaR")):
+        item = intervals[key]
+        if item["lower"] is None or item["upper"] is None:
+            bounds = ("indefinido (poucas perdas na cauda)" if item.get("note")
+                      else "indefinido")
+        else:
+            bounds = f"[{item['lower']:.6g}, {item['upper']:.6g}]"
+        if item.get("saturated") and item.get("coverage") is not None:
+            bounds += f" (saturado; cobertura real {item['coverage']:.1%})"
+        lines.append(f"  {label}: {item['estimate']:.6g} {bounds}")
+    return lines
+
+
 def format_simulation_summary(report, config, terminal_mean, terminal_std) -> str:
     """Build the terminal summary without calculation or I/O side effects."""
     snapshot = report["historical_data"]
@@ -156,6 +176,7 @@ def format_simulation_summary(report, config, terminal_mean, terminal_std) -> st
     lines = [f"\nSimulação GBM: {snapshot['ticker']} (preços históricos ajustados)",
              f"Último preço: {s0:.2f}", f"mu = {mu:.2%} | sigma = {sigma:.2%}",
              str(report["results"]["risk"]),
+             *_risk_interval_lines(report["results"].get("risk_intervals")),
              f"Preço esperado teórico ({config.horizon:g} ano(s)): "
              f"{report['results']['terminal']['mean']['theoretical']:.2f}",
              f"Média dos preços finais:  {terminal_mean}",

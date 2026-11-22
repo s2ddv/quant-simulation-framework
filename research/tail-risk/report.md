@@ -1,5 +1,7 @@
 # Risco de cauda no S&P 500: modelos gaussianos vs. caudas pesadas e volatilidade dinâmica
 
+> **Nota:** este relatório usa o SPY (2010–2025). A análise com o S&P 500 desde 1990 (^GSPC, 1995–2026 fora da amostra), com as quatro perguntas de pesquisa e regimes, está em [`report_gspc.md`](report_gspc.md) e prevalece para a questão histórica.
+
 Relatório de pesquisa reprodutível. Todos os números abaixo vêm de arquivos neste diretório (`audit_reproduce.json`, `validation_results.json`, `backtest/*.json|csv`, `figures/`). Detalhes: [`audit.md`](audit.md), [`validation.md`](validation.md).
 
 ## 1. Research question

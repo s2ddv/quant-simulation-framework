@@ -106,3 +106,14 @@ def test_publication_failure_leaves_no_bundle(tmp_path,monkeypatch):
     with pytest.raises(RuntimeError,match='plot failure'):
         main.publish_run(report,paths,SimulationConfig(**report['simulation']),tmp_path/'failed.json',True)
     assert list(tmp_path.iterdir()) == []
+
+
+def test_cli_interactive_adds_html(tmp_path):
+    pytest.importorskip('plotly')
+    import main
+    source = tmp_path/'snapshot.json'
+    source.write_text(json.dumps(snapshot()))
+    destination = tmp_path/'daily-interactive.json'
+    main.main(['--next-session','--snapshot',str(source),'--model','ml','--no-plot',
+               '--interactive','--report',str(destination)])
+    assert (destination.with_suffix('')/'paths.html').is_file()

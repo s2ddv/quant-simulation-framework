@@ -44,3 +44,14 @@ Analítico Normal: 0,0706% (mu=0), 0,0656% (0,05), 0,0610% (0,08), 0,0580% (0,10
 ## Testes executados
 - Linha de base: `pytest -q` → 400 passed. Após a mudança: 401 passed (`.venv`, NumPy 2.5.3, SciPy 1.18.1).
 - Script: `research/tail-risk/audit_reproduce.py` → `audit_reproduce.json`.
+
+## Adendo — confirmações solicitadas (revisão pós-Fase 4)
+
+**1. Testes automatizados.** Suíte completa: 420 passed, 51 subtests (Python 3.13, `.venv`). Os testes relevantes à Fase 1/2 são `tests/test_gbm.py::test_explicit_df_standardized_unit_variance_and_validation` e os 11 de `tests/test_tail_probability.py`. Limitação: o CI do GitHub (Python 3.10/3.12) não foi verificado por mim.
+
+**2. Probabilidade analítica do GBM.** `normal_loss_probability` = Φ((ln(1−x) − (μ−σ²/2)T)/(σ√T)). Validada de três formas: (a) `test_event_probability_matches_analytic_within_ci_normal` (400 mil trajetórias, valor exato dentro do IC de Wilson); (b) varredura de σ com IC de Clopper–Pearson a 99,9%; (c) 600 sementes independentes de 1 milhão de trajetórias em `investigate_normal_gap.py`: média 0,06558% contra exato 0,06565%.
+
+**3. Intervalos de confiança.** Wilson e Clopper–Pearson são testados com valores conhecidos (bordas k=0 e k=n, exato ⊇ Wilson) e por cobertura (60 sementes, cobertura ≥ 85% para nominal 95%). O teste de cobertura é frouxo (60 réplicas): confirma ausência de erro grosseiro, não a cobertura exata. Eles medem só o erro de amostragem Monte Carlo.
+
+**4. 0,070% simulado vs 0,0656% analítico.** Semente 20260101: 704 acertos contra 656,5 esperados; desvio binomial 25,6; z = 1,86 (p bilateral 0,063). **Não é viés.** Em 200 + 600 sementes independentes (1 milhão cada) a média é 0,06575% / 0,06558%, e z tem desvio-padrão 1,13 (200 sementes) e 1,02 (600 sementes; variância/média dos acertos = 1,05). O 1,13 da primeira rodada não se repetiu. Conclusão: sorteio ordinário na cauda da distribuição (5% das sementes passam de |z|>1,96). O IC 95% de Wilson dessa semente, [0,0654%; 0,0758%], contém o valor exato (0,0656%), mas por pouco (o limite inferior está a 0,0002 p.p.).
+Consequência para a comparação com a figura original (0,06%): ela é compatível com o valor exato 0,0656% (arredondado), não com a estimativa 0,070% desta semente.

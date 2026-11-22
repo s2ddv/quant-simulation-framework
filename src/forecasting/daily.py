@@ -88,7 +88,14 @@ def main(argv=None):
     parser.add_argument('--steps', type=int, default=1)
     parser.add_argument('--report', type=Path, required=True)
     parser.add_argument('--no-plot', action='store_true')
+    parser.add_argument('--interactive', action='store_true',
+                        help='also save paths.html (requires: pip install -e ".[interactive]")')
     args = parser.parse_args(argv)
+    if args.interactive:
+        try:
+            import plotly  # noqa: F401
+        except ImportError:
+            parser.error('--interactive needs plotly: pip install -e ".[interactive]"')
     from main import check_destination, publish_run
     check_destination(args.report)
     if args.replay:
@@ -113,8 +120,11 @@ def main(argv=None):
     root = Path(__file__).resolve().parents[2]
     report['code']['source_sha256'] = _digest({str(p.relative_to(root)): p.read_text(encoding='utf-8')
         for p in sorted((root/'src').rglob('*.py'))} | {'main.py': (root/'main.py').read_text(encoding='utf-8')})
-    destination = publish_run(report, paths, SimulationConfig(**report['simulation']), args.report, args.no_plot)
+    destination = publish_run(report, paths, SimulationConfig(**report['simulation']), args.report, args.no_plot,
+                          interactive=args.interactive)
     print(destination / 'report.json')
+    if args.interactive:
+        print(destination / 'paths.html')
 
 
 if __name__ == '__main__':

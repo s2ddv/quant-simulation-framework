@@ -106,3 +106,27 @@ def effective_wilson(k: int, n: int, overlap: int, level: float = 0.95) -> tuple
     from validation.tail_probability import wilson_interval
     n_eff = max(1, int(round(n / overlap)))
     return wilson_interval(int(round(k * n_eff / n)), n_eff, level)
+
+
+def block_bootstrap(fn, n: int, block: int = 20, reps: int = 2000, seed: int = 1) -> list:
+    """Moving-block bootstrap draws of ``fn(index_array)`` over a series of length n."""
+    rng = np.random.default_rng(seed)
+    nb = -(-n // block)
+    out = []
+    for _ in range(reps):
+        s = rng.integers(0, max(1, n - block + 1), nb)
+        out.append(fn(np.concatenate([np.arange(i, min(i + block, n)) for i in s])[:n]))
+    return out
+
+
+def obs_over_exp_ci(y: np.ndarray, p: np.ndarray, **kw) -> list:
+    """95% block-bootstrap CI for sum(y)/sum(p) (calibration-in-the-large)."""
+    b = block_bootstrap(lambda i: y[i].sum() / p[i].sum() if p[i].sum() > 0 else np.nan, y.size, **kw)
+    return [float(x) for x in np.nanpercentile(b, [2.5, 97.5])]
+
+
+def brier_difference(a: np.ndarray, b: np.ndarray, y: np.ndarray, **kw) -> tuple:
+    """Mean Brier(a) - Brier(b) and its 95% block-bootstrap CI (negative favours a)."""
+    d = (a - y) ** 2 - (b - y) ** 2
+    m = block_bootstrap(lambda i: d[i].mean(), d.size, **kw)
+    return float(d.mean()), [float(x) for x in np.percentile(m, [2.5, 97.5])]
