@@ -16,6 +16,7 @@ This repository is part of my self-directed study path in **quantitative finance
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
+- [Pricing](#pricing)
 - [Methodology](#methodology)
 - [Roadmap](#roadmap)
 - [Limitations](#limitations)
@@ -180,6 +181,7 @@ monte-carlo-gbm/
 │   ├── calibration/         # Historical prices, parameter estimates and fundamentals
 │   ├── risk/                # Terminal loss statistics
 │   ├── validation/          # Analytical benchmarks, convergence, backtests, sensitivity
+│   ├── pricing/             # Black-Scholes-Merton prices, Greeks and implied volatility (risk-neutral)
 │   └── forecasting/         # Experimental volatility forecasting (python -m forecasting)
 ├── tests/                   # Offline tests, including test_gbm.py and test_statistics.py
 ├── notebooks/research.ipynb # Empty research workspace
@@ -754,6 +756,53 @@ mu = log_returns.mean() * 252 + 0.5 * sigma**2
 
 ---
 
+## Pricing
+
+`src/pricing/black_scholes.py` prices European options under the
+**risk-neutral measure Q** (Merton 1973; Hull, *Options, Futures, and Other
+Derivatives*, 9th ed., chs. 15, 17 and 19; Haug, *The Complete Guide to Option
+Pricing Formulas*, 2nd ed., chs. 1-2):
+
+```text
+dS = (r - q)*S*dt + sigma*S*dW^Q
+d1 = [ln(S/K) + (r - q + sigma^2/2)*T] / (sigma*sqrt(T)),  d2 = d1 - sigma*sqrt(T)
+C  = S*exp(-q*T)*N(d1) - K*exp(-r*T)*N(d2)
+P  = K*exp(-r*T)*N(-d2) - S*exp(-q*T)*N(-d1)
+```
+
+```python
+from pricing import bs_price, bs_greeks, implied_volatility, pricing_metadata
+
+bs_price(42, 40, 0.5, 0.10, 0.0, 0.20, "call")          # 4.7594... (Hull, ch. 15)
+bs_greeks(49, 50, 20 / 52, 0.05, 0.0, 0.20, "call")     # delta, gamma, vega, theta, rho, units
+implied_volatility(4.7594, 42, 40, 0.5, 0.10, 0.0, "call")
+pricing_metadata(r=0.10, q=0.0, sigma=0.20, sigma_source="user_supplied")
+```
+
+- **Units:** prices in the asset currency; `T` in years; `r` and `q` continuous
+  rates per year (user inputs, never downloaded); `sigma` per sqrt(year).
+  Vega and rho are per 1.00 change of `sigma`/`r` (not per 1%); theta is
+  `-dV/dT` per year.
+- **Measure:** the drift is `r - q`. The historical drift `mu` is never used for
+  pricing. Results carry `measure: "risk_neutral"`, `r`, `q` and
+  `sigma_source` (`"user_supplied"` or `"historical_proxy"`).
+- **Degenerate cases:** `T = 0` or `sigma = 0` return the discounted
+  deterministic forward payoff. Greeks are step functions there and raise
+  `ValueError` exactly at forward == strike.
+- **Implied volatility:** Brent's method on a bracket (default `(1e-6, 5.0)`);
+  prices outside the strict no-arbitrage bounds or unreachable in the bracket
+  raise `ValueError`. Where vega is tiny the recovered `sigma` reproduces the
+  price but can differ from the true `sigma` by more than 1e-8.
+
+**Limitations.** Historical volatility (`sqrt(252)*std(log returns)`) is not
+implied volatility: it ignores the volatility risk premium, smile/skew and
+term structure, and a `"historical_proxy"` price is a model value, not a fair
+or market price. Only continuous dividend yields are supported. Monte Carlo,
+path-dependent, barrier and American pricing (plan E3.3-E3.8) are not
+implemented yet; see `docs/plano-expansao.md`.
+
+---
+
 ## Methodology
 
 1. **Data collection:** download adjusted historical prices for the chosen asset.
@@ -782,7 +831,8 @@ mu = log_returns.mean() * 252 + 0.5 * sigma**2
 - [x] Chronological backtests with fixed, rolling and expanding calibration
 - [x] Analytical calibration sensitivity grid
 - [x] Experimental causal volatility forecasting
-- [ ] European option pricing and comparison with Black-Scholes
+- [x] European option pricing: analytical Black-Scholes-Merton prices, Greeks and implied volatility
+- [ ] Monte Carlo European pricing compared with Black-Scholes (blocked on variance reduction)
 - [ ] Variance reduction (antithetic and control variates)
 - [ ] Correlated multi-asset simulation
 
