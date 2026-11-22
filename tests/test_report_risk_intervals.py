@@ -175,3 +175,42 @@ def test_old_report_without_block_still_detects_other_tampering(snapshot, tmp_pa
     write_report(report, path)
     with pytest.raises(ValueError, match="Replay result mismatch"):
         read_report(path)
+
+
+def test_cli_lines_flag_saturated_var_with_real_coverage(snapshot):
+    # Regression: a saturated VaR interval (coverage < level) was printed
+    # under the plain "IC 95%" header with no warning.
+    config = SimulationConfig(horizon=0.5, steps=4, n_sims=1000, seed=321,
+                              confidence=0.999)
+    report, _ = run_simulation(snapshot, config)
+    block = report["results"]["risk_intervals"]
+    assert block["var"]["saturated"] and block["var"]["coverage"] < block["level"]
+    var_line = next(line for line in app._risk_interval_lines(block)
+                    if line.strip().startswith("VaR"))
+    assert "saturado" in var_line
+    assert f"{block['var']['coverage']:.1%}" in var_line
+
+
+def test_cli_lines_unsaturated_var_has_no_flag(snapshot):
+    report, _ = run_simulation(snapshot, CONFIG)
+    block = report["results"]["risk_intervals"]
+    assert not block["var"]["saturated"]
+    assert not any("saturado" in line for line in app._risk_interval_lines(block))
+
+
+def test_cli_lines_cvar_note_explains_undefined(snapshot):
+    report, _ = run_simulation(snapshot, SimulationConfig(steps=1, n_sims=1))
+    block = report["results"]["risk_intervals"]
+    assert block["cvar"].get("note")
+    cvar_line = next(line for line in app._risk_interval_lines(block)
+                     if line.strip().startswith("CVaR"))
+    assert "indefinido (poucas perdas na cauda)" in cvar_line
+
+
+def test_cli_lines_tolerate_items_without_new_fields():
+    # Older blocks may lack ``saturated``/``coverage``/``note``.
+    item = {"estimate": 1.0, "lower": 0.5, "upper": 1.5}
+    lines = app._risk_interval_lines(
+        {"level": 0.95, "prob_loss": item, "var": item, "cvar": item})
+    assert len(lines) == 4
+    assert not any("saturado" in line for line in lines)

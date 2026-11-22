@@ -154,8 +154,13 @@ def _risk_interval_lines(intervals) -> list[str]:
              "mu/sigma fixos; não é percentil de preço):"]
     for key, label in (("prob_loss", "P(perda)"), ("var", "VaR"), ("cvar", "CVaR")):
         item = intervals[key]
-        bounds = ("indefinido" if item["lower"] is None or item["upper"] is None
-                  else f"[{item['lower']:.6g}, {item['upper']:.6g}]")
+        if item["lower"] is None or item["upper"] is None:
+            bounds = ("indefinido (poucas perdas na cauda)" if item.get("note")
+                      else "indefinido")
+        else:
+            bounds = f"[{item['lower']:.6g}, {item['upper']:.6g}]"
+        if item.get("saturated") and item.get("coverage") is not None:
+            bounds += f" (saturado; cobertura real {item['coverage']:.1%})"
         lines.append(f"  {label}: {item['estimate']:.6g} {bounds}")
     return lines
 
