@@ -125,6 +125,18 @@ def terminal_quantile(s0, mu, sigma, horizon, p):
                 f"{name} must be a real number (bool rejected), "
                 f"got {type(value).__name__}."
             )
+    try:
+        s0, mu, sigma, horizon = map(float, (s0, mu, sigma, horizon))
+    except OverflowError:
+        for name, value in (("s0", s0), ("mu", mu), ("sigma", sigma),
+                            ("horizon", horizon)):
+            try:
+                float(value)
+            except OverflowError:
+                raise ValueError(
+                    f"{name} must be representable as a finite float."
+                ) from None
+        raise
     if (not np.isfinite([s0, mu, sigma, horizon]).all()
             or s0 <= 0 or sigma < 0 or horizon < 0):
         raise ValueError("Require finite parameters, s0 > 0, sigma/horizon >= 0.")

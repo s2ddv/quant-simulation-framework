@@ -394,9 +394,13 @@ def cvar_interval(terminal: Any, s0: Any, confidence: float = 0.95,
     integer key, since NumPy rejects string spawn keys); ``seed=None`` uses
     fresh OS entropy and is reported as None (not reproducible). The
     replicates are independent of ``batch_size``, which only bounds memory:
-    by default it keeps one batch at about 64 MiB (24 bytes per resampled
-    element). The percentile bootstrap of a tail mean can under-cover when the
-    tail holds few points, and its interval need not contain ``estimate``.
+    by default it sizes one batch at about 64 MiB (24 bytes per resampled
+    element), but never below one replicate row, so for N above about 2.8
+    million the batch is a single row of O(N) memory that exceeds 64 MiB.
+    With ``n_tail < 2`` the numeric bounds are still returned, plus a
+    ``note`` saying the interval has no meaningful coverage. The percentile
+    bootstrap of a tail mean can under-cover when the tail holds few points,
+    and its interval need not contain ``estimate``.
 
     All draws must be i.i.d. (no antithetic or otherwise correlated paths).
 
@@ -416,7 +420,7 @@ def cvar_interval(terminal: Any, s0: Any, confidence: float = 0.95,
         ``level``, ``confidence``, ``n``, ``n_tail``, ``var``; plus
         ``standard_error`` (and ``note`` when undefined) for "asymptotic",
         or ``bootstrap_standard_error``, ``n_bootstrap``, ``seed`` and
-        ``rng`` for "bootstrap".
+        ``rng`` (and ``note`` when ``n_tail < 2``) for "bootstrap".
 
     Raises:
         ValueError: On invalid inputs or non-finite losses or results.
@@ -490,4 +494,8 @@ def cvar_interval(terminal: Any, s0: Any, confidence: float = 0.95,
         "n_bootstrap": replicates, "seed": seed_value,
         "rng": "NumPy default_rng/PCG64",
     })
+    if n_tail < 2:
+        result["note"] = ("Bootstrap interval from fewer than 2 tail losses "
+                          "has no meaningful coverage; bounds are reported "
+                          "but should not be used as a confidence interval.")
     return result
