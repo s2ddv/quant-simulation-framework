@@ -50,7 +50,13 @@ def _validate_real(value: Any, name: str) -> float:
     """Return ``value`` as a finite float; reject bool and non-real types."""
     if isinstance(value, (bool, np.bool_)) or not isinstance(value, Real):
         raise ValueError(f"{name} must be a real number, got {type(value).__name__}.")
-    result = float(value)
+    try:
+        result = float(value)
+    except OverflowError:
+        raise ValueError(
+            f"{name} must be representable as a finite float, got a value "
+            "too large to convert."
+        ) from None
     if not np.isfinite(result):
         raise ValueError(f"{name} must be finite, got {result}.")
     return result
@@ -94,8 +100,9 @@ def prob_loss_interval(terminal: Any, s0: Any, level: float = 0.95,
     ``terminal = paths[-1]`` and ``s0 = paths[0, 0]``. Since ``k ~ Binom(n, p)``
     for i.i.d. paths, a binomial-proportion interval for ``p`` is used:
 
-    * ``"wilson"``: Wilson score interval (approximate, good coverage near
-      ``1 - level`` even for small ``k``);
+    * ``"wilson"``: Wilson score interval (approximate; coverage close to
+      ``level``, though it oscillates for small ``n * p``; Brown, Cai and
+      DasGupta, 2001);
     * ``"clopper_pearson"``: exact beta-quantile interval (coverage
       ``>= level``, conservative).
 

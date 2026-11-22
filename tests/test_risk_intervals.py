@@ -348,3 +348,10 @@ def test_output_contract_and_json_safe(method):
         assert type(out[key]) is float
     assert out["level"] == 0.9
     assert json.loads(json.dumps(out, allow_nan=False)) == out
+
+
+@pytest.mark.parametrize("kwargs", [{"s0": 10**400}, {"s0": S0, "level": 10**400}])
+def test_huge_int_inputs_raise_value_error_not_overflow(kwargs):
+    # Regression: float(10**400) raises OverflowError; contract is ValueError.
+    with pytest.raises(ValueError, match="representable"):
+        prob_loss_interval([1.0, 2.0], **kwargs)
