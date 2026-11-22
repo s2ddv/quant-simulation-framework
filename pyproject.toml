@@ -21,6 +21,8 @@ dependencies = [
 dev = ["pytest", "ruff==0.17.6", "mypy==2.4.1"]
 notebooks = ["jupyterlab"]
 interactive = ["plotly"]
+# Offline Streamlit dashboard for saved reports: streamlit run dashboard.py
+dashboard = ["streamlit>=1.50", "plotly"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -60,14 +62,14 @@ ignore = [
 # the lint job and are exempted rather than restyled, so their published
 # outputs stay tied to the exact code that produced them. Only the codes that
 # occur are listed; library code in src/backtest and src/validation is linted.
-"research/tail-risk/*.py" = ["B007", "E401", "E701", "E731", "E741", "F401", "UP031"]
+"research/tail-risk/*.py" = ["B007", "E401", "E402", "E701", "E731", "E741", "F401", "UP031"]
 
 [tool.mypy]
 # Non-strict on purpose: bodies of unannotated functions are not checked
 # (check_untyped_defs would report ~54 issues, mostly in tests).
 python_version = "3.10"
 mypy_path = "src"
-files = ["src", "main.py", "research", "tests"]
+files = ["src", "main.py", "dashboard.py", "research", "tests"]
 # Technical debt: the exploratory tail-risk scripts of PR #1 are not type
 # checked (25 errors, mostly untyped dict/list literals). The hyphenated
 # directory is not an importable package, so a module override cannot target
@@ -78,7 +80,7 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
-# Third-party libraries without bundled type information (plotly is an optional extra, absent in CI). Stub packages
+# Third-party libraries without bundled type information (plotly and streamlit are optional extras, absent in CI). Stub packages
 # (pandas-stubs, scipy-stubs) are not installed, so these resolve to Any.
-module = ["pandas.*", "scipy.*", "yfinance.*", "plotly.*"]
+module = ["pandas.*", "scipy.*", "yfinance.*", "plotly.*", "streamlit.*"]
 ignore_missing_imports = true
