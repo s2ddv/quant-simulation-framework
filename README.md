@@ -822,7 +822,7 @@ implemented yet; see `docs/plano-expansao.md`.
 - [x] Terminal distribution histogram with initial, mean and VaR price lines
 - [x] Confidence interval for the simulated terminal mean
 - [x] Wilson intervals for observed VaR violation rates
-- [ ] Confidence intervals for simulated VaR, CVaR and probability of loss
+- [x] Monte Carlo confidence intervals for simulated VaR, CVaR and probability of loss (`src/risk/intervals.py`; `results.risk_intervals` in reports)
 - [x] VaR and CVaR computation
 - [x] Unit tests and validation against analytical results
 - [x] Command-line arguments for the simulation

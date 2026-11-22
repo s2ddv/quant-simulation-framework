@@ -86,7 +86,17 @@ declaradas em `pyproject.toml` (sem dependência nova): Python 3.13, NumPy
 
 - Suíte completa em `382c153` (antes da correção da CLI): **1755 passed, 51
   subtests passed** em 59,9 s. `ruff check` e `mypy` limpos.
-- Validação final: ver a seção "Validação final" abaixo.
+- Validação final sobre `8607172`, que já inclui todas as correções, mais
+  as edições do README e da §15:
+  `MPLBACKEND=Agg .venv/bin/python -m pytest -q` → **1759 passed, 51 subtests
+  passed** em 60,7 s; `ruff check` → "All checks passed!"; `mypy` →
+  "Success: no issues found in 62 source files".
+- Os arquivos congelados não foram tocados: `git diff 9eb63b1` em
+  `src/risk/statistics.py`, `src/backtest`, `research/experiments` e
+  `research/tail-risk` sai vazio. Também nenhum teste preexistente foi
+  modificado; em `tests/`, o diff só traz arquivos novos.
+- Revisão final (`f522b73`): o P2 da CLI foi resolvido. Resta um P3 cosmético
+  pendente: a cobertura formatada com `.1%` arredonda 0,9496 para "95.0%".
 
 Coberturas empíricas, com sementes fixas e réplicas formadas por blocos
 disjuntos de um único fluxo (não prefixos):
