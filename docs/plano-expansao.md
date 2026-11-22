@@ -177,6 +177,7 @@ E7.1 (diagnóstico GBM) ────────┤                             
                                ├──► E4 (saltos) ─────────────► E3.6 (Merton/Heston pricing)
                                ├──► E5 (Heston, GARCH sim) ────┘
                                └──► E6 (multiativo) ──► E6.4 (risco de carteira)
+E3.9 (comparador de modelos) depende de E2, E3.3 e E5.3.
 E8 (desempenho) depende de E2/E4/E5 estáveis.
 E9 (CLI/relatórios) integra cada épico ao final; E9.1 (subcomandos) pode começar cedo.
 ```
@@ -439,6 +440,107 @@ Glasserman).
   `--dividend-yield`, `--vol` (obrigatório ou `--vol-from-history`, com aviso).
 - Relatório: `model: "black_scholes_mc"`, campos de §2.1. README: nova seção
   "Pricing" com fórmulas e limitações (volatilidade histórica ≠ implícita).
+
+### E3.9 Comparador de modelos de precificação (GBM, Student-t, GARCH-t)
+
+**Origem.** Pedido do usuário em 2026-11-22, a partir da figura
+`research/tail-risk/figures/fig2_observed_vs_predicted.png`, que compara a
+probabilidade histórica de perdas de 5 dias (^GSPC) com as previsões fora da
+amostra do GBM gaussiano, do GBM com choques t e do GARCH(1,1)-t. A ideia é
+precificar as mesmas opções europeias sob os três modelos e usar a evidência
+de cauda para escolher o modelo adequado à situação atual.
+
+**Decisões do usuário (2026-11-22).**
+1. **Dependências:** esperar o E2. Nenhuma subtarefa começa antes de E2.1/E2.2
+   (e, portanto, de E3.3) estarem concluídos e revisados.
+2. **Risco-neutralização:** por correção de drift, aplicada **por passo diário**
+   (ver E3.9.1 para a justificativa e o problema em aberto).
+3. **Entradas:** ticker, `r`, `q`, strikes e vencimento são informados pelo
+   usuário. Nada de taxas é baixado; o histórico de preços usa o fluxo de
+   dados existente, com snapshot para replay.
+4. **Saída:** **interativa** (pedido explícito; exceção à regra "dashboard só
+   se solicitado" de `AGENTS.md`). Usar Plotly como extra opcional
+   `interactive`, já presente na `main` (`--interactive`, `paths.html`). Esta
+   branch ainda não contém esse commit: o principal integra a `main` antes
+   de E3.9.4.
+
+**Separação de medidas (obrigatória).** A figura de origem está na medida
+**P** (probabilidades reais de perda) e é a **evidência** para escolher o
+modelo. Os preços estão na medida **Q**. Para o GBM, Q é única (Black–Scholes).
+Para t e GARCH-t, o mercado é incompleto e Q **não é única**: a regra de
+correção de drift é uma escolha declarada em todo resultado
+(`"risk_neutralization": "daily_drift_correction"`), não um fato do modelo.
+Sem cotações de opções, nenhum painel afirma qual preço é o "correto".
+
+#### E3.9.0 Parecer (`pesquisador_quant`, somente leitura)
+- Correção de drift diária: condição de martingale
+  `E^Q[S_{t+Δ}/S_t | F_t] = e^{(r-q)Δ}` em cada passo, com Δ = 1/252.
+- **Problema em aberto a resolver no parecer:** com inovações Student-t nos
+  log-retornos, `E[e^{σε}] = ∞` para todo σ > 0 (a função geradora de momentos
+  da t não existe). Então `E[S_T] = ∞` e a correção analítica no log-retorno não
+  está definida; o preço de uma call é infinito em teoria, e a média Monte
+  Carlo é instável. Avaliar e recomendar uma das saídas, com fonte primária:
+  (a) t truncada em ±k desvios, com a FGM truncada calculada numericamente;
+  (b) correção empírica de martingale por passo (Duan e Simonato 1998,
+  *Empirical martingale simulation*, Management Science); (c) correção no
+  retorno simples (`S_{t+Δ} = S_t·e^{(r-q)Δ}·(1+R)/E[1+R]`, com R limitado
+  inferiormente). Declarar o viés de cada opção e o que muda para puts
+  (limitadas) e calls (não limitadas).
+- GARCH-t: a mesma questão, com a variância condicional; comparar com Duan
+  (1995, LRNVR), que pressupõe inovações normais.
+
+#### E3.9.1 Simuladores sob Q (`backend_quant`)
+- **Por que diário, não a cada 5 dias:** a correção por passo garante o
+  martingale em **todas** as datas da grade (lei das esperanças iteradas), o
+  que vale para qualquer vencimento, para opções dependentes de trajetória e
+  para gregas. Corrigir só no horizonte de 5 dias acertaria a média terminal
+  daquele vencimento e deixaria as datas intermediárias fora da condição de
+  martingale. O horizonte de 5 dias é a janela de **avaliação P** da figura,
+  não a frequência da correção Q.
+- GBM: `mu = r - q` (E3.3). Student-t: `GbmSimulator(dist_type="t_student")`
+  com a correção do E3.9.0. GARCH-t: `GarchTSimulator` (E5.3), que importa
+  `backtest.garch` sem alterá-lo, mais a correção do E3.9.0.
+- **Teste de aceitação:** o preço descontado é martingale em todas as datas,
+  `|mean(e^{-r t_i} S_{t_i}) - S0 e^{-q t_i}| ≤ 4·SE` para cada `t_i` da grade.
+
+#### E3.9.2 Comparador (`backend_quant`)
+- **Arquivo:** `src/pricing/model_comparison.py`.
+- Para uma grade de strikes × {call, put}: preço por modelo com SE e IC 95%,
+  e a volatilidade implícita de BS correspondente (`implied_volatility`, E3.2),
+  que gera o smile/skew de cada modelo.
+- O GBM por MC deve coincidir com o BS a 4·SE (sanidade do motor).
+- **Risco de modelo:** amplitude entre os preços dos modelos por strike.
+
+#### E3.9.3 Evidência para escolher o modelo (`backend_quant`)
+- Probabilidades de cauda de 5 dias na medida P **na data atual** (GARCH a
+  partir da variância condicional de hoje) contra a frequência histórica com
+  Wilson efetivo (`backtest.metrics.effective_wilson`, somente importação).
+- Tabela de evidência por modelo: volatilidade (histórica, GARCH condicional,
+  GARCH incondicional), Kupiec, Christoffersen, Brier e testes de ES de
+  `backtest.metrics`, a partir de um backtest novo, gravado em diretório novo
+  (nunca em `research/tail-risk/**`).
+- **Recomendação:** o modelo mais bem calibrado fora da amostra na cauda
+  relevante para a opção (puts fora do dinheiro ↔ cauda esquerda), com a
+  evidência exibida e sem ocultar a amplitude entre modelos. A escolha é
+  apoio à decisão, não previsão garantida.
+
+#### E3.9.4 Visualização interativa (`frontend`)
+- Página HTML Plotly (extra `interactive`, com *fallback* Matplotlib quando o
+  extra estiver ausente) com quatro painéis: preços por modelo; smile por
+  modelo; cauda P de hoje (versão atual da figura de origem); tabela de
+  evidência e recomendação.
+- Controles: seleção de modelos, strikes, call/put e vencimento, sobre
+  resultados **pré-calculados** no JSON (sem simular no navegador).
+- Testes estruturais sem comparar pixels, como `tests/test_plotting_design.py`.
+
+#### E3.9.5 Integração (principal)
+- Relatório JSON com `model: "pricing_model_comparison"`, os campos de §2.1
+  por modelo, `risk_neutralization`, as sementes e os fluxos de RNG por modelo.
+- Ponto de entrada no CLI depois do E9.1 (subcomando `price --compare`), ou
+  pendência documentada.
+
+**Revisão independente obrigatória** do `revisor_quant` para E3.9.0/E3.9.1
+(risco-neutralização) e E3.9.3 (critério de escolha).
 
 ---
 
@@ -731,6 +833,8 @@ O usuário precisa aprovar o contrato antes da implementação (§2.2).
 | `src/risk/statistics.py` | **congelado** | — | Mudança só com escopo do usuário |
 | `src/risk/intervals.py`, `decomposition.py` (novos) | `backend_quant` | E1, E6.4 | — |
 | `src/pricing/**` (novo) | `backend_quant` | E3.* | — |
+| `src/pricing/model_comparison.py` (novo) | `backend_quant` | E3.9.2, E3.9.3 | Importa `backtest.*` sem alterar |
+| Plot interativo do comparador (novo) | `frontend` | E3.9.4 | Plotly como extra opcional |
 | `src/validation/statistics.py` | `backend_quant` | E1.2 (`terminal_quantile`), E2.4 | Só adições |
 | `src/validation/{jump,heston}_theory.py`, `diagnostics.py` (novos) | `backend_quant` | E4, E5, E7.1 | — |
 | `src/calibration/{jumps,multi_asset}.py` (novos) | `backend_quant` | E4.3, E6.2 | — |
@@ -779,6 +883,7 @@ O usuário precisa aprovar o contrato antes da implementação (§2.2).
 | E3.1 | concluído | `1223d8a` + testes | `revisor_quant` (sem achados de fórmula; lacunas P2 de teste fechadas e mutantes detectados) | `src/pricing/black_scholes.py`; P3 de robustez em extremos pendentes |
 | E3.2 | concluído | `1223d8a` + testes | `revisor_quant` | Brent; ida e volta < 1e-8 onde bem condicionado |
 | E3.3–E3.8 | **bloqueado** | — | — | Aguardam E2.1/E2.2 concluídos e revisados |
+| E3.9.0–E3.9.5 | **bloqueado** | — | — | Decisão do usuário: esperar E2; depende também de E3.3 e E5.3 |
 | E4.1–E4.4 | pendente | — | — | — |
 | E5.1, E5.3 | pendente | — | — | E5.2 só parecer |
 | E6.1–E6.4 | **bloqueado** | — | — | Requer aprovação do contrato 3D |
