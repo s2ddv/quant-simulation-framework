@@ -145,6 +145,8 @@ def run_garch_normal_backtest(returns: pd.Series, config: BacktestConfig = Backt
             refits.append({"index": i, "date": returns.index[i].isoformat(), "converged": fit["converged"],
                            "used_previous_params": used_prev, "message": fit["message"],
                            "params": {k: fit[k] for k in ("mu", "omega", "alpha", "beta")}})
+        # The first origin (i == first) always refits, so ``state`` is set.
+        assert state is not None
         cum = simulate_cumulative(state, next_variance(r[:i + 1], state), h, config.garch_draws, _rng(config.seed, 3, i))
         row = {"index": i, "date": returns.index[i]}
         row.update({f"garch_n_{k}": v for k, v in _summarize_loss(_loss_from_log(cum)).items()})

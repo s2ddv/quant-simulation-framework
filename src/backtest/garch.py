@@ -100,6 +100,8 @@ def fit_garch_normal(returns: np.ndarray, start: np.ndarray | None = None) -> di
             best = res
         if res.success:
             break
+    # The loop body runs at least once, so ``best`` is always set here.
+    assert best is not None
     mu, omega, alpha, beta = best.x
     h = _variance_path((r - mu) ** 2, omega, alpha, beta, h0)
     return {"mu": mu / 100.0, "omega": omega / 1e4, "alpha": alpha, "beta": beta, "nu": None,
@@ -121,7 +123,7 @@ def simulate_cumulative(params: dict, h_next: float, horizon: int, n: int,
     """Draw ``n`` cumulative log returns over ``horizon`` days from the filtered state."""
     mu, omega, a, b = (params[k] for k in ("mu", "omega", "alpha", "beta"))
     nu = params.get("nu")                      # None -> Gaussian innovations
-    sd = None if nu is None else np.sqrt((nu - 2) / nu)
+    sd = 1.0 if nu is None else float(np.sqrt((nu - 2) / nu))  # unused when Gaussian
     h = np.full(n, h_next)
     total = np.zeros(n)
     for _ in range(horizon):

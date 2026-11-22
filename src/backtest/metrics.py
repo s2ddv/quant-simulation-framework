@@ -121,7 +121,7 @@ def block_bootstrap(fn, n: int, block: int = 20, reps: int = 2000, seed: int = 1
 
 def obs_over_exp_ci(y: np.ndarray, p: np.ndarray, **kw) -> list:
     """95% block-bootstrap CI for sum(y)/sum(p) (calibration-in-the-large)."""
-    b = block_bootstrap(lambda i: y[i].sum() / p[i].sum() if p[i].sum() > 0 else np.nan, y.size, **kw)
+    b = block_bootstrap(lambda i: float(y[i].sum()) / float(p[i].sum()) if p[i].sum() > 0 else np.nan, y.size, **kw)
     return [float(x) for x in np.nanpercentile(b, [2.5, 97.5])]
 
 
