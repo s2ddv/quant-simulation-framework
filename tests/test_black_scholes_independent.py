@@ -442,3 +442,128 @@ def test_pricing_metadata_contract():
     for bad in ((True, 0.0, 0.2), (0.0, math.nan, 0.2), (0.0, 0.0, -0.1)):
         with pytest.raises(ValueError):
             pricing_metadata(*bad, "user_supplied")
+
+
+# ---------------------------------------------------------------------------
+# (h) zero-variance Greeks of in-the-money options (P2-1) and exact
+#     implied-volatility bounds (P2-2)
+# ---------------------------------------------------------------------------
+
+def _deterministic_value(S, K, T, r, q, kind):
+    """Discounted payoff on the deterministic forward (zero variance).
+
+    call: max(S e^{-qT} - K e^{-rT}, 0); put: max(K e^{-rT} - S e^{-qT}, 0).
+    Written from the definition, without calling the module under test.
+    """
+    ds = S * math.exp(-q * T)
+    dk = K * math.exp(-r * T)
+    return max(ds - dk, 0.0) if kind == "call" else max(dk - ds, 0.0)
+
+
+def _fd_greeks_zero_variance(S, K, T, r, q, kind):
+    """Finite-difference delta, rho and theta (= -dV/dT) of the payoff above.
+
+    Away from F == K the value is a smooth sum of exponentials, so:
+    * delta: central difference in S, step hS = 1e-4 S. V is linear in S on
+      the exercise side: no truncation error, only rounding ~ eps |V| / hS.
+    * rho: central difference in r, hr = 1e-5. Truncation <= hr^2/6 |V_rrr|
+      = hr^2/6 T^3 K e^{-rT} (< 1e-8 for the inputs used), rounding
+      ~ eps |V| / hr (< 1e-9).
+    * theta: central difference in T (hT = 1e-5) when T > 0; at T == 0 the
+      second-order one-sided right difference (-3 V0 + 4 V1 - V2) / (2 hT),
+      truncation <= hT^2/3 |V_TTT| = hT^2/3 |r^3 K + q^3 S| (tiny).
+    """
+    hS, hr, hT = 1e-4 * S, 1e-5, 1e-5
+
+    def V(**kw):
+        a = dict(S=S, K=K, T=T, r=r, q=q, kind=kind)
+        a.update(kw)
+        return _deterministic_value(**a)
+
+    delta = (V(S=S + hS) - V(S=S - hS)) / (2.0 * hS)
+    rho = (V(r=r + hr) - V(r=r - hr)) / (2.0 * hr)
+    if T > 0.0:
+        theta = -(V(T=T + hT) - V(T=T - hT)) / (2.0 * hT)
+    else:
+        theta = -(-3.0 * V(T=0.0) + 4.0 * V(T=hT) - V(T=2.0 * hT)) / (2.0 * hT)
+    return delta, rho, theta
+
+
+# (S, K, T, r, q, sigma): sigma = 0 with T > 0, and T == 0 with sigma > 0 or
+# sigma = 0; r and q nonzero, of both signs. Strikes are deep enough in the
+# money that the FD steps never cross F == K.
+_ZV_ITM_CASES = [
+    (100.0, 120.0, 0.75, 0.03, 0.02, 0.0),
+    (100.0, 120.0, 0.75, -0.015, 0.04, 0.0),
+    (100.0, 120.0, 0.0, 0.05, 0.02, 0.3),
+    (100.0, 120.0, 0.0, -0.02, 0.035, 0.0),
+]
+
+
+@pytest.mark.parametrize("kind", KINDS)
+@pytest.mark.parametrize("S,K,T,r,q,sig", _ZV_ITM_CASES)
+def test_zero_variance_itm_greeks_match_finite_differences(S, K, T, r, q, sig, kind):
+    # Put ITM uses K = 120 > F; call ITM mirrors the strike to K' = S^2 / K
+    # (= 83.3) < F. Sign flips of delta/theta/rho change values by
+    # 2 |Greek| (>= 0.9 here, except rho == 0 at T == 0), far above the
+    # 1e-6 tolerance justified in _fd_greeks_zero_variance.
+    k = K if kind == "put" else S * S / K
+    g = bs_greeks(S, k, T, r, q, sig, kind)
+    delta, rho, theta = _fd_greeks_zero_variance(S, k, T, r, q, kind)
+    assert _deterministic_value(S, k, T, r, q, kind) > 1.0  # really ITM
+    assert g["delta"] == pytest.approx(delta, abs=1e-6)
+    assert g["rho"] == pytest.approx(rho, abs=1e-6)
+    assert g["theta"] == pytest.approx(theta, abs=1e-6)
+    assert g["gamma"] == 0.0 and g["vega"] == 0.0
+    # Signs, independent of any tolerance: a put has delta < 0; with T > 0
+    # its rho < 0 (call: delta > 0, rho > 0); at T == 0 rho is exactly 0.
+    sgn = 1.0 if kind == "call" else -1.0
+    assert sgn * g["delta"] > 0.5
+    if T > 0.0:
+        assert sgn * g["rho"] > 1.0
+    else:
+        assert g["rho"] == 0.0
+    # Theta must have the sign of the FD reference (|theta| > 0.1 here, so a
+    # sign flip cannot hide inside the tolerance).
+    assert abs(theta) > 0.1 and math.copysign(1.0, g["theta"]) == math.copysign(1.0, theta)
+    # Price consistency with the same reference (value, not just Greeks).
+    assert bs_price(S, k, T, r, q, sig, kind) == pytest.approx(
+        _deterministic_value(S, k, T, r, q, kind), rel=1e-14)
+
+
+@pytest.mark.parametrize("kind", KINDS)
+def test_implied_volatility_exact_bounds_use_no_arbitrage_message(kind):
+    # Distinguishes the no-arbitrage check from the "not reachable" one: a
+    # price exactly at a bound must fail in step 2, not fall through to the
+    # bracket check (whose message also contains "no-arbitrage").
+    S, T, r, q = 100.0, 0.8, 0.04, 0.01
+    K = 90.0 if kind == "call" else 110.0  # ITM: lower bound > 0
+    ds = S * float(np.exp(-q * T))
+    dk = K * float(np.exp(-r * T))
+    lower = max(ds - dk, 0.0) if kind == "call" else max(dk - ds, 0.0)
+    upper = ds if kind == "call" else dk
+    assert lower > 0.0
+    for p in (lower, upper):
+        with pytest.raises(ValueError, match="violates the no-arbitrage"):
+            implied_volatility(p, S, K, T, r, q, kind)
+    # OTM: lower bound is exactly 0.
+    k_otm = 150.0 if kind == "call" else 50.0
+    with pytest.raises(ValueError, match="violates the no-arbitrage"):
+        implied_volatility(0.0, S, k_otm, T, r, q, kind)
+    upper_otm = ds if kind == "call" else k_otm * float(np.exp(-r * T))
+    with pytest.raises(ValueError, match="violates the no-arbitrage"):
+        implied_volatility(upper_otm, S, k_otm, T, r, q, kind)
+
+
+@pytest.mark.parametrize("kind", KINDS)
+def test_implied_volatility_not_reachable_message(kind):
+    # Strictly inside the bounds but above bs(hi = 5): price of sigma = 7
+    # from the integral reference. Must be the bracket error, not the
+    # no-arbitrage one.
+    S, K, T, r, q = 100.0, 100.0, 1.0, 0.03, 0.01
+    p7, _ = _integral_price(S, K, T, r, q, 7.0, kind)
+    upper = S * math.exp(-q * T) if kind == "call" else K * math.exp(-r * T)
+    assert p7 < upper
+    with pytest.raises(ValueError, match="not reachable") as exc:
+        implied_volatility(p7, S, K, T, r, q, kind)
+    assert "violates" not in str(exc.value)
