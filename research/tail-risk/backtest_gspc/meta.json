@@ -1,0 +1,6167 @@
+{
+ "config": {
+  "horizon": 5,
+  "min_train": 1260,
+  "refit_every": 21,
+  "t_draws": 400000,
+  "garch_draws": 40000,
+  "seed": 20260101
+ },
+ "n_returns": 9290,
+ "n_origins": 8026,
+ "n_refits": 383,
+ "garch_nonconverged_refits": 0,
+ "garch_previous_params_used": 0,
+ "refits": [
+  {
+   "index": 1259,
+   "date": "1994-12-23T00:00:00",
+   "n_obs": 1260,
+   "t_df": 4.286742787818454,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00026589271340657936,
+    "omega": 1.542320655301115e-07,
+    "alpha": 0.024774026163469087,
+    "beta": 0.9725904886881055,
+    "nu": 5.876816483599346
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1280,
+   "date": "1995-01-25T00:00:00",
+   "n_obs": 1281,
+   "t_df": 4.210005095072811,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00027657183314716316,
+    "omega": 1.4344963701642345e-07,
+    "alpha": 0.025425475204733032,
+    "beta": 0.971966578888484,
+    "nu": 5.80743067839196
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1301,
+   "date": "1995-02-24T00:00:00",
+   "n_obs": 1302,
+   "t_df": 4.153388051675316,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00033274674259600067,
+    "omega": 1.3335568903617757e-07,
+    "alpha": 0.026353203383897163,
+    "beta": 0.9711569380379718,
+    "nu": 5.786503267383408
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1322,
+   "date": "1995-03-27T00:00:00",
+   "n_obs": 1323,
+   "t_df": 4.140357548918269,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0003534569038700002,
+    "omega": 1.3310598273208093e-07,
+    "alpha": 0.02548649641169274,
+    "beta": 0.9720278280845293,
+    "nu": 5.766183577616482
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1343,
+   "date": "1995-04-26T00:00:00",
+   "n_obs": 1344,
+   "t_df": 4.064920883048199,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0003740100357150377,
+    "omega": 1.0577956033613277e-07,
+    "alpha": 0.026014512724256166,
+    "beta": 0.9719594528808458,
+    "nu": 5.7313763577061945
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1364,
+   "date": "1995-05-25T00:00:00",
+   "n_obs": 1365,
+   "t_df": 4.000327842408638,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00040860699811312096,
+    "omega": 1.0509849248614275e-07,
+    "alpha": 0.026109979872575826,
+    "beta": 0.9720916052906187,
+    "nu": 5.537256150937372
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1385,
+   "date": "1995-06-26T00:00:00",
+   "n_obs": 1386,
+   "t_df": 4.023983815596422,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00040870402685356665,
+    "omega": 1.5218689144675735e-07,
+    "alpha": 0.02756841804114803,
+    "beta": 0.970053397741694,
+    "nu": 5.490607702666202
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1406,
+   "date": "1995-07-26T00:00:00",
+   "n_obs": 1407,
+   "t_df": 4.039857273300237,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00043053629527315464,
+    "omega": 1.525334599383143e-07,
+    "alpha": 0.02724554176160601,
+    "beta": 0.9703319992947014,
+    "nu": 5.51163990513741
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1427,
+   "date": "1995-08-24T00:00:00",
+   "n_obs": 1428,
+   "t_df": 2.1258786991053533,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0004105085452326182,
+    "omega": 1.2190668959891507e-07,
+    "alpha": 0.02664903122002683,
+    "beta": 0.9713191506442928,
+    "nu": 5.454976755838517
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1448,
+   "date": "1995-09-25T00:00:00",
+   "n_obs": 1449,
+   "t_df": 3.9335584622073503,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00045842245350558004,
+    "omega": 1.0803238743221321e-07,
+    "alpha": 0.02713158663198443,
+    "beta": 0.9710387998591357,
+    "nu": 5.457305555921652
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1469,
+   "date": "1995-10-24T00:00:00",
+   "n_obs": 1470,
+   "t_df": 3.9204146833125835,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0004550266287678075,
+    "omega": 1.08446006413435e-07,
+    "alpha": 0.026913501861992484,
+    "beta": 0.9711090639323594,
+    "nu": 5.54665471371199
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1490,
+   "date": "1995-11-22T00:00:00",
+   "n_obs": 1491,
+   "t_df": 4.008880925256582,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0004650380856363804,
+    "omega": 1.6212939275473955e-07,
+    "alpha": 0.027173282724872072,
+    "beta": 0.9696480839564897,
+    "nu": 5.784058886887369
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1511,
+   "date": "1995-12-22T00:00:00",
+   "n_obs": 1512,
+   "t_df": 4.0609170655308535,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0004879747432897951,
+    "omega": 2.122258344255739e-07,
+    "alpha": 0.02900840285446062,
+    "beta": 0.9669993771935999,
+    "nu": 5.848486770499386
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1532,
+   "date": "1996-01-24T00:00:00",
+   "n_obs": 1533,
+   "t_df": 4.043800321278319,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0004971819361134347,
+    "omega": 2.2670945664263784e-07,
+    "alpha": 0.029818040618984114,
+    "beta": 0.9661686365238753,
+    "nu": 5.746861567331913
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1553,
+   "date": "1996-02-23T00:00:00",
+   "n_obs": 1554,
+   "t_df": 4.185172937147737,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005220224051263023,
+    "omega": 2.5006036319739007e-07,
+    "alpha": 0.03178130016767461,
+    "beta": 0.9638701309439801,
+    "nu": 5.9738078560595875
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1574,
+   "date": "1996-03-25T00:00:00",
+   "n_obs": 1575,
+   "t_df": 4.12773209734761,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005154625385757716,
+    "omega": 2.5104915373175204e-07,
+    "alpha": 0.031702877650450954,
+    "beta": 0.9641994669128102,
+    "nu": 5.800669615419192
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1595,
+   "date": "1996-04-24T00:00:00",
+   "n_obs": 1596,
+   "t_df": 4.148138748130693,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005149735740096005,
+    "omega": 2.5257142734355734e-07,
+    "alpha": 0.031116399498941752,
+    "beta": 0.9646010304027931,
+    "nu": 5.7961546140337505
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1616,
+   "date": "1996-05-23T00:00:00",
+   "n_obs": 1617,
+   "t_df": 4.138961150755328,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005312537726010703,
+    "omega": 2.558385539381956e-07,
+    "alpha": 0.030785378258979448,
+    "beta": 0.9647730360693992,
+    "nu": 5.762458229146357
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1637,
+   "date": "1996-06-24T00:00:00",
+   "n_obs": 1638,
+   "t_df": 4.168026339675986,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005172948923563942,
+    "omega": 2.759770603486577e-07,
+    "alpha": 0.03183326785632755,
+    "beta": 0.9631060281733597,
+    "nu": 5.8037998569416
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1658,
+   "date": "1996-07-24T00:00:00",
+   "n_obs": 1659,
+   "t_df": 4.12543001857684,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005006316155731118,
+    "omega": 2.7053451554059236e-07,
+    "alpha": 0.032389208522439566,
+    "beta": 0.9633415972132434,
+    "nu": 5.630675470655592
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1679,
+   "date": "1996-08-22T00:00:00",
+   "n_obs": 1680,
+   "t_df": 4.148420142810318,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005218927078659306,
+    "omega": 2.780609025659833e-07,
+    "alpha": 0.03203814259687522,
+    "beta": 0.9633458944557608,
+    "nu": 5.63984481606053
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1700,
+   "date": "1996-09-23T00:00:00",
+   "n_obs": 1701,
+   "t_df": 4.209598751206196,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000528880460870178,
+    "omega": 2.765634447288516e-07,
+    "alpha": 0.031730591647855716,
+    "beta": 0.9635356790197195,
+    "nu": 5.711406261723411
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1721,
+   "date": "1996-10-22T00:00:00",
+   "n_obs": 1722,
+   "t_df": 4.1915349726075775,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005414256370434414,
+    "omega": 3.0677626050349945e-07,
+    "alpha": 0.033233344632682744,
+    "beta": 0.9612562454993792,
+    "nu": 5.697364015308929
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1742,
+   "date": "1996-11-20T00:00:00",
+   "n_obs": 1743,
+   "t_df": 4.205760041054091,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000568962794936114,
+    "omega": 3.02615828885337e-07,
+    "alpha": 0.032826633681654234,
+    "beta": 0.9616300824441323,
+    "nu": 5.7312803613178565
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1763,
+   "date": "1996-12-20T00:00:00",
+   "n_obs": 1764,
+   "t_df": 4.250248442109825,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005574554280348307,
+    "omega": 3.2431022661536054e-07,
+    "alpha": 0.033640387148138114,
+    "beta": 0.9607953032359053,
+    "nu": 5.75885778072133
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1784,
+   "date": "1997-01-22T00:00:00",
+   "n_obs": 1785,
+   "t_df": 4.299033768256317,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005768733236327778,
+    "omega": 3.25964226002873e-07,
+    "alpha": 0.03365185236938625,
+    "beta": 0.9607063657513016,
+    "nu": 5.800063783033405
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1805,
+   "date": "1997-02-21T00:00:00",
+   "n_obs": 1806,
+   "t_df": 4.388562930089982,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005756844409764596,
+    "omega": 3.265449105804412e-07,
+    "alpha": 0.03475969996929353,
+    "beta": 0.9598061970627616,
+    "nu": 5.933471229741943
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1826,
+   "date": "1997-03-24T00:00:00",
+   "n_obs": 1827,
+   "t_df": 4.4961976881555845,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005673296223611274,
+    "omega": 3.2187234851536947e-07,
+    "alpha": 0.035042853653961176,
+    "beta": 0.959634665262878,
+    "nu": 6.054367190767298
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1847,
+   "date": "1997-04-23T00:00:00",
+   "n_obs": 1848,
+   "t_df": 4.408811175589346,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005669877459229489,
+    "omega": 3.0912205431690466e-07,
+    "alpha": 0.036272313319501835,
+    "beta": 0.9592084596332776,
+    "nu": 5.962286753462616
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1868,
+   "date": "1997-05-22T00:00:00",
+   "n_obs": 1869,
+   "t_df": 4.40629160705269,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005778775679541149,
+    "omega": 3.0711375109105906e-07,
+    "alpha": 0.03705244850902985,
+    "beta": 0.9585952068872114,
+    "nu": 6.010829513813916
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1889,
+   "date": "1997-06-23T00:00:00",
+   "n_obs": 1890,
+   "t_df": 4.388970211681616,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005895497487483508,
+    "omega": 3.05847914515172e-07,
+    "alpha": 0.036424413844550266,
+    "beta": 0.959174651250113,
+    "nu": 5.983940859313105
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1910,
+   "date": "1997-07-23T00:00:00",
+   "n_obs": 1911,
+   "t_df": 4.41834015575108,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005987002339327707,
+    "omega": 2.8006370268905587e-07,
+    "alpha": 0.035982950361835596,
+    "beta": 0.9601985692135903,
+    "nu": 6.051261058675495
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1931,
+   "date": "1997-08-21T00:00:00",
+   "n_obs": 1932,
+   "t_df": 4.416333408856985,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005975828973255243,
+    "omega": 2.627584063974117e-07,
+    "alpha": 0.03617056699502214,
+    "beta": 0.9605256278091436,
+    "nu": 6.082250979895906
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1952,
+   "date": "1997-09-22T00:00:00",
+   "n_obs": 1953,
+   "t_df": 4.3075222674092775,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005949565382473626,
+    "omega": 2.528848200454748e-07,
+    "alpha": 0.0349348120001974,
+    "beta": 0.9619423757965533,
+    "nu": 5.961058418109706
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1973,
+   "date": "1997-10-21T00:00:00",
+   "n_obs": 1974,
+   "t_df": 4.434174826697067,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005956978800085825,
+    "omega": 2.515896737814612e-07,
+    "alpha": 0.03436977695586611,
+    "beta": 0.9623256777876263,
+    "nu": 6.064226238358211
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 1994,
+   "date": "1997-11-19T00:00:00",
+   "n_obs": 1995,
+   "t_df": 4.088622171908244,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005896734573358603,
+    "omega": 2.298783208414922e-07,
+    "alpha": 0.0348718106724987,
+    "beta": 0.9630314626552801,
+    "nu": 5.6762197653056115
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2015,
+   "date": "1997-12-19T00:00:00",
+   "n_obs": 2016,
+   "t_df": 4.12154371130393,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005876313403406459,
+    "omega": 2.7122594085659247e-07,
+    "alpha": 0.03461861313382829,
+    "beta": 0.9621510040719657,
+    "nu": 5.680247132886952
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2036,
+   "date": "1998-01-22T00:00:00",
+   "n_obs": 2037,
+   "t_df": 4.145135597542647,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005889866835291518,
+    "omega": 2.4652103120483384e-07,
+    "alpha": 0.03364134515696075,
+    "beta": 0.9635208774185842,
+    "nu": 5.73686386126223
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2057,
+   "date": "1998-02-23T00:00:00",
+   "n_obs": 2058,
+   "t_df": 4.173575906413619,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006066619709387175,
+    "omega": 3.29218195731969e-07,
+    "alpha": 0.036326372913821105,
+    "beta": 0.9591520349579905,
+    "nu": 5.724756670633874
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2078,
+   "date": "1998-03-24T00:00:00",
+   "n_obs": 2079,
+   "t_df": 4.206618289831589,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00062389707702607,
+    "omega": 3.5051035259778883e-07,
+    "alpha": 0.03695255674179043,
+    "beta": 0.9580171501723261,
+    "nu": 5.755431801677834
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2099,
+   "date": "1998-04-23T00:00:00",
+   "n_obs": 2100,
+   "t_df": 4.250427907035807,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006260143709849028,
+    "omega": 3.5919568740426814e-07,
+    "alpha": 0.037085202481518184,
+    "beta": 0.9575898580817997,
+    "nu": 5.814942453493679
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2120,
+   "date": "1998-05-22T00:00:00",
+   "n_obs": 2121,
+   "t_df": 4.308791536418028,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006172168019664953,
+    "omega": 3.378896090917303e-07,
+    "alpha": 0.03607716489328423,
+    "beta": 0.9589581087646111,
+    "nu": 5.8743146602984755
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2141,
+   "date": "1998-06-23T00:00:00",
+   "n_obs": 2142,
+   "t_df": 2.1,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006167967584592351,
+    "omega": 3.1752826044931265e-07,
+    "alpha": 0.03587501396808003,
+    "beta": 0.9597970250209815,
+    "nu": 5.887939360824295
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2162,
+   "date": "1998-07-23T00:00:00",
+   "n_obs": 2163,
+   "t_df": 2.1,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006214928678066942,
+    "omega": 3.1044969421956505e-07,
+    "alpha": 0.035387301318240555,
+    "beta": 0.9603940641324913,
+    "nu": 5.891553334048898
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2183,
+   "date": "1998-08-21T00:00:00",
+   "n_obs": 2184,
+   "t_df": 4.318999426967031,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006148533189963592,
+    "omega": 3.1020236629999246e-07,
+    "alpha": 0.03751576139933698,
+    "beta": 0.958783050554213,
+    "nu": 5.890565676510739
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2204,
+   "date": "1998-09-22T00:00:00",
+   "n_obs": 2205,
+   "t_df": 3.8723814675397454,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006173260808919221,
+    "omega": 3.2796709480391557e-07,
+    "alpha": 0.042100901198398745,
+    "beta": 0.9550966428620569,
+    "nu": 5.639450082206086
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2225,
+   "date": "1998-10-21T00:00:00",
+   "n_obs": 2226,
+   "t_df": 3.7018656138068886,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006193871769222522,
+    "omega": 3.295104015980555e-07,
+    "alpha": 0.04212062140943045,
+    "beta": 0.9550011781878138,
+    "nu": 5.661544960913281
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2246,
+   "date": "1998-11-19T00:00:00",
+   "n_obs": 2247,
+   "t_df": 3.75966908672611,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006347629960664857,
+    "omega": 4.743080774994063e-07,
+    "alpha": 0.04617458454962074,
+    "beta": 0.9482803829741716,
+    "nu": 5.651768129844084
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2267,
+   "date": "1998-12-21T00:00:00",
+   "n_obs": 2268,
+   "t_df": 3.737779528918334,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006363932362242569,
+    "omega": 3.9370782004696356e-07,
+    "alpha": 0.04322306024511462,
+    "beta": 0.9525014558607379,
+    "nu": 5.697101812389948
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2288,
+   "date": "1999-01-22T00:00:00",
+   "n_obs": 2289,
+   "t_df": 3.717994272331912,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006338049764732873,
+    "omega": 3.6658686479527e-07,
+    "alpha": 0.04230175178798579,
+    "beta": 0.9538507367623515,
+    "nu": 5.734854868263527
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2309,
+   "date": "1999-02-23T00:00:00",
+   "n_obs": 2310,
+   "t_df": 3.7228531908279017,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006361672721298639,
+    "omega": 3.3502275514809967e-07,
+    "alpha": 0.04194876470941326,
+    "beta": 0.9548111662372867,
+    "nu": 5.8153988438945055
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2330,
+   "date": "1999-03-24T00:00:00",
+   "n_obs": 2331,
+   "t_df": 3.7317335831870952,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006340973925957446,
+    "omega": 3.320155227060114e-07,
+    "alpha": 0.04123998794913792,
+    "beta": 0.9554422775396957,
+    "nu": 5.81918746642888
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2351,
+   "date": "1999-04-23T00:00:00",
+   "n_obs": 2352,
+   "t_df": 3.747059225503727,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000640219593547746,
+    "omega": 3.0934808514492807e-07,
+    "alpha": 0.04091817681606855,
+    "beta": 0.9561750345074911,
+    "nu": 5.897741687054451
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2372,
+   "date": "1999-05-24T00:00:00",
+   "n_obs": 2373,
+   "t_df": 3.7861026889347444,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006325910463082072,
+    "omega": 3.0588399486421614e-07,
+    "alpha": 0.0403201816200025,
+    "beta": 0.9566779507439707,
+    "nu": 5.94094686533244
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2393,
+   "date": "1999-06-23T00:00:00",
+   "n_obs": 2394,
+   "t_df": 3.794708276333907,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006333085525184981,
+    "omega": 2.9711052481600485e-07,
+    "alpha": 0.04004275031281929,
+    "beta": 0.9570614779665432,
+    "nu": 5.992978366917479
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2414,
+   "date": "1999-07-23T00:00:00",
+   "n_obs": 2415,
+   "t_df": 3.8219623719005877,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006361135474742917,
+    "omega": 2.981879766420754e-07,
+    "alpha": 0.039796712073635464,
+    "beta": 0.9571957903347661,
+    "nu": 6.018107230637882
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2435,
+   "date": "1999-08-23T00:00:00",
+   "n_obs": 2436,
+   "t_df": 3.8751272066130333,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006317001092903009,
+    "omega": 2.7655461167865807e-07,
+    "alpha": 0.03916670421535666,
+    "beta": 0.9581920213061152,
+    "nu": 6.110095321388255
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2456,
+   "date": "1999-09-22T00:00:00",
+   "n_obs": 2457,
+   "t_df": 3.877070637802369,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006208350726806014,
+    "omega": 2.644099926705689e-07,
+    "alpha": 0.03874575855711669,
+    "beta": 0.9588522419031352,
+    "nu": 6.123382398292392
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2477,
+   "date": "1999-10-21T00:00:00",
+   "n_obs": 2478,
+   "t_df": 3.8436029359446433,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006188507395923661,
+    "omega": 2.495956029973718e-07,
+    "alpha": 0.03904108939710604,
+    "beta": 0.9590129707627916,
+    "nu": 6.142984546786087
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2498,
+   "date": "1999-11-19T00:00:00",
+   "n_obs": 2499,
+   "t_df": 3.873492949306197,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006306294259893552,
+    "omega": 2.5306888828777205e-07,
+    "alpha": 0.038657971913623086,
+    "beta": 0.9592330397976169,
+    "nu": 6.137080060075098
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2519,
+   "date": "1999-12-21T00:00:00",
+   "n_obs": 2520,
+   "t_df": 3.9175369864989893,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006322460600142559,
+    "omega": 2.755456443554499e-07,
+    "alpha": 0.03939203894745186,
+    "beta": 0.957992797962917,
+    "nu": 6.179276127434675
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2540,
+   "date": "2000-01-21T00:00:00",
+   "n_obs": 2541,
+   "t_df": 3.871560553568461,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006319383314433193,
+    "omega": 2.6109932120592287e-07,
+    "alpha": 0.038388825632326894,
+    "beta": 0.9593888249875043,
+    "nu": 6.007537838133433
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2561,
+   "date": "2000-02-22T00:00:00",
+   "n_obs": 2562,
+   "t_df": 3.7932364152983444,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006267598127978084,
+    "omega": 2.4678559239483816e-07,
+    "alpha": 0.038680381191854,
+    "beta": 0.9596158148671158,
+    "nu": 5.9545360035587285
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2582,
+   "date": "2000-03-22T00:00:00",
+   "n_obs": 2583,
+   "t_df": 3.73701694598165,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006347892295674476,
+    "omega": 2.3627529460260298e-07,
+    "alpha": 0.039995153650874395,
+    "beta": 0.9588207204793975,
+    "nu": 5.979213725929435
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2603,
+   "date": "2000-04-20T00:00:00",
+   "n_obs": 2604,
+   "t_df": 3.655237164795519,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006313690044208933,
+    "omega": 2.2829368745700254e-07,
+    "alpha": 0.04005635716428603,
+    "beta": 0.9590944742486452,
+    "nu": 5.885640021962642
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2624,
+   "date": "2000-05-22T00:00:00",
+   "n_obs": 2625,
+   "t_df": 3.670145230983953,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006272636017231803,
+    "omega": 2.2817135756247965e-07,
+    "alpha": 0.03947834751980635,
+    "beta": 0.9594830724482319,
+    "nu": 5.942297169034045
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2645,
+   "date": "2000-06-21T00:00:00",
+   "n_obs": 2646,
+   "t_df": 3.685775820481994,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006308391249793361,
+    "omega": 2.4506043884007817e-07,
+    "alpha": 0.0399001715317894,
+    "beta": 0.9586786134547084,
+    "nu": 5.97961237830595
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2666,
+   "date": "2000-07-21T00:00:00",
+   "n_obs": 2667,
+   "t_df": 3.7419562747684765,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006321945091659055,
+    "omega": 2.764658598944263e-07,
+    "alpha": 0.041251326235122246,
+    "beta": 0.9567472282066182,
+    "nu": 6.033001822971534
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2687,
+   "date": "2000-08-21T00:00:00",
+   "n_obs": 2688,
+   "t_df": 3.786639349818367,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006352515420723352,
+    "omega": 2.869657247030481e-07,
+    "alpha": 0.04159311911936697,
+    "beta": 0.9561330353427189,
+    "nu": 6.084866374949856
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2708,
+   "date": "2000-09-20T00:00:00",
+   "n_obs": 2709,
+   "t_df": 3.8127054354220498,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006228849496353177,
+    "omega": 3.0605332492703664e-07,
+    "alpha": 0.04254295028037209,
+    "beta": 0.954832492860679,
+    "nu": 6.1336680105062635
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2729,
+   "date": "2000-10-19T00:00:00",
+   "n_obs": 2730,
+   "t_df": 3.7571309643278963,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006118037479167146,
+    "omega": 3.0058101400486873e-07,
+    "alpha": 0.04462157226419819,
+    "beta": 0.9536007809600864,
+    "nu": 6.06448261911208
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2750,
+   "date": "2000-11-17T00:00:00",
+   "n_obs": 2751,
+   "t_df": 3.7457769158941208,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006080670119798453,
+    "omega": 2.9296426719329945e-07,
+    "alpha": 0.0438306596230328,
+    "beta": 0.9543923254434995,
+    "nu": 6.075822411009389
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2771,
+   "date": "2000-12-19T00:00:00",
+   "n_obs": 2772,
+   "t_df": 3.7473986597003774,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006020056213110372,
+    "omega": 2.8441757437134283e-07,
+    "alpha": 0.04430728760418414,
+    "beta": 0.9541869918718868,
+    "nu": 6.121117439109128
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2792,
+   "date": "2001-01-22T00:00:00",
+   "n_obs": 2793,
+   "t_df": 3.6783358527990018,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006044885099902151,
+    "omega": 2.8171987596262466e-07,
+    "alpha": 0.044438308291018316,
+    "beta": 0.9542366665602285,
+    "nu": 6.062586979703428
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2813,
+   "date": "2001-02-21T00:00:00",
+   "n_obs": 2814,
+   "t_df": 3.7141872826837563,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005950284110874221,
+    "omega": 2.891919507109105e-07,
+    "alpha": 0.04422013497335227,
+    "beta": 0.9541810287734083,
+    "nu": 6.09933464932471
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2834,
+   "date": "2001-03-22T00:00:00",
+   "n_obs": 2835,
+   "t_df": 3.673055056141115,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005890716929543513,
+    "omega": 2.7582309122809907e-07,
+    "alpha": 0.044774506777917424,
+    "beta": 0.9541180545037536,
+    "nu": 6.080228748038146
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2855,
+   "date": "2001-04-23T00:00:00",
+   "n_obs": 2856,
+   "t_df": 3.6061270169604134,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005962814478467089,
+    "omega": 2.713245591682032e-07,
+    "alpha": 0.046074970503308194,
+    "beta": 0.9531543814136669,
+    "nu": 6.127239900238281
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2876,
+   "date": "2001-05-22T00:00:00",
+   "n_obs": 2877,
+   "t_df": 3.60940253166528,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006020383137105603,
+    "omega": 2.994669646629641e-07,
+    "alpha": 0.046240060137173265,
+    "beta": 0.9523722851497227,
+    "nu": 6.105248079215721
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2897,
+   "date": "2001-06-21T00:00:00",
+   "n_obs": 2898,
+   "t_df": 3.660505307278293,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005942487742509413,
+    "omega": 3.2003236959452804e-07,
+    "alpha": 0.04700235446501613,
+    "beta": 0.9511948541005465,
+    "nu": 6.163254907360157
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2918,
+   "date": "2001-07-23T00:00:00",
+   "n_obs": 2919,
+   "t_df": 3.6892496700629716,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005856036394079224,
+    "omega": 3.0588838487925584e-07,
+    "alpha": 0.04612926272685553,
+    "beta": 0.9521991981853699,
+    "nu": 6.194093549991191
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2939,
+   "date": "2001-08-21T00:00:00",
+   "n_obs": 2940,
+   "t_df": 3.7095927361767456,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005788669632314361,
+    "omega": 3.0832088166049185e-07,
+    "alpha": 0.045945556554113545,
+    "beta": 0.952240617996827,
+    "nu": 6.223087628370463
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2960,
+   "date": "2001-09-26T00:00:00",
+   "n_obs": 2961,
+   "t_df": 3.640235205479584,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005716664016476822,
+    "omega": 3.010600209114686e-07,
+    "alpha": 0.04814763974345554,
+    "beta": 0.9509117204677856,
+    "nu": 6.142845625287591
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 2981,
+   "date": "2001-10-25T00:00:00",
+   "n_obs": 2982,
+   "t_df": 3.665363964046228,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000576725613120362,
+    "omega": 3.052021772261277e-07,
+    "alpha": 0.04713495468996743,
+    "beta": 0.951562508101475,
+    "nu": 6.161555690813181
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3002,
+   "date": "2001-11-26T00:00:00",
+   "n_obs": 3003,
+   "t_df": 3.6649253542057583,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000583776144856492,
+    "omega": 3.2138300209374105e-07,
+    "alpha": 0.04759185480664559,
+    "beta": 0.9507834828229993,
+    "nu": 6.179089886117794
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3023,
+   "date": "2001-12-26T00:00:00",
+   "n_obs": 3024,
+   "t_df": 3.690729339814678,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005810195009168702,
+    "omega": 3.2373430459896235e-07,
+    "alpha": 0.047471481223699936,
+    "beta": 0.950761281452842,
+    "nu": 6.21423322568035
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3044,
+   "date": "2002-01-28T00:00:00",
+   "n_obs": 3045,
+   "t_df": 3.723509210499852,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000576228843328232,
+    "omega": 3.3514075137028897e-07,
+    "alpha": 0.04795430912218584,
+    "beta": 0.9500196166127175,
+    "nu": 6.2654037362654424
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3065,
+   "date": "2002-02-27T00:00:00",
+   "n_obs": 3066,
+   "t_df": 3.7474751054719886,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005752949143341316,
+    "omega": 3.134254330933565e-07,
+    "alpha": 0.04732006116860734,
+    "beta": 0.9511420787158271,
+    "nu": 6.267914809737618
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3086,
+   "date": "2002-03-28T00:00:00",
+   "n_obs": 3087,
+   "t_df": 3.758253334479285,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005778736042671103,
+    "omega": 3.1768676097631287e-07,
+    "alpha": 0.04722297163054055,
+    "beta": 0.9510796950308672,
+    "nu": 6.281284898411382
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3107,
+   "date": "2002-04-29T00:00:00",
+   "n_obs": 3108,
+   "t_df": 3.7734861817200986,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005602368687044519,
+    "omega": 3.0714409506545925e-07,
+    "alpha": 0.04650928852017524,
+    "beta": 0.951921143319126,
+    "nu": 6.283287974091478
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3128,
+   "date": "2002-05-29T00:00:00",
+   "n_obs": 3129,
+   "t_df": 3.8082633510906394,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005593762463489479,
+    "omega": 3.065220389406643e-07,
+    "alpha": 0.047451976642594276,
+    "beta": 0.951224906736967,
+    "nu": 6.316111931770914
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3149,
+   "date": "2002-06-27T00:00:00",
+   "n_obs": 3150,
+   "t_df": 3.8043017942000237,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005499824997671994,
+    "omega": 2.975724013246921e-07,
+    "alpha": 0.047375251479636345,
+    "beta": 0.9514874587738851,
+    "nu": 6.344953723112563
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3170,
+   "date": "2002-07-29T00:00:00",
+   "n_obs": 3171,
+   "t_df": 3.6184528374343428,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005504668428158571,
+    "omega": 3.1009604861349587e-07,
+    "alpha": 0.052970903412609883,
+    "beta": 0.9468774936945367,
+    "nu": 6.377096337885149
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3191,
+   "date": "2002-08-27T00:00:00",
+   "n_obs": 3192,
+   "t_df": 3.562342707923012,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005519679457708121,
+    "omega": 3.14579693382852e-07,
+    "alpha": 0.05294895073776643,
+    "beta": 0.9467074032823299,
+    "nu": 6.442662600924765
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3212,
+   "date": "2002-09-26T00:00:00",
+   "n_obs": 3213,
+   "t_df": 3.533442975784121,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005473659391351778,
+    "omega": 3.1494093209895513e-07,
+    "alpha": 0.05255675297480043,
+    "beta": 0.9469641086032959,
+    "nu": 6.473158823192508
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3233,
+   "date": "2002-10-25T00:00:00",
+   "n_obs": 3234,
+   "t_df": 3.458222453938242,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00054898062162638,
+    "omega": 2.957305642902549e-07,
+    "alpha": 0.052788699695588394,
+    "beta": 0.9471113003044117,
+    "nu": 6.57393978660956
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3254,
+   "date": "2002-11-25T00:00:00",
+   "n_obs": 3255,
+   "t_df": 2.1737736085775086,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005524102919357925,
+    "omega": 3.223893900171362e-07,
+    "alpha": 0.05335631242937061,
+    "beta": 0.9460349832156945,
+    "nu": 6.59114324751274
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3275,
+   "date": "2002-12-26T00:00:00",
+   "n_obs": 3276,
+   "t_df": 3.5037604021144313,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005463824124096686,
+    "omega": 3.324368893752821e-07,
+    "alpha": 0.05355464027320461,
+    "beta": 0.9455936558411429,
+    "nu": 6.634403550603976
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3296,
+   "date": "2003-01-28T00:00:00",
+   "n_obs": 3297,
+   "t_df": 3.5154376846410083,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005403007426444583,
+    "omega": 3.0877047955694054e-07,
+    "alpha": 0.05238011590857355,
+    "beta": 0.9470326285530013,
+    "nu": 6.668660669141243
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3317,
+   "date": "2003-02-27T00:00:00",
+   "n_obs": 3318,
+   "t_df": 3.5698434234711316,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005363675536392166,
+    "omega": 3.059599340795985e-07,
+    "alpha": 0.05208048723696156,
+    "beta": 0.94724924844199,
+    "nu": 6.751045963382318
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3338,
+   "date": "2003-03-28T00:00:00",
+   "n_obs": 3339,
+   "t_df": 3.5409219222412283,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005371956928257805,
+    "omega": 2.9107469605048207e-07,
+    "alpha": 0.051640823563890936,
+    "beta": 0.9480107346783101,
+    "nu": 6.705081683676046
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3359,
+   "date": "2003-04-29T00:00:00",
+   "n_obs": 3360,
+   "t_df": 3.5672753053506785,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005417179331508526,
+    "omega": 2.930884618805848e-07,
+    "alpha": 0.05136005433818436,
+    "beta": 0.9481234330753074,
+    "nu": 6.757405326051901
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3380,
+   "date": "2003-05-29T00:00:00",
+   "n_obs": 3381,
+   "t_df": 3.572487426490249,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005465136764381691,
+    "omega": 3.041569081527653e-07,
+    "alpha": 0.0514687626496621,
+    "beta": 0.9477702006713412,
+    "nu": 6.743684001783402
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3401,
+   "date": "2003-06-27T00:00:00",
+   "n_obs": 3402,
+   "t_df": 3.6015249914770124,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005479286261829036,
+    "omega": 2.9951692031427254e-07,
+    "alpha": 0.050997362737749345,
+    "beta": 0.9482016419773619,
+    "nu": 6.799106570359492
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3422,
+   "date": "2003-07-29T00:00:00",
+   "n_obs": 3423,
+   "t_df": 3.6433137633765718,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005469956858551361,
+    "omega": 2.9513862099046813e-07,
+    "alpha": 0.05061202409073317,
+    "beta": 0.9485504395005362,
+    "nu": 6.8799568289693
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3443,
+   "date": "2003-08-27T00:00:00",
+   "n_obs": 3444,
+   "t_df": 3.6358110840678854,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005487838739811793,
+    "omega": 3.093470451897987e-07,
+    "alpha": 0.051362192195777596,
+    "beta": 0.9475346721791982,
+    "nu": 6.86402237313668
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3464,
+   "date": "2003-09-26T00:00:00",
+   "n_obs": 3465,
+   "t_df": 3.6661275503860136,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005467172885514577,
+    "omega": 3.0209304652176315e-07,
+    "alpha": 0.05059999362840204,
+    "beta": 0.9483775047320491,
+    "nu": 6.933393143828338
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3485,
+   "date": "2003-10-27T00:00:00",
+   "n_obs": 3486,
+   "t_df": 3.668256635645969,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005520656539096903,
+    "omega": 3.0146446801083393e-07,
+    "alpha": 0.05030272451768072,
+    "beta": 0.948591647125418,
+    "nu": 6.921808056793682
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3506,
+   "date": "2003-11-25T00:00:00",
+   "n_obs": 3507,
+   "t_df": 3.680085965788859,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005524279422844408,
+    "omega": 3.004437091278543e-07,
+    "alpha": 0.04995604694978096,
+    "beta": 0.9488706810538247,
+    "nu": 6.969423746287313
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3527,
+   "date": "2003-12-26T00:00:00",
+   "n_obs": 3528,
+   "t_df": 3.676124034211281,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000563388220742454,
+    "omega": 2.9912463439997893e-07,
+    "alpha": 0.04996775649078478,
+    "beta": 0.9487604447215572,
+    "nu": 6.988213232636971
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3548,
+   "date": "2004-01-28T00:00:00",
+   "n_obs": 3549,
+   "t_df": 3.687723361573096,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005694816269444301,
+    "omega": 3.037195667459385e-07,
+    "alpha": 0.04968603279864825,
+    "beta": 0.9489762645660588,
+    "nu": 7.050330483371505
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3569,
+   "date": "2004-02-27T00:00:00",
+   "n_obs": 3570,
+   "t_df": 3.680092036469949,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005684610250711214,
+    "omega": 2.965311625859407e-07,
+    "alpha": 0.04940784443765658,
+    "beta": 0.9492089572209015,
+    "nu": 7.06047417152316
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3590,
+   "date": "2004-03-29T00:00:00",
+   "n_obs": 3591,
+   "t_df": 3.715358805361818,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005637617237181851,
+    "omega": 3.2334460210514156e-07,
+    "alpha": 0.05085633051788171,
+    "beta": 0.9477229914833865,
+    "nu": 7.167212679047805
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3611,
+   "date": "2004-04-28T00:00:00",
+   "n_obs": 3612,
+   "t_df": 3.7171667873614354,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005617906047207926,
+    "omega": 3.16505471688362e-07,
+    "alpha": 0.05004171292027239,
+    "beta": 0.948509964574074,
+    "nu": 7.15490901466841
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3632,
+   "date": "2004-05-27T00:00:00",
+   "n_obs": 3633,
+   "t_df": 3.723779196777641,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005584697464376967,
+    "omega": 3.1383345968576915e-07,
+    "alpha": 0.04966267130473745,
+    "beta": 0.9488260895939266,
+    "nu": 7.169653373374098
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3653,
+   "date": "2004-06-29T00:00:00",
+   "n_obs": 3654,
+   "t_df": 3.7160155188694595,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005584085419631812,
+    "omega": 3.115444598486792e-07,
+    "alpha": 0.04960972823781837,
+    "beta": 0.9488111072384108,
+    "nu": 7.166134370148064
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3674,
+   "date": "2004-07-29T00:00:00",
+   "n_obs": 3675,
+   "t_df": 3.717438538267225,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005418652025817545,
+    "omega": 3.097272763284616e-07,
+    "alpha": 0.049133839860613274,
+    "beta": 0.9492400266121445,
+    "nu": 7.1956501794310865
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3695,
+   "date": "2004-08-27T00:00:00",
+   "n_obs": 3696,
+   "t_df": 3.722958114587263,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005440662913110606,
+    "omega": 3.1528679776705884e-07,
+    "alpha": 0.04917018753169671,
+    "beta": 0.949195904096163,
+    "nu": 7.185167497974964
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3716,
+   "date": "2004-09-28T00:00:00",
+   "n_obs": 3717,
+   "t_df": 2.195236129114604,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005421127135008763,
+    "omega": 3.1298387622424553e-07,
+    "alpha": 0.04889657458262159,
+    "beta": 0.94940190674297,
+    "nu": 7.217757712828411
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3737,
+   "date": "2004-10-27T00:00:00",
+   "n_obs": 3738,
+   "t_df": 2.196242539341858,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005420316160165766,
+    "omega": 3.196199689052901e-07,
+    "alpha": 0.048899980340475116,
+    "beta": 0.9493512891163345,
+    "nu": 7.27722283401552
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3758,
+   "date": "2004-11-26T00:00:00",
+   "n_obs": 3759,
+   "t_df": 3.729797378069796,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005547667863316189,
+    "omega": 3.1129119067165685e-07,
+    "alpha": 0.04827383998840479,
+    "beta": 0.9499596320059956,
+    "nu": 7.252774611230615
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3779,
+   "date": "2004-12-28T00:00:00",
+   "n_obs": 3780,
+   "t_df": 3.723371762952204,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005601654543548968,
+    "omega": 3.0681502127207416e-07,
+    "alpha": 0.047984439062232584,
+    "beta": 0.9502232750212752,
+    "nu": 7.261065467967831
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3800,
+   "date": "2005-01-27T00:00:00",
+   "n_obs": 3801,
+   "t_df": 3.728742600032258,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005428250151949151,
+    "omega": 3.090127364086111e-07,
+    "alpha": 0.047741375695932925,
+    "beta": 0.9503788136309372,
+    "nu": 7.324431435558151
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3821,
+   "date": "2005-02-28T00:00:00",
+   "n_obs": 3822,
+   "t_df": 3.7351318167865637,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005506896889718626,
+    "omega": 3.147393964914312e-07,
+    "alpha": 0.04767915625626971,
+    "beta": 0.950358409851994,
+    "nu": 7.374808240226026
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3842,
+   "date": "2005-03-30T00:00:00",
+   "n_obs": 3843,
+   "t_df": 3.7420385826604052,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005391653611211276,
+    "omega": 3.1661979140008783e-07,
+    "alpha": 0.04745809082046909,
+    "beta": 0.9505096110909804,
+    "nu": 7.431272952609663
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3863,
+   "date": "2005-04-28T00:00:00",
+   "n_obs": 3864,
+   "t_df": 3.766794484146529,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005327305731411527,
+    "omega": 3.369700617014733e-07,
+    "alpha": 0.04872448454170077,
+    "beta": 0.9491940675942332,
+    "nu": 7.506041115136589
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3884,
+   "date": "2005-05-27T00:00:00",
+   "n_obs": 3885,
+   "t_df": 3.7754531272917147,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005422569703946133,
+    "omega": 3.344395404097712e-07,
+    "alpha": 0.04841949506881558,
+    "beta": 0.9493897672272781,
+    "nu": 7.533346200159253
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3905,
+   "date": "2005-06-28T00:00:00",
+   "n_obs": 3906,
+   "t_df": 3.7626128277802,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005407009053435638,
+    "omega": 3.3802630414221503e-07,
+    "alpha": 0.04901717496323276,
+    "beta": 0.9487025572125249,
+    "nu": 7.5303896923897895
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3926,
+   "date": "2005-07-28T00:00:00",
+   "n_obs": 3927,
+   "t_df": 3.7593831585106567,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005524537289183989,
+    "omega": 3.351528454913428e-07,
+    "alpha": 0.048925938698204434,
+    "beta": 0.948747483366967,
+    "nu": 7.584366681979135
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3947,
+   "date": "2005-08-26T00:00:00",
+   "n_obs": 3948,
+   "t_df": 3.757699685721671,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005321288249234992,
+    "omega": 3.3341939907593107e-07,
+    "alpha": 0.04846912097489519,
+    "beta": 0.9491429179717992,
+    "nu": 7.63855745757099
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3968,
+   "date": "2005-09-27T00:00:00",
+   "n_obs": 3969,
+   "t_df": 3.7582074475167184,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00052977195038192,
+    "omega": 3.35322753803839e-07,
+    "alpha": 0.04820140413080824,
+    "beta": 0.9493294795514674,
+    "nu": 7.693146809827144
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 3989,
+   "date": "2005-10-26T00:00:00",
+   "n_obs": 3990,
+   "t_df": 3.772293494309935,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005228905933962787,
+    "omega": 3.5979441696827925e-07,
+    "alpha": 0.04905506963237539,
+    "beta": 0.9483492548141488,
+    "nu": 7.731698069427998
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4010,
+   "date": "2005-11-25T00:00:00",
+   "n_obs": 4011,
+   "t_df": 3.768388848450398,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005401027582473798,
+    "omega": 3.5691930239235604e-07,
+    "alpha": 0.04897717608988642,
+    "beta": 0.9483560282469925,
+    "nu": 7.727036297129456
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4031,
+   "date": "2005-12-27T00:00:00",
+   "n_obs": 4032,
+   "t_df": 3.7551708605383887,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005324774000752719,
+    "omega": 3.5364778709504833e-07,
+    "alpha": 0.049239319241055526,
+    "beta": 0.9480810741515066,
+    "nu": 7.72432298801667
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4052,
+   "date": "2006-01-27T00:00:00",
+   "n_obs": 4053,
+   "t_df": 3.7465017440590658,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005363489177394267,
+    "omega": 3.5048661550988706e-07,
+    "alpha": 0.04835830765167556,
+    "beta": 0.94900389765225,
+    "nu": 7.633812003737046
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4073,
+   "date": "2006-02-28T00:00:00",
+   "n_obs": 4074,
+   "t_df": 3.7466024151719233,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005313023613457953,
+    "omega": 3.464754275599868e-07,
+    "alpha": 0.048004116767024055,
+    "beta": 0.9493204436597952,
+    "nu": 7.677346752219307
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4094,
+   "date": "2006-03-29T00:00:00",
+   "n_obs": 4095,
+   "t_df": 3.7384826528053243,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005330981033724044,
+    "omega": 3.395616022378242e-07,
+    "alpha": 0.04782814771632013,
+    "beta": 0.94949544159671,
+    "nu": 7.712091145946097
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4115,
+   "date": "2006-04-28T00:00:00",
+   "n_obs": 4116,
+   "t_df": 3.719932422244811,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005282737082724364,
+    "omega": 3.2758882590012535e-07,
+    "alpha": 0.04708820170173685,
+    "beta": 0.9503390030554202,
+    "nu": 7.631378874943209
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4136,
+   "date": "2006-05-30T00:00:00",
+   "n_obs": 4137,
+   "t_df": 3.7291236742931915,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005173979715971412,
+    "omega": 3.499702270074512e-07,
+    "alpha": 0.047666415848166575,
+    "beta": 0.9496307971263408,
+    "nu": 7.63205246687712
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4157,
+   "date": "2006-06-28T00:00:00",
+   "n_obs": 4158,
+   "t_df": 3.746961525025128,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005147450951196786,
+    "omega": 3.600547457402968e-07,
+    "alpha": 0.04829871292710539,
+    "beta": 0.9489554752194381,
+    "nu": 7.669231287374542
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4178,
+   "date": "2006-07-28T00:00:00",
+   "n_obs": 4179,
+   "t_df": 3.764235568303546,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005157650893666197,
+    "omega": 3.6023092873134696e-07,
+    "alpha": 0.048336981255257,
+    "beta": 0.9489610795064768,
+    "nu": 7.697977694742239
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4199,
+   "date": "2006-08-28T00:00:00",
+   "n_obs": 4200,
+   "t_df": 3.747451298441768,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005186761296388093,
+    "omega": 3.660278208433999e-07,
+    "alpha": 0.048680807330191825,
+    "beta": 0.9484135374793782,
+    "nu": 7.652299268475913
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4220,
+   "date": "2006-09-27T00:00:00",
+   "n_obs": 4221,
+   "t_df": 3.735759451551808,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005269696888366078,
+    "omega": 3.704413817059606e-07,
+    "alpha": 0.04938603530695995,
+    "beta": 0.9476224997187469,
+    "nu": 7.667311354834685
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4241,
+   "date": "2006-10-26T00:00:00",
+   "n_obs": 4242,
+   "t_df": 3.7116356084225712,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005442307351224107,
+    "omega": 3.591632487690316e-07,
+    "alpha": 0.050027592549664296,
+    "beta": 0.9471265332475227,
+    "nu": 7.626369143067064
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4262,
+   "date": "2006-11-27T00:00:00",
+   "n_obs": 4263,
+   "t_df": 3.696669235028147,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005377412998162849,
+    "omega": 3.554189549721376e-07,
+    "alpha": 0.04942535387176075,
+    "beta": 0.9477658007501981,
+    "nu": 7.557531433969606
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4283,
+   "date": "2006-12-27T00:00:00",
+   "n_obs": 4284,
+   "t_df": 3.682034796829864,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005473045876074195,
+    "omega": 3.425115973533139e-07,
+    "alpha": 0.049134640912386736,
+    "beta": 0.9481447402050164,
+    "nu": 7.574129927651165
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4304,
+   "date": "2007-01-30T00:00:00",
+   "n_obs": 4305,
+   "t_df": 3.6672995003228737,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005429888761759679,
+    "omega": 3.390596605039536e-07,
+    "alpha": 0.048955568573063594,
+    "beta": 0.9483286764277506,
+    "nu": 7.582349047974079
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4325,
+   "date": "2007-03-01T00:00:00",
+   "n_obs": 4326,
+   "t_df": 3.634332933110346,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005419456569318124,
+    "omega": 3.3453272949696664e-07,
+    "alpha": 0.04818082712281286,
+    "beta": 0.9494015785710475,
+    "nu": 7.210965586983359
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4346,
+   "date": "2007-03-30T00:00:00",
+   "n_obs": 4347,
+   "t_df": 3.642398646220356,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000543306647166574,
+    "omega": 3.388517818217362e-07,
+    "alpha": 0.048383284554582184,
+    "beta": 0.949138526156648,
+    "nu": 7.219359247859209
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4367,
+   "date": "2007-05-01T00:00:00",
+   "n_obs": 4368,
+   "t_df": 3.6332009480241427,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005528187924152038,
+    "omega": 3.392073547464853e-07,
+    "alpha": 0.0483884488037923,
+    "beta": 0.9490091726128874,
+    "nu": 7.206249361653925
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4388,
+   "date": "2007-05-31T00:00:00",
+   "n_obs": 4389,
+   "t_df": 3.6260736737289365,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005619082649951828,
+    "omega": 3.3695422245211805e-07,
+    "alpha": 0.04833425222408645,
+    "beta": 0.9490490333746306,
+    "nu": 7.192919181451776
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4409,
+   "date": "2007-06-29T00:00:00",
+   "n_obs": 4410,
+   "t_df": 3.6399381699589903,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005557546783511191,
+    "omega": 3.451644825949023e-07,
+    "alpha": 0.04838127904627502,
+    "beta": 0.9489795094897079,
+    "nu": 7.206886969598605
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4430,
+   "date": "2007-07-31T00:00:00",
+   "n_obs": 4431,
+   "t_df": 3.644044457561339,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000555593842971339,
+    "omega": 3.5505693028436763e-07,
+    "alpha": 0.04944989858034148,
+    "beta": 0.9480622507755831,
+    "nu": 7.18032969459715
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4451,
+   "date": "2007-08-29T00:00:00",
+   "n_obs": 4452,
+   "t_df": 3.626603268476173,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005598628670986084,
+    "omega": 3.6564164470973607e-07,
+    "alpha": 0.05131303903149895,
+    "beta": 0.9464037425094991,
+    "nu": 7.195755084164621
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4472,
+   "date": "2007-09-28T00:00:00",
+   "n_obs": 4473,
+   "t_df": 3.6309112894346773,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005622255442766435,
+    "omega": 3.7110177834246884e-07,
+    "alpha": 0.05080954964406202,
+    "beta": 0.9466726961159682,
+    "nu": 7.161988001551676
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4493,
+   "date": "2007-10-29T00:00:00",
+   "n_obs": 4494,
+   "t_df": 3.630109931501183,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005634029099598253,
+    "omega": 3.792689367899255e-07,
+    "alpha": 0.050893056999701744,
+    "beta": 0.9464345627623855,
+    "nu": 7.115312632897438
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4514,
+   "date": "2007-11-28T00:00:00",
+   "n_obs": 4515,
+   "t_df": 3.627466293946295,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005602984685490843,
+    "omega": 3.7053188223438537e-07,
+    "alpha": 0.05199888949540324,
+    "beta": 0.9458404547273815,
+    "nu": 7.1396790749409185
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4535,
+   "date": "2007-12-28T00:00:00",
+   "n_obs": 4536,
+   "t_df": 3.6398711587407524,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005598756778651229,
+    "omega": 3.7122900506564025e-07,
+    "alpha": 0.051321934639345666,
+    "beta": 0.9463351620037159,
+    "nu": 7.143940619974732
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4556,
+   "date": "2008-01-30T00:00:00",
+   "n_obs": 4557,
+   "t_df": 3.655063409940654,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005541496583879895,
+    "omega": 3.5904602414539247e-07,
+    "alpha": 0.05132695896439558,
+    "beta": 0.9465916001527679,
+    "nu": 7.200736169530999
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4577,
+   "date": "2008-02-29T00:00:00",
+   "n_obs": 4578,
+   "t_df": 3.6708275059082514,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005530149504852784,
+    "omega": 3.553888364356566e-07,
+    "alpha": 0.050992490833919706,
+    "beta": 0.9469368155678993,
+    "nu": 7.205483085316721
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4598,
+   "date": "2008-04-01T00:00:00",
+   "n_obs": 4599,
+   "t_df": 3.637966441949702,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005525111359959412,
+    "omega": 3.453975343394855e-07,
+    "alpha": 0.051536653157716925,
+    "beta": 0.9467761556965553,
+    "nu": 7.190574049303257
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4619,
+   "date": "2008-04-30T00:00:00",
+   "n_obs": 4620,
+   "t_df": 3.629441224798552,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005530988089655307,
+    "omega": 3.65737445859323e-07,
+    "alpha": 0.0514658991265629,
+    "beta": 0.9463809376159901,
+    "nu": 7.151318912277808
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4640,
+   "date": "2008-05-30T00:00:00",
+   "n_obs": 4641,
+   "t_df": 3.639918518264613,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005544572805226344,
+    "omega": 3.8272513656203926e-07,
+    "alpha": 0.052136026400320466,
+    "beta": 0.945431746772818,
+    "nu": 7.168295586527968
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4661,
+   "date": "2008-06-30T00:00:00",
+   "n_obs": 4662,
+   "t_df": 3.6252563571570895,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005448027397379867,
+    "omega": 3.5833023912112007e-07,
+    "alpha": 0.05072309874871018,
+    "beta": 0.9472032813170254,
+    "nu": 7.088703147316521
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4682,
+   "date": "2008-07-30T00:00:00",
+   "n_obs": 4683,
+   "t_df": 3.6374239222721174,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005456268418062362,
+    "omega": 3.513636967370799e-07,
+    "alpha": 0.05107753230357438,
+    "beta": 0.9470610353251356,
+    "nu": 7.1567303544152
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4703,
+   "date": "2008-08-28T00:00:00",
+   "n_obs": 4704,
+   "t_df": 3.654587941565218,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005454884571031816,
+    "omega": 3.511882172603413e-07,
+    "alpha": 0.050989147711338265,
+    "beta": 0.947104257264928,
+    "nu": 7.194364787768512
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4724,
+   "date": "2008-09-29T00:00:00",
+   "n_obs": 4725,
+   "t_df": 3.498195661205206,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005464445004610385,
+    "omega": 3.537655029921509e-07,
+    "alpha": 0.05456518216154728,
+    "beta": 0.9444316781124789,
+    "nu": 7.047115313400974
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4745,
+   "date": "2008-10-28T00:00:00",
+   "n_obs": 4746,
+   "t_df": 3.203268250703056,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005479335294990801,
+    "omega": 3.6664585887699534e-07,
+    "alpha": 0.05802207038006323,
+    "beta": 0.9414601725947142,
+    "nu": 7.0578094306238
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4766,
+   "date": "2008-11-26T00:00:00",
+   "n_obs": 4767,
+   "t_df": 3.0249884302866485,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005473597251776221,
+    "omega": 3.6048046657280953e-07,
+    "alpha": 0.05782214833128338,
+    "beta": 0.9416827648161208,
+    "nu": 7.11981034432195
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4787,
+   "date": "2008-12-29T00:00:00",
+   "n_obs": 4788,
+   "t_df": 2.96612942593688,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005480811936635528,
+    "omega": 3.941333494169984e-07,
+    "alpha": 0.058606952723512344,
+    "beta": 0.9403660092619118,
+    "nu": 7.101532176697418
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4808,
+   "date": "2009-01-29T00:00:00",
+   "n_obs": 4809,
+   "t_df": 2.9232593121239656,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005478210402185983,
+    "omega": 4.062360263917089e-07,
+    "alpha": 0.05897475629603227,
+    "beta": 0.9397985407278863,
+    "nu": 7.124509870738837
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4829,
+   "date": "2009-03-02T00:00:00",
+   "n_obs": 4830,
+   "t_df": 2.8865258195302363,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005439214340615949,
+    "omega": 3.9705631698546747e-07,
+    "alpha": 0.05858063675294652,
+    "beta": 0.9402910129732661,
+    "nu": 7.136314782789038
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4850,
+   "date": "2009-03-31T00:00:00",
+   "n_obs": 4851,
+   "t_df": 2.8396280535892355,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000545408806382938,
+    "omega": 3.8544814199049373e-07,
+    "alpha": 0.05821409340401643,
+    "beta": 0.9408310201611173,
+    "nu": 7.130531458886997
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4871,
+   "date": "2009-04-30T00:00:00",
+   "n_obs": 4872,
+   "t_df": 2.837718802030543,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000548045574555329,
+    "omega": 4.0176053093443275e-07,
+    "alpha": 0.058380732680300404,
+    "beta": 0.9403355023940507,
+    "nu": 7.139164255067832
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4892,
+   "date": "2009-06-01T00:00:00",
+   "n_obs": 4893,
+   "t_df": 2.836401516023203,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005497573323443324,
+    "omega": 3.9765737377940486e-07,
+    "alpha": 0.05808377775754148,
+    "beta": 0.9405977410073777,
+    "nu": 7.198034094018857
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4913,
+   "date": "2009-06-30T00:00:00",
+   "n_obs": 4914,
+   "t_df": 2.8349417365528704,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005496270786921592,
+    "omega": 4.2134339275822325e-07,
+    "alpha": 0.05875637045047782,
+    "beta": 0.9395744937431799,
+    "nu": 7.173102355384212
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4934,
+   "date": "2009-07-30T00:00:00",
+   "n_obs": 4935,
+   "t_df": 2.8259998123487593,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005543757151779689,
+    "omega": 4.2137245476902834e-07,
+    "alpha": 0.05844291935709461,
+    "beta": 0.9398297854929304,
+    "nu": 7.1489989508034455
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4955,
+   "date": "2009-08-28T00:00:00",
+   "n_obs": 4956,
+   "t_df": 2.8330742319143183,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00055879723137572,
+    "omega": 4.287021289918233e-07,
+    "alpha": 0.058546775168488524,
+    "beta": 0.9395643186687276,
+    "nu": 7.154727747084901
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4976,
+   "date": "2009-09-29T00:00:00",
+   "n_obs": 4977,
+   "t_df": 2.8463560051436616,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005610750922697947,
+    "omega": 4.262065751722489e-07,
+    "alpha": 0.058235574687583246,
+    "beta": 0.9398313062028806,
+    "nu": 7.183970881704892
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 4997,
+   "date": "2009-10-28T00:00:00",
+   "n_obs": 4998,
+   "t_df": 2.86104620275169,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005576971917714458,
+    "omega": 4.177750714386049e-07,
+    "alpha": 0.05783926602579879,
+    "beta": 0.9403486785838124,
+    "nu": 7.20998022232479
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5018,
+   "date": "2009-11-27T00:00:00",
+   "n_obs": 5019,
+   "t_df": 2.8608607990959847,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005615739346347528,
+    "omega": 4.157581246794494e-07,
+    "alpha": 0.0578241184746778,
+    "beta": 0.9404261131108196,
+    "nu": 7.21233769367819
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5039,
+   "date": "2009-12-29T00:00:00",
+   "n_obs": 5040,
+   "t_df": 2.8632027903578474,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005666856512761173,
+    "omega": 4.3206527496485935e-07,
+    "alpha": 0.058481572826962015,
+    "beta": 0.9394733885786536,
+    "nu": 7.2059005692150935
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5060,
+   "date": "2010-01-29T00:00:00",
+   "n_obs": 5061,
+   "t_df": 2.873533003686889,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005596539556015812,
+    "omega": 4.2695328883770024e-07,
+    "alpha": 0.058153239560384984,
+    "beta": 0.9399303944879309,
+    "nu": 7.2365043925112555
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5081,
+   "date": "2010-03-02T00:00:00",
+   "n_obs": 5082,
+   "t_df": 2.8791957564651445,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005655769433629966,
+    "omega": 4.286151613131021e-07,
+    "alpha": 0.05812434516381876,
+    "beta": 0.9399406399551724,
+    "nu": 7.213302763508452
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5102,
+   "date": "2010-03-31T00:00:00",
+   "n_obs": 5103,
+   "t_df": 2.8717401790499144,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005754239952910135,
+    "omega": 4.4981087389999333e-07,
+    "alpha": 0.05957460190799967,
+    "beta": 0.938216163150392,
+    "nu": 7.191233155267696
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5123,
+   "date": "2010-04-30T00:00:00",
+   "n_obs": 5124,
+   "t_df": 2.8754534962672684,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000581879345557142,
+    "omega": 4.5321474360628603e-07,
+    "alpha": 0.05950848397783103,
+    "beta": 0.9384003972669096,
+    "nu": 7.150414424049041
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5144,
+   "date": "2010-06-01T00:00:00",
+   "n_obs": 5145,
+   "t_df": 2.8703202845481943,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005790684784134627,
+    "omega": 4.7533732506211087e-07,
+    "alpha": 0.06256374952288855,
+    "beta": 0.9357421414316834,
+    "nu": 7.12132727277049
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5165,
+   "date": "2010-06-30T00:00:00",
+   "n_obs": 5166,
+   "t_df": 2.860569188046807,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005764377676655194,
+    "omega": 4.750301695941192e-07,
+    "alpha": 0.06236560831438318,
+    "beta": 0.9359023884859802,
+    "nu": 7.1190578905976585
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5186,
+   "date": "2010-07-30T00:00:00",
+   "n_obs": 5187,
+   "t_df": 2.861111709948603,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005797798339579445,
+    "omega": 4.808919687699107e-07,
+    "alpha": 0.0621641043092656,
+    "beta": 0.9359388065535984,
+    "nu": 7.096758009217639
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5207,
+   "date": "2010-08-30T00:00:00",
+   "n_obs": 5208,
+   "t_df": 2.866853823216618,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005741624913466583,
+    "omega": 4.776378257726197e-07,
+    "alpha": 0.06176312183267031,
+    "beta": 0.9363161020596026,
+    "nu": 7.097362733775288
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5228,
+   "date": "2010-09-29T00:00:00",
+   "n_obs": 5229,
+   "t_df": 2.8697117079178596,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005808734509757094,
+    "omega": 4.806803970143335e-07,
+    "alpha": 0.06160596350142575,
+    "beta": 0.9363721449321367,
+    "nu": 7.07585827514362
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5249,
+   "date": "2010-10-28T00:00:00",
+   "n_obs": 5250,
+   "t_df": 2.864937660155337,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005861797915336022,
+    "omega": 4.931681815566408e-07,
+    "alpha": 0.06211228408364143,
+    "beta": 0.9356694967574423,
+    "nu": 7.042244814276416
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5270,
+   "date": "2010-11-29T00:00:00",
+   "n_obs": 5271,
+   "t_df": 2.8693418503204864,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005838784232194855,
+    "omega": 4.886288786300365e-07,
+    "alpha": 0.061674467616947726,
+    "beta": 0.9361802470310453,
+    "nu": 7.041314817790699
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5291,
+   "date": "2010-12-29T00:00:00",
+   "n_obs": 5292,
+   "t_df": 2.8594383436069184,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0005951961319154983,
+    "omega": 4.972466375722138e-07,
+    "alpha": 0.06238216213761084,
+    "beta": 0.9353384166718093,
+    "nu": 6.987665911227386
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5312,
+   "date": "2011-01-28T00:00:00",
+   "n_obs": 5313,
+   "t_df": 2.853629838845598,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000599420009235276,
+    "omega": 4.998813339496563e-07,
+    "alpha": 0.06239706532907613,
+    "beta": 0.93533391367291,
+    "nu": 6.936134167063207
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5333,
+   "date": "2011-03-01T00:00:00",
+   "n_obs": 5334,
+   "t_df": 2.852595113280038,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000606551536948886,
+    "omega": 5.015237938283903e-07,
+    "alpha": 0.06229780450683198,
+    "beta": 0.9354980105569423,
+    "nu": 6.879165238170015
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5354,
+   "date": "2011-03-30T00:00:00",
+   "n_obs": 5355,
+   "t_df": 2.8648493560833224,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006089278735221469,
+    "omega": 5.098002993783177e-07,
+    "alpha": 0.06285558793874223,
+    "beta": 0.9349227004385054,
+    "nu": 6.913884562044358
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5375,
+   "date": "2011-04-29T00:00:00",
+   "n_obs": 5376,
+   "t_df": 2.86062724500316,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006137567253647603,
+    "omega": 5.133569570869306e-07,
+    "alpha": 0.06295846461609722,
+    "beta": 0.9346766786740732,
+    "nu": 6.898639566350249
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5396,
+   "date": "2011-05-31T00:00:00",
+   "n_obs": 5397,
+   "t_df": 2.868416599364584,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006075692427885327,
+    "omega": 5.130158607627527e-07,
+    "alpha": 0.06263313198675996,
+    "beta": 0.9349215746645845,
+    "nu": 6.95532143122052
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5417,
+   "date": "2011-06-29T00:00:00",
+   "n_obs": 5418,
+   "t_df": 2.8815342268293067,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006036491302176482,
+    "omega": 5.187282838767666e-07,
+    "alpha": 0.06286952295117818,
+    "beta": 0.9347508389159275,
+    "nu": 6.971184539588886
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5438,
+   "date": "2011-07-29T00:00:00",
+   "n_obs": 5439,
+   "t_df": 2.892018420754268,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006001407652258344,
+    "omega": 5.162283383873964e-07,
+    "alpha": 0.06268910475860337,
+    "beta": 0.9349547673920342,
+    "nu": 6.997707922127287
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5459,
+   "date": "2011-08-29T00:00:00",
+   "n_obs": 5460,
+   "t_df": 2.834206739369418,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000603876199436862,
+    "omega": 5.373671495776195e-07,
+    "alpha": 0.06603590195382458,
+    "beta": 0.9323053748615596,
+    "nu": 6.818009858840527
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5480,
+   "date": "2011-09-28T00:00:00",
+   "n_obs": 5481,
+   "t_df": 2.83536630876257,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000601998269013099,
+    "omega": 5.384607225654476e-07,
+    "alpha": 0.0656205300609469,
+    "beta": 0.9325630254125393,
+    "nu": 6.841707349325307
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5501,
+   "date": "2011-10-27T00:00:00",
+   "n_obs": 5502,
+   "t_df": 2.838756032960873,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006050313151641633,
+    "omega": 5.288806218572215e-07,
+    "alpha": 0.0653515296430668,
+    "beta": 0.9328934609946223,
+    "nu": 6.900622055211033
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5522,
+   "date": "2011-11-28T00:00:00",
+   "n_obs": 5523,
+   "t_df": 2.8389503495776824,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006014024714903329,
+    "omega": 5.2144677028036e-07,
+    "alpha": 0.06504427560003698,
+    "beta": 0.9332397591829572,
+    "nu": 6.937188564217584
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5543,
+   "date": "2011-12-28T00:00:00",
+   "n_obs": 5544,
+   "t_df": 2.8362431221707376,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006023087891008681,
+    "omega": 5.268810330718855e-07,
+    "alpha": 0.06481858217942492,
+    "beta": 0.9333115405807187,
+    "nu": 6.917386671317039
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5564,
+   "date": "2012-01-30T00:00:00",
+   "n_obs": 5565,
+   "t_df": 2.833327465299031,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006099696374771373,
+    "omega": 5.905661893808955e-07,
+    "alpha": 0.0678345091716585,
+    "beta": 0.9296640822964192,
+    "nu": 6.898051964093573
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5585,
+   "date": "2012-02-29T00:00:00",
+   "n_obs": 5586,
+   "t_df": 2.827167788228424,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006189532899169185,
+    "omega": 6.166202631513996e-07,
+    "alpha": 0.06976621630761905,
+    "beta": 0.9275273130466335,
+    "nu": 6.890598283322612
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5606,
+   "date": "2012-03-29T00:00:00",
+   "n_obs": 5607,
+   "t_df": 2.827896590788712,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006201944089116564,
+    "omega": 6.089475168627619e-07,
+    "alpha": 0.06873333282598329,
+    "beta": 0.9285696357798813,
+    "nu": 6.869933674666125
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5627,
+   "date": "2012-04-30T00:00:00",
+   "n_obs": 5628,
+   "t_df": 2.8389280810179978,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006175792422026545,
+    "omega": 6.173805422149408e-07,
+    "alpha": 0.06893446803064922,
+    "beta": 0.9283212074453631,
+    "nu": 6.916074140679543
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5648,
+   "date": "2012-05-30T00:00:00",
+   "n_obs": 5649,
+   "t_df": 2.8471045672844113,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006052598591307824,
+    "omega": 6.159238396575439e-07,
+    "alpha": 0.06868408962838453,
+    "beta": 0.9285710986957862,
+    "nu": 6.946516861503193
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5669,
+   "date": "2012-06-28T00:00:00",
+   "n_obs": 5670,
+   "t_df": 2.8540513908843415,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006076261983149309,
+    "omega": 6.1548345429984e-07,
+    "alpha": 0.0687714188333926,
+    "beta": 0.9285979604973581,
+    "nu": 6.932587506084753
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5690,
+   "date": "2012-07-30T00:00:00",
+   "n_obs": 5691,
+   "t_df": 2.8614804135954124,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006089846914140439,
+    "omega": 6.121975002978216e-07,
+    "alpha": 0.0684723411940564,
+    "beta": 0.9288870040878296,
+    "nu": 6.947709855296203
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5711,
+   "date": "2012-08-28T00:00:00",
+   "n_obs": 5712,
+   "t_df": 2.8529430706550607,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006110833020584781,
+    "omega": 6.265069133084598e-07,
+    "alpha": 0.06920330956450445,
+    "beta": 0.9279297253428693,
+    "nu": 6.9094912855187705
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5732,
+   "date": "2012-09-27T00:00:00",
+   "n_obs": 5733,
+   "t_df": 2.849963659647303,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006114846847501882,
+    "omega": 6.212323066994841e-07,
+    "alpha": 0.06858771740002852,
+    "beta": 0.9285742391616735,
+    "nu": 6.865353532480349
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5753,
+   "date": "2012-10-26T00:00:00",
+   "n_obs": 5754,
+   "t_df": 2.849433485370808,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006045267634323601,
+    "omega": 6.211667654972715e-07,
+    "alpha": 0.06829475366424725,
+    "beta": 0.9288360609945194,
+    "nu": 6.857940549686208
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5774,
+   "date": "2012-11-29T00:00:00",
+   "n_obs": 5775,
+   "t_df": 2.8521016664508307,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006056469283169027,
+    "omega": 6.24317910362205e-07,
+    "alpha": 0.06824323885380423,
+    "beta": 0.9289179579152734,
+    "nu": 6.8358678070044805
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5795,
+   "date": "2012-12-31T00:00:00",
+   "n_obs": 5796,
+   "t_df": 2.8556062398894735,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006033790244194684,
+    "omega": 6.276678884417822e-07,
+    "alpha": 0.06818795873054988,
+    "beta": 0.9288833159942215,
+    "nu": 6.858007399680998
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5816,
+   "date": "2013-01-31T00:00:00",
+   "n_obs": 5817,
+   "t_df": 2.844407174489826,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006113271010070466,
+    "omega": 6.284526332005108e-07,
+    "alpha": 0.06840939881256736,
+    "beta": 0.9286114571377856,
+    "nu": 6.79007440085301
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5837,
+   "date": "2013-03-04T00:00:00",
+   "n_obs": 5838,
+   "t_df": 2.847560509786694,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006138685062069136,
+    "omega": 6.315412360276955e-07,
+    "alpha": 0.06799826948331379,
+    "beta": 0.9289916223183942,
+    "nu": 6.791952196970294
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5858,
+   "date": "2013-04-03T00:00:00",
+   "n_obs": 5859,
+   "t_df": 2.84704790095825,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006159200549992049,
+    "omega": 6.282705493213175e-07,
+    "alpha": 0.06779023533758213,
+    "beta": 0.9291169896759467,
+    "nu": 6.812806864450669
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5879,
+   "date": "2013-05-02T00:00:00",
+   "n_obs": 5880,
+   "t_df": 2.853792931461709,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000621775047922804,
+    "omega": 6.385589594101383e-07,
+    "alpha": 0.06800975510546822,
+    "beta": 0.9288813507819352,
+    "nu": 6.798846610357427
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5900,
+   "date": "2013-06-03T00:00:00",
+   "n_obs": 5901,
+   "t_df": 2.8562842797918,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006254144788659517,
+    "omega": 6.371023774448906e-07,
+    "alpha": 0.06776602639471682,
+    "beta": 0.9290467721453242,
+    "nu": 6.813660415119011
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5921,
+   "date": "2013-07-02T00:00:00",
+   "n_obs": 5922,
+   "t_df": 2.8714170139118966,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006233053769561483,
+    "omega": 6.485256142061649e-07,
+    "alpha": 0.0683114925237431,
+    "beta": 0.9284963333409856,
+    "nu": 6.859138494077326
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5942,
+   "date": "2013-08-01T00:00:00",
+   "n_obs": 5943,
+   "t_df": 2.8646785586212804,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006324344019312285,
+    "omega": 6.57030325035628e-07,
+    "alpha": 0.06881355289363739,
+    "beta": 0.9278333937208517,
+    "nu": 6.826998115655427
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5963,
+   "date": "2013-08-30T00:00:00",
+   "n_obs": 5964,
+   "t_df": 2.863952471214752,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006190503002765579,
+    "omega": 6.570695046886284e-07,
+    "alpha": 0.06854788680927512,
+    "beta": 0.9280653668688331,
+    "nu": 6.818486447818201
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 5984,
+   "date": "2013-10-01T00:00:00",
+   "n_obs": 5985,
+   "t_df": 2.864783952127347,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006242055660915989,
+    "omega": 6.53345744683939e-07,
+    "alpha": 0.06833766309596341,
+    "beta": 0.928211335163279,
+    "nu": 6.848258971986913
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6005,
+   "date": "2013-10-30T00:00:00",
+   "n_obs": 6006,
+   "t_df": 2.869765080485062,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006288756885580839,
+    "omega": 6.626915783788092e-07,
+    "alpha": 0.06839008741008382,
+    "beta": 0.9280729200315783,
+    "nu": 6.852271818963308
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6026,
+   "date": "2013-11-29T00:00:00",
+   "n_obs": 6027,
+   "t_df": 2.8658752144163397,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006330367475748479,
+    "omega": 6.565491231636532e-07,
+    "alpha": 0.06839660973317217,
+    "beta": 0.9280752891295416,
+    "nu": 6.838773817950788
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6047,
+   "date": "2013-12-31T00:00:00",
+   "n_obs": 6048,
+   "t_df": 2.8622430747443275,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006341545529536851,
+    "omega": 6.514604336618387e-07,
+    "alpha": 0.06795804176514568,
+    "beta": 0.9285154848162553,
+    "nu": 6.820072453279338
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6068,
+   "date": "2014-01-31T00:00:00",
+   "n_obs": 6069,
+   "t_df": 2.8667920841174177,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006262734788409198,
+    "omega": 6.642299944165573e-07,
+    "alpha": 0.06808569651158336,
+    "beta": 0.9283472627630239,
+    "nu": 6.807435579551573
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6089,
+   "date": "2014-03-04T00:00:00",
+   "n_obs": 6090,
+   "t_df": 2.8687409846264327,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006338376421086908,
+    "omega": 6.681033426788593e-07,
+    "alpha": 0.06814210314141957,
+    "beta": 0.9282426429555692,
+    "nu": 6.792844326434652
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6110,
+   "date": "2014-04-02T00:00:00",
+   "n_obs": 6111,
+   "t_df": 2.8691356854673895,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000634187839475469,
+    "omega": 6.660299905696556e-07,
+    "alpha": 0.0680605324746053,
+    "beta": 0.9282393970397845,
+    "nu": 6.808315285102807
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6131,
+   "date": "2014-05-02T00:00:00",
+   "n_obs": 6132,
+   "t_df": 2.871839036615129,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006326362334953112,
+    "omega": 6.709216634309858e-07,
+    "alpha": 0.06803027891765122,
+    "beta": 0.928225974511684,
+    "nu": 6.795704523699666
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6152,
+   "date": "2014-06-03T00:00:00",
+   "n_obs": 6153,
+   "t_df": 2.86877516728896,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006372588796386989,
+    "omega": 6.65299473562744e-07,
+    "alpha": 0.0682107955684698,
+    "beta": 0.928048976802571,
+    "nu": 6.801112973192415
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6173,
+   "date": "2014-07-02T00:00:00",
+   "n_obs": 6174,
+   "t_df": 2.1,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006449582621347992,
+    "omega": 6.479440704320925e-07,
+    "alpha": 0.06861207427667344,
+    "beta": 0.9278476795976,
+    "nu": 6.790911350444312
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6194,
+   "date": "2014-08-01T00:00:00",
+   "n_obs": 6195,
+   "t_df": 2.8574561457037073,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006370744626071058,
+    "omega": 6.670686029688522e-07,
+    "alpha": 0.06832250311157473,
+    "beta": 0.9279607839354752,
+    "nu": 6.7561913005089
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6215,
+   "date": "2014-09-02T00:00:00",
+   "n_obs": 6216,
+   "t_df": 2.852702669443037,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006449239845546791,
+    "omega": 6.526531880960181e-07,
+    "alpha": 0.06828882675940853,
+    "beta": 0.9280743435626311,
+    "nu": 6.743510317845907
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6236,
+   "date": "2014-10-01T00:00:00",
+   "n_obs": 6237,
+   "t_df": 2.8547204065575587,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006367047450410042,
+    "omega": 6.74456272782181e-07,
+    "alpha": 0.06869744965983471,
+    "beta": 0.9274782433672711,
+    "nu": 6.768834269705537
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6257,
+   "date": "2014-10-30T00:00:00",
+   "n_obs": 6258,
+   "t_df": 2.8667518851863485,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000641252677286735,
+    "omega": 7.004168087534853e-07,
+    "alpha": 0.07024328289071567,
+    "beta": 0.9258756724143753,
+    "nu": 6.810072275487853
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6278,
+   "date": "2014-12-01T00:00:00",
+   "n_obs": 6279,
+   "t_df": 2.856229842343322,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006476046240290136,
+    "omega": 7.238382469020132e-07,
+    "alpha": 0.07176594751876009,
+    "beta": 0.9240878825790962,
+    "nu": 6.771610919423983
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6299,
+   "date": "2014-12-31T00:00:00",
+   "n_obs": 6300,
+   "t_df": 2.856899181361927,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000646068347422194,
+    "omega": 7.342923879060922e-07,
+    "alpha": 0.07176611146945051,
+    "beta": 0.9241164909500649,
+    "nu": 6.733216751626803
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6320,
+   "date": "2015-02-02T00:00:00",
+   "n_obs": 6321,
+   "t_df": 2.8751507186636105,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006428344350821117,
+    "omega": 7.364786108949756e-07,
+    "alpha": 0.07214932017104761,
+    "beta": 0.9237804359057818,
+    "nu": 6.801888445651862
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6341,
+   "date": "2015-03-04T00:00:00",
+   "n_obs": 6342,
+   "t_df": 2.1,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000646361137637286,
+    "omega": 7.534650242415204e-07,
+    "alpha": 0.07291255110068454,
+    "beta": 0.9227414040480868,
+    "nu": 6.791478778400779
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6362,
+   "date": "2015-04-02T00:00:00",
+   "n_obs": 6363,
+   "t_df": 2.884392205498778,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006420288733159476,
+    "omega": 7.465970656091221e-07,
+    "alpha": 0.07224811773418732,
+    "beta": 0.9234624742263051,
+    "nu": 6.81596867164306
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6383,
+   "date": "2015-05-04T00:00:00",
+   "n_obs": 6384,
+   "t_df": 2.8834822858738933,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006443836788545558,
+    "omega": 7.472689331665879e-07,
+    "alpha": 0.07222025280877055,
+    "beta": 0.9233921258214423,
+    "nu": 6.818611209672041
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6404,
+   "date": "2015-06-03T00:00:00",
+   "n_obs": 6405,
+   "t_df": 2.8826357911662397,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006406802032880904,
+    "omega": 7.417623822075164e-07,
+    "alpha": 0.07198032092555423,
+    "beta": 0.9236214790682958,
+    "nu": 6.819844159884842
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6425,
+   "date": "2015-07-02T00:00:00",
+   "n_obs": 6426,
+   "t_df": 2.1,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006347815546289276,
+    "omega": 7.421741676391093e-07,
+    "alpha": 0.07140683708188349,
+    "beta": 0.9241742305386907,
+    "nu": 6.806064706628558
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6446,
+   "date": "2015-08-03T00:00:00",
+   "n_obs": 6447,
+   "t_df": 2.1,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006341586020727169,
+    "omega": 7.416976296028017e-07,
+    "alpha": 0.0712431608512689,
+    "beta": 0.9242842449886918,
+    "nu": 6.821306295791028
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6467,
+   "date": "2015-09-01T00:00:00",
+   "n_obs": 6468,
+   "t_df": 2.8747288568138867,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006320912470691515,
+    "omega": 7.80949784206411e-07,
+    "alpha": 0.07433323058088166,
+    "beta": 0.9215255163135938,
+    "nu": 6.745973800096091
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6488,
+   "date": "2015-10-01T00:00:00",
+   "n_obs": 6489,
+   "t_df": 2.8772123039242476,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006308513415921438,
+    "omega": 7.82579192164207e-07,
+    "alpha": 0.07373708067117221,
+    "beta": 0.9219200831129126,
+    "nu": 6.744055660693455
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6509,
+   "date": "2015-10-30T00:00:00",
+   "n_obs": 6510,
+   "t_df": 2.883579649242445,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000636544772824678,
+    "omega": 8.042274129947329e-07,
+    "alpha": 0.07429169979897662,
+    "beta": 0.9210268247587676,
+    "nu": 6.751359768102983
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6530,
+   "date": "2015-12-01T00:00:00",
+   "n_obs": 6531,
+   "t_df": 2.884938873993055,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006361770477618567,
+    "omega": 8.073588472110142e-07,
+    "alpha": 0.07426202756145597,
+    "beta": 0.9209533080673411,
+    "nu": 6.756903944084418
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6551,
+   "date": "2015-12-31T00:00:00",
+   "n_obs": 6552,
+   "t_df": 2.902957588077375,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006314314997479586,
+    "omega": 8.02950598772751e-07,
+    "alpha": 0.07426403175672729,
+    "beta": 0.9210752243941367,
+    "nu": 6.8152403377034085
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6572,
+   "date": "2016-02-02T00:00:00",
+   "n_obs": 6573,
+   "t_df": 2.910741456497413,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006277325575554508,
+    "omega": 7.998945426269652e-07,
+    "alpha": 0.07498274019568955,
+    "beta": 0.9206113608663089,
+    "nu": 6.869149819090039
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6593,
+   "date": "2016-03-03T00:00:00",
+   "n_obs": 6594,
+   "t_df": 2.9181851961951875,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006296224222542164,
+    "omega": 7.970380458301972e-07,
+    "alpha": 0.07465972697139366,
+    "beta": 0.9208676598150798,
+    "nu": 6.893451488585326
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6614,
+   "date": "2016-04-04T00:00:00",
+   "n_obs": 6615,
+   "t_df": 2.914376843295096,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006358677728531338,
+    "omega": 8.347870286391208e-07,
+    "alpha": 0.0761455180686203,
+    "beta": 0.9189318339256259,
+    "nu": 6.8753099041696455
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6635,
+   "date": "2016-05-03T00:00:00",
+   "n_obs": 6636,
+   "t_df": 2.9186004174645435,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006323976718118515,
+    "omega": 8.299936729476737e-07,
+    "alpha": 0.07576617315124021,
+    "beta": 0.9192627186554224,
+    "nu": 6.9072682421932265
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6656,
+   "date": "2016-06-02T00:00:00",
+   "n_obs": 6657,
+   "t_df": 2.919903071408443,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006337384859208922,
+    "omega": 8.273768167512737e-07,
+    "alpha": 0.07556097212409521,
+    "beta": 0.9194272938315123,
+    "nu": 6.919771047103298
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6677,
+   "date": "2016-07-01T00:00:00",
+   "n_obs": 6678,
+   "t_df": 2.916999493244746,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006333693091621226,
+    "omega": 8.518839991914379e-07,
+    "alpha": 0.07674443053286238,
+    "beta": 0.9183833748929588,
+    "nu": 6.814606787401665
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6698,
+   "date": "2016-08-02T00:00:00",
+   "n_obs": 6699,
+   "t_df": 2.9102536001210186,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006354531149486754,
+    "omega": 8.706757430319524e-07,
+    "alpha": 0.07714923087835047,
+    "beta": 0.9176097266760385,
+    "nu": 6.774539499671638
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6719,
+   "date": "2016-08-31T00:00:00",
+   "n_obs": 6720,
+   "t_df": 2.1,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006329650134504116,
+    "omega": 8.848105444589154e-07,
+    "alpha": 0.07942146637142262,
+    "beta": 0.9153450630815734,
+    "nu": 6.7594834598425395
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6740,
+   "date": "2016-09-30T00:00:00",
+   "n_obs": 6741,
+   "t_df": 2.9031327170982704,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006345206818125761,
+    "omega": 9.035861494885599e-07,
+    "alpha": 0.07958871265588112,
+    "beta": 0.9151744841775444,
+    "nu": 6.671797691436636
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6761,
+   "date": "2016-10-31T00:00:00",
+   "n_obs": 6762,
+   "t_df": 2.896141759316265,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006254277687803482,
+    "omega": 8.965892376337813e-07,
+    "alpha": 0.07989330777450779,
+    "beta": 0.9148788870395762,
+    "nu": 6.650671752696902
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6782,
+   "date": "2016-11-30T00:00:00",
+   "n_obs": 6783,
+   "t_df": 2.8927197697327065,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006279822362626241,
+    "omega": 8.899941656972047e-07,
+    "alpha": 0.07914070928509148,
+    "beta": 0.9156429824989778,
+    "nu": 6.609786604540621
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6803,
+   "date": "2016-12-30T00:00:00",
+   "n_obs": 6804,
+   "t_df": 2.888391069731467,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006289560169008942,
+    "omega": 8.79011343627282e-07,
+    "alpha": 0.07889057842107973,
+    "beta": 0.9159455952591357,
+    "nu": 6.606230740688873
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6824,
+   "date": "2017-02-01T00:00:00",
+   "n_obs": 6825,
+   "t_df": 2.881189747371793,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006294368944127045,
+    "omega": 8.5681268974644e-07,
+    "alpha": 0.07882702421975388,
+    "beta": 0.9162043356626632,
+    "nu": 6.609784574863467
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6845,
+   "date": "2017-03-03T00:00:00",
+   "n_obs": 6846,
+   "t_df": 2.8732273775711326,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000642323385947651,
+    "omega": 8.404256865652266e-07,
+    "alpha": 0.07868075972670409,
+    "beta": 0.9165421209033066,
+    "nu": 6.584820869565315
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6866,
+   "date": "2017-04-03T00:00:00",
+   "n_obs": 6867,
+   "t_df": 2.864725502169078,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006333244275749189,
+    "omega": 8.083510532326435e-07,
+    "alpha": 0.07785801315025755,
+    "beta": 0.9176388286572904,
+    "nu": 6.555304963615937
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6887,
+   "date": "2017-05-03T00:00:00",
+   "n_obs": 6888,
+   "t_df": 2.858371158076055,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006302977324883463,
+    "omega": 7.929511098377288e-07,
+    "alpha": 0.07763113705842384,
+    "beta": 0.9179856154813614,
+    "nu": 6.554698574149547
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6908,
+   "date": "2017-06-02T00:00:00",
+   "n_obs": 6909,
+   "t_df": 2.848590500767068,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006351065125718043,
+    "omega": 7.703294602559865e-07,
+    "alpha": 0.07698437759091942,
+    "beta": 0.9189202275025771,
+    "nu": 6.468871807153826
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6929,
+   "date": "2017-07-03T00:00:00",
+   "n_obs": 6930,
+   "t_df": 2.8420168843074336,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006293055252785383,
+    "omega": 7.585407828045502e-07,
+    "alpha": 0.07686568302224253,
+    "beta": 0.9191449177571827,
+    "nu": 6.4604527059013765
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6950,
+   "date": "2017-08-02T00:00:00",
+   "n_obs": 6951,
+   "t_df": 2.8308791382132026,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006324094112644236,
+    "omega": 7.146720019446951e-07,
+    "alpha": 0.07695759059598056,
+    "beta": 0.9196063639472026,
+    "nu": 6.421589783783927
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6971,
+   "date": "2017-08-31T00:00:00",
+   "n_obs": 6972,
+   "t_df": 2.1,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006298305340391884,
+    "omega": 7.190396283956308e-07,
+    "alpha": 0.07653357976984448,
+    "beta": 0.9200350147688575,
+    "nu": 6.349581647395383
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 6992,
+   "date": "2017-10-02T00:00:00",
+   "n_obs": 6993,
+   "t_df": 2.8138696023536625,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006348009751631531,
+    "omega": 6.872680009444582e-07,
+    "alpha": 0.07669988932221677,
+    "beta": 0.9202666151079172,
+    "nu": 6.314963576619002
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7013,
+   "date": "2017-10-31T00:00:00",
+   "n_obs": 7014,
+   "t_df": 2.8024668795035934,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006389686864187824,
+    "omega": 6.53183461402781e-07,
+    "alpha": 0.07718127019268195,
+    "beta": 0.9202951212667969,
+    "nu": 6.296071575714918
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7034,
+   "date": "2017-11-30T00:00:00",
+   "n_obs": 7035,
+   "t_df": 2.794971781268308,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006422901382604564,
+    "omega": 6.412161787030191e-07,
+    "alpha": 0.07707953308368029,
+    "beta": 0.9205381670541671,
+    "nu": 6.2905392719629605
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7055,
+   "date": "2018-01-02T00:00:00",
+   "n_obs": 7056,
+   "t_df": 2.7876879148379805,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006436725494697369,
+    "omega": 6.196584836606401e-07,
+    "alpha": 0.07650187410671055,
+    "beta": 0.9212760835092874,
+    "nu": 6.29009659304634
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7076,
+   "date": "2018-02-01T00:00:00",
+   "n_obs": 7077,
+   "t_df": 2.7877986756002744,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006536399363932085,
+    "omega": 6.389232547056858e-07,
+    "alpha": 0.07673685468794735,
+    "beta": 0.9207918461444189,
+    "nu": 6.318725118403844
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7097,
+   "date": "2018-03-05T00:00:00",
+   "n_obs": 7098,
+   "t_df": 2.7908962947358864,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000654194979401359,
+    "omega": 6.758885861440169e-07,
+    "alpha": 0.07905366426406223,
+    "beta": 0.9186517362298514,
+    "nu": 6.227368311467962
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7118,
+   "date": "2018-04-04T00:00:00",
+   "n_obs": 7119,
+   "t_df": 2.790512316212454,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006526966470054534,
+    "omega": 6.74760297060492e-07,
+    "alpha": 0.07933834641498663,
+    "beta": 0.9184979878219972,
+    "nu": 6.229280763000163
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7139,
+   "date": "2018-05-03T00:00:00",
+   "n_obs": 7140,
+   "t_df": 2.7970754393738173,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006510529464654305,
+    "omega": 6.895685937144401e-07,
+    "alpha": 0.07958945780346563,
+    "beta": 0.9179411116619552,
+    "nu": 6.233480210257285
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7160,
+   "date": "2018-06-04T00:00:00",
+   "n_obs": 7161,
+   "t_df": 2.801268360085146,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006548115592330136,
+    "omega": 7.011826539951179e-07,
+    "alpha": 0.08006142212959694,
+    "beta": 0.9172943655506149,
+    "nu": 6.250407762192361
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7181,
+   "date": "2018-07-03T00:00:00",
+   "n_obs": 7182,
+   "t_df": 2.7969253527092803,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006504925996466603,
+    "omega": 7.052026198013747e-07,
+    "alpha": 0.08032917875493198,
+    "beta": 0.9169504931333243,
+    "nu": 6.234756998409559
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7202,
+   "date": "2018-08-02T00:00:00",
+   "n_obs": 7203,
+   "t_df": 2.7987167726257036,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006566099545322162,
+    "omega": 7.039400632847652e-07,
+    "alpha": 0.08022938943954232,
+    "beta": 0.9169607599645543,
+    "nu": 6.264584151941561
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7223,
+   "date": "2018-08-31T00:00:00",
+   "n_obs": 7224,
+   "t_df": 2.7957168799347,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006610004183446997,
+    "omega": 6.980177077047359e-07,
+    "alpha": 0.08010315910439549,
+    "beta": 0.9170657064117392,
+    "nu": 6.281835713174427
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7244,
+   "date": "2018-10-02T00:00:00",
+   "n_obs": 7245,
+   "t_df": 2.7877520509792957,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000658423354375062,
+    "omega": 6.738912696298416e-07,
+    "alpha": 0.0800366658760332,
+    "beta": 0.9173803550676295,
+    "nu": 6.280238535088939
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7265,
+   "date": "2018-10-31T00:00:00",
+   "n_obs": 7266,
+   "t_df": 2.787987355943904,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006537332634546953,
+    "omega": 7.185009892286989e-07,
+    "alpha": 0.08208184070309522,
+    "beta": 0.9154793116353808,
+    "nu": 6.178694002047607
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7286,
+   "date": "2018-11-30T00:00:00",
+   "n_obs": 7287,
+   "t_df": 2.795407442308404,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000653700919851135,
+    "omega": 7.129180244417221e-07,
+    "alpha": 0.08164648636851764,
+    "beta": 0.9158843286907876,
+    "nu": 6.195109659821054
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7307,
+   "date": "2019-01-03T00:00:00",
+   "n_obs": 7308,
+   "t_df": 2.7817757002156966,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006498234957122482,
+    "omega": 7.016347009730276e-07,
+    "alpha": 0.08194698071678337,
+    "beta": 0.9159858867884597,
+    "nu": 6.185880966530064
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7328,
+   "date": "2019-02-04T00:00:00",
+   "n_obs": 7329,
+   "t_df": 2.7848491117149496,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006545764470350463,
+    "omega": 7.251604489452247e-07,
+    "alpha": 0.08238947340789522,
+    "beta": 0.9151355439340877,
+    "nu": 6.178559309434611
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7349,
+   "date": "2019-03-06T00:00:00",
+   "n_obs": 7350,
+   "t_df": 2.782451202840037,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006570595812974988,
+    "omega": 7.724552758727595e-07,
+    "alpha": 0.0848742434885772,
+    "beta": 0.9122166270576288,
+    "nu": 6.176483198380583
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7370,
+   "date": "2019-04-04T00:00:00",
+   "n_obs": 7371,
+   "t_df": 2.7829765652023513,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006613505629998838,
+    "omega": 7.618612714335541e-07,
+    "alpha": 0.08394234064309683,
+    "beta": 0.9131814209309994,
+    "nu": 6.161703530296663
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7391,
+   "date": "2019-05-06T00:00:00",
+   "n_obs": 7392,
+   "t_df": 2.77798638193367,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006634005694123542,
+    "omega": 7.641178536686776e-07,
+    "alpha": 0.08436674355781455,
+    "beta": 0.9127041749306981,
+    "nu": 6.158218848303723
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7412,
+   "date": "2019-06-05T00:00:00",
+   "n_obs": 7413,
+   "t_df": 2.7852173515592042,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006589576753390516,
+    "omega": 7.738402081913774e-07,
+    "alpha": 0.08451935062401396,
+    "beta": 0.9126522066616792,
+    "nu": 6.12791318592626
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7433,
+   "date": "2019-07-05T00:00:00",
+   "n_obs": 7434,
+   "t_df": 2.7848351389363217,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006658497702565155,
+    "omega": 7.744801515121576e-07,
+    "alpha": 0.0843488027012533,
+    "beta": 0.9126540834646575,
+    "nu": 6.1265862765530725
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7454,
+   "date": "2019-08-05T00:00:00",
+   "n_obs": 7455,
+   "t_df": 2.785037067371449,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006614636659521807,
+    "omega": 7.937461064524216e-07,
+    "alpha": 0.08516207222314924,
+    "beta": 0.9118499990897624,
+    "nu": 6.108603587826559
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7475,
+   "date": "2019-09-04T00:00:00",
+   "n_obs": 7476,
+   "t_df": 2.793137260101684,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006644466839847234,
+    "omega": 8.026379452301622e-07,
+    "alpha": 0.0858686118695663,
+    "beta": 0.9111590482633889,
+    "nu": 6.12259130457293
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7496,
+   "date": "2019-10-03T00:00:00",
+   "n_obs": 7497,
+   "t_df": 2.7927767857557972,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006627374202813406,
+    "omega": 8.199623581953478e-07,
+    "alpha": 0.08636644232868135,
+    "beta": 0.9104305419394156,
+    "nu": 6.114341015520934
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7517,
+   "date": "2019-11-01T00:00:00",
+   "n_obs": 7518,
+   "t_df": 2.7961458800266943,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006690305955628249,
+    "omega": 8.281955072726515e-07,
+    "alpha": 0.08676325056136783,
+    "beta": 0.9098785898860012,
+    "nu": 6.123543050531879
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7538,
+   "date": "2019-12-03T00:00:00",
+   "n_obs": 7539,
+   "t_df": 2.7896904577971045,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006705064386058599,
+    "omega": 8.436061963365739e-07,
+    "alpha": 0.08805790452004911,
+    "beta": 0.9084908910861105,
+    "nu": 6.12143236501388
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7559,
+   "date": "2020-01-03T00:00:00",
+   "n_obs": 7560,
+   "t_df": 2.7871328647394202,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006794884228712521,
+    "omega": 8.405268087853936e-07,
+    "alpha": 0.08791824921092393,
+    "beta": 0.9085754886035472,
+    "nu": 6.136882419641782
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7580,
+   "date": "2020-02-04T00:00:00",
+   "n_obs": 7581,
+   "t_df": 2.788936585446444,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006837148244232445,
+    "omega": 8.628938579940007e-07,
+    "alpha": 0.08872882909682613,
+    "beta": 0.9076913204025139,
+    "nu": 6.13805799162596
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7601,
+   "date": "2020-03-05T00:00:00",
+   "n_obs": 7602,
+   "t_df": 2.7629347235515587,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006850710712046978,
+    "omega": 8.925495072652626e-07,
+    "alpha": 0.09201938306937217,
+    "beta": 0.9049943948850159,
+    "nu": 6.076431132778231
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7622,
+   "date": "2020-04-03T00:00:00",
+   "n_obs": 7623,
+   "t_df": 2.6486524153219406,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000686896576668337,
+    "omega": 9.263778685211471e-07,
+    "alpha": 0.09566903506250991,
+    "beta": 0.9017513992675418,
+    "nu": 6.075784391194829
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7643,
+   "date": "2020-05-05T00:00:00",
+   "n_obs": 7644,
+   "t_df": 2.6354864687943302,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006890209011187517,
+    "omega": 9.792471139435288e-07,
+    "alpha": 0.09720218372232388,
+    "beta": 0.8995462595581105,
+    "nu": 6.081026724937452
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7664,
+   "date": "2020-06-04T00:00:00",
+   "n_obs": 7665,
+   "t_df": 2.6426029847247365,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006933964893518225,
+    "omega": 1.0369311695223373e-06,
+    "alpha": 0.0992843839399545,
+    "beta": 0.8968392044358882,
+    "nu": 6.09046862046175
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7685,
+   "date": "2020-07-06T00:00:00",
+   "n_obs": 7686,
+   "t_df": 2.6412023754440015,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006931387476283103,
+    "omega": 9.98353805656604e-07,
+    "alpha": 0.09738008297861274,
+    "beta": 0.8991420274838009,
+    "nu": 6.035211698123745
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7706,
+   "date": "2020-08-04T00:00:00",
+   "n_obs": 7707,
+   "t_df": 2.6529506367603934,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0006966425482339183,
+    "omega": 1.0272536206384075e-06,
+    "alpha": 0.09823690446786784,
+    "beta": 0.8978513311916273,
+    "nu": 6.048450430961767
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7727,
+   "date": "2020-09-02T00:00:00",
+   "n_obs": 7728,
+   "t_df": 2.6542229120274716,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007066162733412011,
+    "omega": 1.0385306137175016e-06,
+    "alpha": 0.09856365113802368,
+    "beta": 0.8973622199669344,
+    "nu": 6.0544848445590675
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7748,
+   "date": "2020-10-02T00:00:00",
+   "n_obs": 7749,
+   "t_df": 2.6597411408256333,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007026137554780677,
+    "omega": 1.0470183844007055e-06,
+    "alpha": 0.09932645905828916,
+    "beta": 0.8968456794477596,
+    "nu": 6.025430053967548
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7769,
+   "date": "2020-11-02T00:00:00",
+   "n_obs": 7770,
+   "t_df": 2.6655456293806825,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007019861723383653,
+    "omega": 1.036252003336705e-06,
+    "alpha": 0.09904653292232116,
+    "beta": 0.8973258786500659,
+    "nu": 6.018589156760894
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7790,
+   "date": "2020-12-02T00:00:00",
+   "n_obs": 7791,
+   "t_df": 2.673390918774798,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007067178159750723,
+    "omega": 1.0466172800969845e-06,
+    "alpha": 0.09924123152241845,
+    "beta": 0.8968911428495152,
+    "nu": 6.037079917456754
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7811,
+   "date": "2021-01-04T00:00:00",
+   "n_obs": 7812,
+   "t_df": 2.673030549022017,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007071689648842347,
+    "omega": 1.0622316947534387e-06,
+    "alpha": 0.09975676065369758,
+    "beta": 0.8961810281238632,
+    "nu": 6.031658907545212
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7832,
+   "date": "2021-02-03T00:00:00",
+   "n_obs": 7833,
+   "t_df": 2.6766765691902523,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007107496039979841,
+    "omega": 1.0675081497645446e-06,
+    "alpha": 0.10007877236367559,
+    "beta": 0.8959995642425926,
+    "nu": 6.019979549053717
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7853,
+   "date": "2021-03-05T00:00:00",
+   "n_obs": 7854,
+   "t_df": 2.6786391435741286,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007106144035736246,
+    "omega": 1.071814327214529e-06,
+    "alpha": 0.10034577748390983,
+    "beta": 0.8957987536238685,
+    "nu": 6.007514551461348
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7874,
+   "date": "2021-04-06T00:00:00",
+   "n_obs": 7875,
+   "t_df": 2.6838405242733754,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007138925422841946,
+    "omega": 1.0707272933726094e-06,
+    "alpha": 0.09983092837121073,
+    "beta": 0.8961299364265007,
+    "nu": 6.013000074168389
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7895,
+   "date": "2021-05-05T00:00:00",
+   "n_obs": 7896,
+   "t_df": 2.686567621489522,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007150712637129932,
+    "omega": 1.0734221854257237e-06,
+    "alpha": 0.09978794548914262,
+    "beta": 0.8960020798028446,
+    "nu": 6.028033625496317
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7916,
+   "date": "2021-06-04T00:00:00",
+   "n_obs": 7917,
+   "t_df": 2.691265622353111,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007164596901028846,
+    "omega": 1.0832769757190466e-06,
+    "alpha": 0.1000478641670678,
+    "beta": 0.8956550094956464,
+    "nu": 6.036649342402923
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7937,
+   "date": "2021-07-06T00:00:00",
+   "n_obs": 7938,
+   "t_df": 2.6869391174177295,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007198903816500508,
+    "omega": 1.0851600064822484e-06,
+    "alpha": 0.10026324537072133,
+    "beta": 0.8954074177875675,
+    "nu": 6.017871210979991
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7958,
+   "date": "2021-08-04T00:00:00",
+   "n_obs": 7959,
+   "t_df": 2.6913592126090595,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000718926776457329,
+    "omega": 1.0932784705288463e-06,
+    "alpha": 0.10016768665971484,
+    "beta": 0.8953769168351218,
+    "nu": 6.032453942496664
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 7979,
+   "date": "2021-09-02T00:00:00",
+   "n_obs": 7980,
+   "t_df": 2.688264723365931,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007234650935734585,
+    "omega": 1.0889050768048245e-06,
+    "alpha": 0.10014465455141691,
+    "beta": 0.8953734639828724,
+    "nu": 6.0282414088592775
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8000,
+   "date": "2021-10-04T00:00:00",
+   "n_obs": 8001,
+   "t_df": 2.6937354220951994,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007160750313408853,
+    "omega": 1.1124582449095028e-06,
+    "alpha": 0.1008985172278787,
+    "beta": 0.8945542894454148,
+    "nu": 6.04645087939639
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8021,
+   "date": "2021-11-02T00:00:00",
+   "n_obs": 8022,
+   "t_df": 2.693871760099123,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007239775435277581,
+    "omega": 1.1141129523364036e-06,
+    "alpha": 0.10080784243291013,
+    "beta": 0.8944776616153529,
+    "nu": 6.038722628315003
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8042,
+   "date": "2021-12-02T00:00:00",
+   "n_obs": 8043,
+   "t_df": 2.6932924074240194,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007252909725278575,
+    "omega": 1.1343471730976153e-06,
+    "alpha": 0.10202206488600103,
+    "beta": 0.893406543207564,
+    "nu": 6.000967122896591
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8063,
+   "date": "2022-01-03T00:00:00",
+   "n_obs": 8064,
+   "t_df": 2.705406617104734,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007273283707807364,
+    "omega": 1.1406340731204034e-06,
+    "alpha": 0.10230991294395646,
+    "beta": 0.8929932781151828,
+    "nu": 6.031370023229428
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8084,
+   "date": "2022-02-02T00:00:00",
+   "n_obs": 8085,
+   "t_df": 2.7098255459193403,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007233774261069997,
+    "omega": 1.130825310293315e-06,
+    "alpha": 0.10212469401267923,
+    "beta": 0.8933865614646854,
+    "nu": 6.039576040279472
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8105,
+   "date": "2022-03-04T00:00:00",
+   "n_obs": 8106,
+   "t_df": 2.7179241796188722,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007205618718480498,
+    "omega": 1.1246081776872744e-06,
+    "alpha": 0.10235456852381117,
+    "beta": 0.8933009868032434,
+    "nu": 6.07612042643213
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8126,
+   "date": "2022-04-04T00:00:00",
+   "n_obs": 8127,
+   "t_df": 2.7268840519553867,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007227832163900375,
+    "omega": 1.123902516151129e-06,
+    "alpha": 0.10240890362593492,
+    "beta": 0.893222524635312,
+    "nu": 6.098573081303632
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8147,
+   "date": "2022-05-04T00:00:00",
+   "n_obs": 8148,
+   "t_df": 2.722872305896609,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007198961261210566,
+    "omega": 1.11148018083225e-06,
+    "alpha": 0.10274316181016634,
+    "beta": 0.8932993234137089,
+    "nu": 6.108631774783738
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8168,
+   "date": "2022-06-03T00:00:00",
+   "n_obs": 8169,
+   "t_df": 2.718137370282572,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007191106392673712,
+    "omega": 1.1075492410368093e-06,
+    "alpha": 0.10275826879550118,
+    "beta": 0.8933352252558752,
+    "nu": 6.1248944932475835
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8189,
+   "date": "2022-07-06T00:00:00",
+   "n_obs": 8190,
+   "t_df": 2.709672146244931,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000717799107078994,
+    "omega": 1.1053687954223832e-06,
+    "alpha": 0.10272516433309553,
+    "beta": 0.8933946967226397,
+    "nu": 6.130221233603203
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8210,
+   "date": "2022-08-04T00:00:00",
+   "n_obs": 8211,
+   "t_df": 2.7181728786094936,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007195962244606553,
+    "omega": 1.1000309790644703e-06,
+    "alpha": 0.10234167766468331,
+    "beta": 0.8937326408906697,
+    "nu": 6.144590067035804
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8231,
+   "date": "2022-09-02T00:00:00",
+   "n_obs": 8232,
+   "t_df": 2.7190019940510752,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007165085242050516,
+    "omega": 1.0893716453042285e-06,
+    "alpha": 0.1018147773577637,
+    "beta": 0.8943869253690852,
+    "nu": 6.128846753489545
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8252,
+   "date": "2022-10-04T00:00:00",
+   "n_obs": 8253,
+   "t_df": 2.7228794006967463,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007159449379795131,
+    "omega": 1.0749002489507425e-06,
+    "alpha": 0.10186517768424008,
+    "beta": 0.8946793785784976,
+    "nu": 6.136873677839039
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8273,
+   "date": "2022-11-02T00:00:00",
+   "n_obs": 8274,
+   "t_df": 2.7271565613331186,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007148757435492031,
+    "omega": 1.0664036659958242e-06,
+    "alpha": 0.10158191099218149,
+    "beta": 0.8949993088243832,
+    "nu": 6.15979271892417
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8294,
+   "date": "2022-12-02T00:00:00",
+   "n_obs": 8295,
+   "t_df": 2.725998161059083,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007161460764319088,
+    "omega": 1.0606333462381775e-06,
+    "alpha": 0.1009817021543696,
+    "beta": 0.8956267830802928,
+    "nu": 6.12333883808217
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8315,
+   "date": "2023-01-04T00:00:00",
+   "n_obs": 8316,
+   "t_df": 2.7364582340162817,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007130115115421327,
+    "omega": 1.057642050719882e-06,
+    "alpha": 0.10066986792337913,
+    "beta": 0.8958472223621745,
+    "nu": 6.143544800741805
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8336,
+   "date": "2023-02-03T00:00:00",
+   "n_obs": 8337,
+   "t_df": 2.7456703860226126,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007157935362277347,
+    "omega": 1.0475804532486646e-06,
+    "alpha": 0.10025627314549757,
+    "beta": 0.8962993847536462,
+    "nu": 6.17269642294841
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8357,
+   "date": "2023-03-07T00:00:00",
+   "n_obs": 8358,
+   "t_df": 2.7522344045005225,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007119801389230421,
+    "omega": 1.0415619396865405e-06,
+    "alpha": 0.0998378143601963,
+    "beta": 0.8966982888344752,
+    "nu": 6.187152249330977
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8378,
+   "date": "2023-04-05T00:00:00",
+   "n_obs": 8379,
+   "t_df": 2.7597225513449812,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007134379375318383,
+    "omega": 1.0420402230322479e-06,
+    "alpha": 0.09988812955429031,
+    "beta": 0.8966137282103658,
+    "nu": 6.210078996326677
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8399,
+   "date": "2023-05-05T00:00:00",
+   "n_obs": 8400,
+   "t_df": 2.760968197705765,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007128724332281169,
+    "omega": 1.04805851268746e-06,
+    "alpha": 0.10009234382715412,
+    "beta": 0.8964073379721962,
+    "nu": 6.20157522310508
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8420,
+   "date": "2023-06-06T00:00:00",
+   "n_obs": 8421,
+   "t_df": 2.765145533490685,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007145390026850746,
+    "omega": 1.045062156342364e-06,
+    "alpha": 0.09965072974265123,
+    "beta": 0.8967272363156337,
+    "nu": 6.216488376765745
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8441,
+   "date": "2023-07-07T00:00:00",
+   "n_obs": 8442,
+   "t_df": 2.7688549025067895,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007153347548490406,
+    "omega": 1.0429530670521534e-06,
+    "alpha": 0.09935652378292965,
+    "beta": 0.8969113472510977,
+    "nu": 6.235762751940504
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8462,
+   "date": "2023-08-07T00:00:00",
+   "n_obs": 8463,
+   "t_df": 2.770042888467348,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007184918529284855,
+    "omega": 1.0447724021044624e-06,
+    "alpha": 0.0992170817645964,
+    "beta": 0.8969604987992855,
+    "nu": 6.2473692376571845
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8483,
+   "date": "2023-09-06T00:00:00",
+   "n_obs": 8484,
+   "t_df": 2.7757322748540414,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007147821227381646,
+    "omega": 1.0480733878084723e-06,
+    "alpha": 0.09912247330462241,
+    "beta": 0.8969595296321441,
+    "nu": 6.273213171236526
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8504,
+   "date": "2023-10-05T00:00:00",
+   "n_obs": 8505,
+   "t_df": 2.778034389790769,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007086827221838817,
+    "omega": 1.046671762451735e-06,
+    "alpha": 0.09879211020793978,
+    "beta": 0.8972657011848368,
+    "nu": 6.277563406427614
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8525,
+   "date": "2023-11-03T00:00:00",
+   "n_obs": 8526,
+   "t_df": 2.7905659650435366,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007101468420768801,
+    "omega": 1.0508396604382305e-06,
+    "alpha": 0.09908386376164387,
+    "beta": 0.8969769709173987,
+    "nu": 6.32262978198541
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8546,
+   "date": "2023-12-05T00:00:00",
+   "n_obs": 8547,
+   "t_df": 2.785297723569462,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007144367160970462,
+    "omega": 1.0573960446821096e-06,
+    "alpha": 0.09928734612300333,
+    "beta": 0.8966131034255156,
+    "nu": 6.303041087894176
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8567,
+   "date": "2024-01-05T00:00:00",
+   "n_obs": 8568,
+   "t_df": 2.785185495697945,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007168394333356073,
+    "omega": 1.0533007911595018e-06,
+    "alpha": 0.09882069180493241,
+    "beta": 0.8970348819496768,
+    "nu": 6.302222456759787
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8588,
+   "date": "2024-02-06T00:00:00",
+   "n_obs": 8589,
+   "t_df": 2.7865255649994447,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007227568883808621,
+    "omega": 1.0560740133481333e-06,
+    "alpha": 0.09859236622554414,
+    "beta": 0.8972222246900238,
+    "nu": 6.30012700179947
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8609,
+   "date": "2024-03-07T00:00:00",
+   "n_obs": 8610,
+   "t_df": 2.7889897402314925,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007253525129344067,
+    "omega": 1.0528270684716127e-06,
+    "alpha": 0.09818751325407385,
+    "beta": 0.8976008422197466,
+    "nu": 6.298510521427863
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8630,
+   "date": "2024-04-08T00:00:00",
+   "n_obs": 8631,
+   "t_df": 2.791378678040301,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007243201825101192,
+    "omega": 1.052421848747917e-06,
+    "alpha": 0.09797202604573653,
+    "beta": 0.8977225265105179,
+    "nu": 6.313472702548098
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8651,
+   "date": "2024-05-07T00:00:00",
+   "n_obs": 8652,
+   "t_df": 2.8006766018044216,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007232123704647842,
+    "omega": 1.0583893243824613e-06,
+    "alpha": 0.09811202705506435,
+    "beta": 0.8975329938921682,
+    "nu": 6.346350917645818
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8672,
+   "date": "2024-06-06T00:00:00",
+   "n_obs": 8673,
+   "t_df": 2.7985184454610637,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007259945209145204,
+    "omega": 1.0571710159661273e-06,
+    "alpha": 0.09791966505738614,
+    "beta": 0.8976170262339696,
+    "nu": 6.345009710754569
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8693,
+   "date": "2024-07-09T00:00:00",
+   "n_obs": 8694,
+   "t_df": 2.7918322584490807,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007349151012442627,
+    "omega": 1.0416827374357375e-06,
+    "alpha": 0.09821811978445981,
+    "beta": 0.8974756787625774,
+    "nu": 6.335355879930469
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8714,
+   "date": "2024-08-07T00:00:00",
+   "n_obs": 8715,
+   "t_df": 2.800178988922418,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007312292027940463,
+    "omega": 1.0872455489735968e-06,
+    "alpha": 0.09984656509327261,
+    "beta": 0.8957657832553392,
+    "nu": 6.35116021602663
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8735,
+   "date": "2024-09-06T00:00:00",
+   "n_obs": 8736,
+   "t_df": 2.802365893824895,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007318799654081788,
+    "omega": 1.0853970118066048e-06,
+    "alpha": 0.09949392777704896,
+    "beta": 0.8960462931890826,
+    "nu": 6.351764309562751
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8756,
+   "date": "2024-10-07T00:00:00",
+   "n_obs": 8757,
+   "t_df": 2.8028459827670176,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007346258964673614,
+    "omega": 1.0938013329002099e-06,
+    "alpha": 0.099560524198793,
+    "beta": 0.8957727930040221,
+    "nu": 6.349032974040294
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8777,
+   "date": "2024-11-05T00:00:00",
+   "n_obs": 8778,
+   "t_df": 2.8027752594726065,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000735409153618164,
+    "omega": 1.093569784416977e-06,
+    "alpha": 0.09936307655241632,
+    "beta": 0.895966062294128,
+    "nu": 6.330300722563615
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8798,
+   "date": "2024-12-05T00:00:00",
+   "n_obs": 8799,
+   "t_df": 2.7987953033787187,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.00074022452353304,
+    "omega": 1.096923822281386e-06,
+    "alpha": 0.0995447929650378,
+    "beta": 0.8957370789882598,
+    "nu": 6.301673232083887
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8819,
+   "date": "2025-01-07T00:00:00",
+   "n_obs": 8820,
+   "t_df": 2.8028928674447107,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000736585769404604,
+    "omega": 1.0974008522010818e-06,
+    "alpha": 0.0991352892597908,
+    "beta": 0.896235203849173,
+    "nu": 6.2627197150404275
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8840,
+   "date": "2025-02-07T00:00:00",
+   "n_obs": 8841,
+   "t_df": 2.808049729389165,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007368912195234113,
+    "omega": 1.0947694505847935e-06,
+    "alpha": 0.09884151639171525,
+    "beta": 0.8964602049374156,
+    "nu": 6.274388274501398
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8861,
+   "date": "2025-03-11T00:00:00",
+   "n_obs": 8862,
+   "t_df": 2.812192661461858,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007337224305941548,
+    "omega": 1.1043408725294591e-06,
+    "alpha": 0.09967467181956106,
+    "beta": 0.8957906007651726,
+    "nu": 6.279966739963446
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8882,
+   "date": "2025-04-09T00:00:00",
+   "n_obs": 8883,
+   "t_df": 2.791861982716281,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007349563333725294,
+    "omega": 1.1052427800910556e-06,
+    "alpha": 0.10107618155196846,
+    "beta": 0.8950925886423019,
+    "nu": 6.189246712226989
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8903,
+   "date": "2025-05-09T00:00:00",
+   "n_obs": 8904,
+   "t_df": 2.7899358575395743,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007365832575171468,
+    "omega": 1.1464495375471026e-06,
+    "alpha": 0.10153056823525104,
+    "beta": 0.8939597682580487,
+    "nu": 6.176601658463569
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8924,
+   "date": "2025-06-10T00:00:00",
+   "n_obs": 8925,
+   "t_df": 2.7877085995856516,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007403232718439837,
+    "omega": 1.1843234656676995e-06,
+    "alpha": 0.1027654030602433,
+    "beta": 0.8923249963575709,
+    "nu": 6.16639819688886
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8945,
+   "date": "2025-07-11T00:00:00",
+   "n_obs": 8946,
+   "t_df": 2.790890736407328,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007441046193558181,
+    "omega": 1.190363719650174e-06,
+    "alpha": 0.10301088877941293,
+    "beta": 0.891928532597691,
+    "nu": 6.181690080222367
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8966,
+   "date": "2025-08-11T00:00:00",
+   "n_obs": 8967,
+   "t_df": 2.7883026304703957,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007462508635672225,
+    "omega": 1.2012826498301942e-06,
+    "alpha": 0.10356186967659041,
+    "beta": 0.8913567888873053,
+    "nu": 6.160879408157718
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 8987,
+   "date": "2025-09-10T00:00:00",
+   "n_obs": 8988,
+   "t_df": 2.7878717474868253,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007471357436067134,
+    "omega": 1.1949579963430692e-06,
+    "alpha": 0.103278676699954,
+    "beta": 0.8916013177911147,
+    "nu": 6.162611212241574
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9008,
+   "date": "2025-10-09T00:00:00",
+   "n_obs": 9009,
+   "t_df": 2.7840248011266917,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007517842176375474,
+    "omega": 1.1823233319230255e-06,
+    "alpha": 0.10336606722186693,
+    "beta": 0.8915863102050194,
+    "nu": 6.172686008001957
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9029,
+   "date": "2025-11-07T00:00:00",
+   "n_obs": 9030,
+   "t_df": 2.785985641071969,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000751087779116796,
+    "omega": 1.1968201200217038e-06,
+    "alpha": 0.10303383650655935,
+    "beta": 0.8918682015217281,
+    "nu": 6.117715513485562
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9050,
+   "date": "2025-12-09T00:00:00",
+   "n_obs": 9051,
+   "t_df": 2.788766100225782,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007521277573220049,
+    "omega": 1.2015564271142574e-06,
+    "alpha": 0.10319148477540589,
+    "beta": 0.8916492578435218,
+    "nu": 6.120176366630606
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9071,
+   "date": "2026-01-09T00:00:00",
+   "n_obs": 9072,
+   "t_df": 2.7902558886318856,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007533139882662456,
+    "omega": 1.1981436877105783e-06,
+    "alpha": 0.10302586574234754,
+    "beta": 0.8917462107715072,
+    "nu": 6.132834929422889
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9092,
+   "date": "2026-02-10T00:00:00",
+   "n_obs": 9093,
+   "t_df": 2.7902647382192693,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007509774914477075,
+    "omega": 1.2012101139397155e-06,
+    "alpha": 0.1027512258729326,
+    "beta": 0.8920645931387101,
+    "nu": 6.1017829066374025
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9113,
+   "date": "2026-03-12T00:00:00",
+   "n_obs": 9114,
+   "t_df": 2.7955251496671876,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.000746150342924516,
+    "omega": 1.1986515529669333e-06,
+    "alpha": 0.10244514327189468,
+    "beta": 0.8923301773728878,
+    "nu": 6.117757162030306
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9134,
+   "date": "2026-04-13T00:00:00",
+   "n_obs": 9135,
+   "t_df": 2.798211022683562,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007472876077980938,
+    "omega": 1.199100429632143e-06,
+    "alpha": 0.10262009598807172,
+    "beta": 0.8922725521548518,
+    "nu": 6.120279175901285
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9155,
+   "date": "2026-05-12T00:00:00",
+   "n_obs": 9156,
+   "t_df": 2.8032167267890165,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007528208838407366,
+    "omega": 1.2058671809496227e-06,
+    "alpha": 0.10263357372244411,
+    "beta": 0.8920482500161616,
+    "nu": 6.1285235262191335
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9176,
+   "date": "2026-06-11T00:00:00",
+   "n_obs": 9177,
+   "t_df": 2.80298041378723,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007541078066768253,
+    "omega": 1.2075397389339079e-06,
+    "alpha": 0.10262586311205338,
+    "beta": 0.8921842142493247,
+    "nu": 6.097763906354391
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9197,
+   "date": "2026-07-14T00:00:00",
+   "n_obs": 9198,
+   "t_df": 2.807728656799341,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007545797712581443,
+    "omega": 1.211831403612626e-06,
+    "alpha": 0.10259231920591268,
+    "beta": 0.8920362944123325,
+    "nu": 6.108714960126433
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9218,
+   "date": "2026-08-12T00:00:00",
+   "n_obs": 9219,
+   "t_df": 2.809845257356608,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007549005653401614,
+    "omega": 1.21233321583796e-06,
+    "alpha": 0.1024211986418883,
+    "beta": 0.8921898091491874,
+    "nu": 6.11185571230262
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9239,
+   "date": "2026-09-11T00:00:00",
+   "n_obs": 9240,
+   "t_df": 2.8136559427411996,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007505420689932515,
+    "omega": 1.214937991985872e-06,
+    "alpha": 0.10235680887510298,
+    "beta": 0.8920983458476575,
+    "nu": 6.1371767819097665
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9260,
+   "date": "2026-10-12T00:00:00",
+   "n_obs": 9261,
+   "t_df": 2.8153189092236817,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007505920445891406,
+    "omega": 1.2120267854744889e-06,
+    "alpha": 0.10217377065957407,
+    "beta": 0.892211218488707,
+    "nu": 6.150695430251217
+   },
+   "garch_message": "Optimization terminated successfully"
+  },
+  {
+   "index": 9281,
+   "date": "2026-11-10T00:00:00",
+   "n_obs": 9282,
+   "t_df": 2.8131285597761386,
+   "garch_converged": true,
+   "garch_used_previous_params": false,
+   "garch": {
+    "mu": 0.0007486843001940345,
+    "omega": 1.226467378019078e-06,
+    "alpha": 0.10272648051064898,
+    "beta": 0.8918938997998586,
+    "nu": 6.102118626531023
+   },
+   "garch_message": "Optimization terminated successfully"
+  }
+ ],
+ "convention": "loss = -(exp(sum of 5 daily log returns)-1); VaR=quantile of loss; ES=mean loss>=VaR",
+ "data": {
+  "ticker": "^GSPC",
+  "source": "yfinance",
+  "interval": "1d",
+  "price_field": "adjusted_close",
+  "requested_period": "1990-01-01/2026-11-22",
+  "first_date": "1990-01-02T00:00:00",
+  "last_date": "2026-11-20T00:00:00",
+  "count": 9291,
+  "sha256": "7e07e6ddb08286546e23371a932daf45fd735b77fdba947c70295564c54b2d98",
+  "retrieved_at": "2026-11-21T21:15:39.483597+00:00",
+  "snapshot_path": "research/experiments/sp500-gspc-1990/GSPC.json"
+ },
+ "first_origin": "1994-12-23T00:00:00",
+ "last_origin": "2026-11-13T00:00:00",
+ "env": {
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "pandas": "3.0.5"
+ },
+ "runtime_s": 172.7
+}

@@ -12,13 +12,17 @@ COL = {"gaussian": B, "student_t": O, "garch_t": G}
 NAME = {"gaussian": "Gaussian GBM", "student_t": "Student-t (daily shocks)", "garch_t": "GARCH(1,1)-t"}
 plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False,
                      "axes.grid": True, "grid.alpha": .25, "figure.dpi": 100})
-OUT = "research/tail-risk/figures"
-meta = json.load(open("research/tail-risk/backtest/meta.json"))
-met = json.load(open("research/tail-risk/backtest/metrics.json"))
-fc = pd.read_csv("research/tail-risk/backtest/forecasts.csv", index_col=0, parse_dates=True)
+# usage: make_figures.py [bt_dir] [out_dir]
+BT = sys.argv[1] if len(sys.argv) > 1 else "research/tail-risk/backtest"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "research/tail-risk/figures"
+import os; os.makedirs(OUT, exist_ok=True)
+meta = json.load(open(f"{BT}/meta.json"))
+met = json.load(open(f"{BT}/metrics.json"))
+fc = pd.read_csv(f"{BT}/forecasts.csv", index_col=0, parse_dates=True)
 val = json.load(open("research/tail-risk/validation_results.json"))
 d = meta["data"]; per = f"{met['period'][0]} to {met['period'][1]}"
-src = (f"Data: {d['ticker']} {d['price_field']} daily ({d['source']}, snapshot sha256 {d['sha256'][:10]}…, "
+FIELD = "close, price index (no dividends)" if d["ticker"].startswith("^") else d["price_field"].replace("_", " ")
+src = (f"Data: {d['ticker']} {FIELD} daily ({d['source']}, snapshot sha256 {d['sha256'][:10]}…, "
        f"{d['first_date'][:10]}–{d['last_date'][:10]}). 5-trading-day simple returns.")
 
 def cap(fig, text):
@@ -58,21 +62,22 @@ cap(fig, f"SIMULATED (not historical, not a forecast). Daily σ = {unc_sd*100:.2
 fig.savefig(f"{OUT}/fig1_simulated_exceedance.png", dpi=200); plt.close(fig)
 
 # ---------- Fig 2: HISTORICAL observed vs OUT-OF-SAMPLE predicted ----------
-fig, ax = plt.subplots(figsize=(8, 5.4))
-keys = ["p3", "p5", "p8", "p10"]; xl = np.arange(4)
+fig, ax = plt.subplots(figsize=(9, 5.4))
+keys = [k for k in ("p3", "p5", "p8", "p8.6", "p10") if k in met["events"]]; xl = np.arange(len(keys))
 obs = [met["events"][k]["freq"] for k in keys]
-lo = [met["events"][k]["ci_eff_n_wilson"][0] for k in keys]; hi = [met["events"][k]["ci_eff_n_wilson"][1] for k in keys]
+lo = [met["events"][k]["ci_n_over_5"][0] for k in keys]; hi = [met["events"][k]["ci_n_over_5"][1] for k in keys]
 for j, m in enumerate(COL):
-    ax.plot(xl + (j - 1) * 0.12, [met["events"][k]["models"][m]["mean_pred"] for k in keys], "o", ms=9, color=COL[m], label=NAME[m] + " (OOS forecast, mean)")
+    ax.plot(xl + (j - 1) * 0.12, [max(met["events"][k]["models"][m]["mean_pred"], 1e-9) for k in keys], "o", ms=9, color=COL[m], label=NAME[m] + " (OOS forecast, mean)")
 ax.errorbar(xl + 0.3, obs, yerr=[np.array(obs) - lo, np.array(hi) - obs], fmt="s", color=K, ms=8, capsize=4,
            label="Historical frequency (95% CI, n/5 effective)")
 floor = 1e-5
-ax.set_yscale("log"); ax.set_ylim(1e-5, 0.2)
-ax.set_xticks(xl + 0.1); ax.set_xticklabels(["> 3%", "> 5%", "> 8%", "> 10%"]); ax.set_xlabel("5-day loss threshold")
+ax.set_yscale("log"); ax.set_ylim(1e-6, 0.5)
+ax.set_xticks(xl + 0.1); ax.set_xticklabels([f"≥ {k[1:]}%" for k in keys]); ax.set_xlabel("5-day loss threshold")
+ax.text(0.99, 0.02, "points below 1e-6 are off-scale (≈0)", transform=ax.transAxes, ha="right", fontsize=7.5, color="#555")
 ax.set_ylabel("Probability / frequency (log scale)")
 ax.set_title("Historical frequency vs. out-of-sample predicted probability", loc="left", fontweight="bold")
 ax.legend(frameon=False, fontsize=8.5, loc="lower left")
-n = met["n_overlapping"]; ev = [met["events"][k]["observed_overlapping"] for k in keys]
+n = met["n_overlapping"]; ev = [met["events"][k]["observed"] for k in keys]
 cap(fig, f"HISTORICAL OBSERVATIONS vs OUT-OF-SAMPLE FORECASTS, origins {per} ({n} overlapping 5-day windows; events: {', '.join(map(str, ev))}). "
         f"Expanding window (min 1260 days), refit every 21 days; forecasts use only past data. Overlap inflates CI dependence, so n/5 effective windows are used "
         f"(approximation). Counts of >8% and >10% events are very small: intervals are wide. {src}")
@@ -123,4 +128,47 @@ cap(fig, "SIMULATED. μ=5%, σ=20% (σ_week from T=5/252), 5 daily steps. Interv
          "(Wilson); they exclude model, calibration and parameter uncertainty. No moment-based standard errors are used for t-shock prices (infinite mean). "
          "Left: all sizes use seed 7 and batches of 1e5, so larger samples contain the smaller ones (correlated, one realization each); not a convergence-rate guarantee.")
 fig.savefig(f"{OUT}/fig4_mc_uncertainty.png", dpi=200); plt.close(fig)
+
+# ---------- Fig 5: realized 5-day loss and VaR 99% over time (OUT-OF-SAMPLE) ----------
+CR = [("2000-03-24", "2002-10-09"), ("2007-10-09", "2009-03-09"), ("2020-02-19", "2020-04-30"), ("2022-01-03", "2022-10-12")]
+fig, ax = plt.subplots(figsize=(11, 5.2))
+for a, b in CR:
+    if pd.Timestamp(b) >= fc.index[0] and pd.Timestamp(a) <= fc.index[-1]:
+        ax.axvspan(pd.Timestamp(a), pd.Timestamp(b), color="#999", alpha=.18, lw=0)
+ax.plot(fc.index, fc["realized_loss"] * 100, color="#bbb", lw=.7, label="Realized 5-day loss (historical)")
+for m in COL:
+    ax.plot(fc.index, fc[f"{m}_var99"] * 100, color=COL[m], lw=1.1, label=f"{NAME[m]}: forecast VaR 99%")
+ax.axhline(0, color="#444", lw=.6)
+ax.set_ylabel("5-day loss (% of price)"); ax.set_ylim(-10, 20)
+ax.set_title("Out-of-sample VaR 99% vs. realized 5-day losses (shaded = ex-post crisis windows)", loc="left", fontweight="bold")
+ax.legend(frameon=False, fontsize=8, ncol=4, loc="upper center", bbox_to_anchor=(0.5, -0.09))
+cap(fig, f"HISTORICAL realized losses vs OUT-OF-SAMPLE forecasts, origins {per}. Shaded bands are ex-post calendar labels (peak-to-trough dates) used only for reading the chart. "
+         f"A loss above a VaR line is a violation of that model (expected 1% of windows). Windows overlap: neighbouring points are not independent. "
+         f"The y-axis is clipped at 20%: GARCH-t VaR exceeds it in Oct–Nov 2008 and Mar 2020. {src}")
+fig.subplots_adjust(bottom=0.32)
+fig.savefig(f"{OUT}/fig5_var99_timeline.png", dpi=200); plt.close(fig)
+
+# ---------- Fig 6: regimes ----------
+if met.get("regimes"):
+    R = met["regimes"]
+    groups = [(k, lab) for k, lab in (("ex_ante_low_vol (vol21<20%)", "Low vol at origin\n(21d vol < 20%)"), ("ex_ante_high_vol (vol21>=20%)", "High vol at origin\n(21d vol ≥ 20%)"),
+              ("ex_post_outside_crisis_windows", "Outside crisis\nwindows (ex-post)"), ("ex_post_all_crisis_windows", "Inside crisis\nwindows (ex-post)")) if k in R]
+    fig, axs = plt.subplots(1, 2, figsize=(11, 5.2))
+    ax = axs[0]; x = np.arange(len(groups))
+    for j, m in enumerate(COL):
+        ax.plot(x + (j - 1) * .12, [max(R[k]["events"]["p5"]["models"][m]["mean_pred"], 1e-6) for k, _ in groups], "o", color=COL[m], ms=8, label=NAME[m])
+    ob = [R[k]["events"]["p5"] for k, _ in groups]
+    ax.errorbar(x + .3, [o["freq"] for o in ob], yerr=[[o["freq"] - o["ci_n_over_5"][0] for o in ob], [o["ci_n_over_5"][1] - o["freq"] for o in ob]], fmt="s", color=K, capsize=4, label="Historical frequency (95% CI, n/5)")
+    ax.set_yscale("log"); ax.set_xticks(x + .1); ax.set_xticklabels([l for _, l in groups], fontsize=8); ax.set_ylabel("P(5-day loss ≥ 5%)")
+    ax.set_title("Probability of a ≥5% weekly loss", loc="left", fontweight="bold"); ax.set_ylim(top=0.6); ax.legend(frameon=False, fontsize=7.5, loc="upper center", ncol=2)
+    ax = axs[1]
+    for j, m in enumerate(COL):
+        ax.plot(x + (j - 1) * .12, [R[k]["var_es"]["99"][m]["viol_rate_overlapping"] * 100 for k, _ in groups], "o", color=COL[m], ms=8, label=NAME[m])
+    ax.axhline(1, color=K, ls="--", lw=1.2); ax.text(len(groups) - .6, 1.05, "expected 1%", fontsize=8, ha="right")
+    ax.set_xticks(x); ax.set_xticklabels([l for _, l in groups], fontsize=8); ax.set_ylabel("VaR 99% violation rate (%)")
+    ax.set_title("VaR 99% violation rate by regime", loc="left", fontweight="bold")
+    fig.suptitle("Crisis vs. stability (HISTORICAL outcomes, OUT-OF-SAMPLE forecasts)", x=0.01, ha="left", fontweight="bold")
+    cap(fig, f"Origins {per}. High/low vol is decided at the forecast origin from the trailing 21-day realized volatility (annualized, 20% cut fixed before the results); crisis windows are ex-post calendar labels. "
+             f"Cells are small ({', '.join(str(R[k]['n']) for k, _ in groups)} overlapping windows): read intervals, not point values. {src}")
+    fig.savefig(f"{OUT}/fig6_regimes.png", dpi=200); plt.close(fig)
 print("ok", unc_sd * np.sqrt(252))
