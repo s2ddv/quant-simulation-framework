@@ -25,9 +25,10 @@ import numpy as np
 import pytest
 from scipy import stats
 
-from risk.intervals import prob_loss_interval
+from risk.intervals import prob_loss_interval, var_interval
 from risk.statistics import risk_summary
 from simulation.gbm import simulate_gbm, simulate_terminal_batched
+from validation.statistics import terminal_quantile, terminal_theory
 
 METHODS = ("wilson", "clopper_pearson")
 LEVEL = 0.95
@@ -355,3 +356,349 @@ def test_huge_int_inputs_raise_value_error_not_overflow(kwargs):
     # Regression: float(10**400) raises OverflowError; contract is ValueError.
     with pytest.raises(ValueError, match="representable"):
         prob_loss_interval([1.0, 2.0], **kwargs)
+
+
+# ==========================================================================
+# E1.2: analytic terminal_quantile and order-statistic var_interval
+# ==========================================================================
+#
+# References written here, independent of the implementation:
+# * scipy.stats.lognorm for Q_p(S_T): ln S_T ~ N(ln s0 + (mu - sigma^2/2) T,
+#   sigma^2 T), so Q_p = lognorm.ppf(p, s=sigma sqrt(T),
+#   scale=s0 exp((mu - sigma^2/2) T));
+# * ranks from a cumulative-pmf search (smallest x with F(x) >= q), not
+#   binom.ppf; endpoints from a full np.sort, not np.partition;
+# * coverage F(k-1) - F(j-1) from the same cumulative pmf.
+# Loss quantile at level p: q_p(L) = s0 - Q_{1-p}(S_T), since L = s0 - S_T
+# is decreasing in S_T (continuous law).
+
+VAR_P = 0.95
+VAR_N = 2_000
+
+
+def _binom_cdf_table(n: int, p: float) -> np.ndarray:
+    return np.cumsum(stats.binom.pmf(np.arange(n + 1), n, p))
+
+
+def _reference_ranks(n: int, p: float, level: float) -> tuple[int, int, bool, float]:
+    """(j, k, saturated, coverage) via a cumulative-pmf search."""
+    cdf = _binom_cdf_table(n, p)
+    a = 1 - level
+
+    def quantile(q: float) -> int:
+        # Smallest x with F(x) >= q; tiny slack for summation rounding.
+        return int(np.argmax(cdf >= q - 1e-12))
+
+    j_req, k_req = quantile(a / 2), quantile(1 - a / 2) + 1
+    j, k = min(max(j_req, 1), n), min(max(k_req, 1), n)
+
+    def big_f(x: int) -> float:
+        return 0.0 if x < 0 else float(cdf[min(x, n)])
+
+    return j, k, (j, k) != (j_req, k_req), big_f(k - 1) - big_f(j - 1)
+
+
+def _theoretical_loss_quantile(p: float) -> float:
+    return S0 - terminal_quantile(S0, MU, SIGMA, T, 1 - p)
+
+
+# --------------------------------------------------------------------------
+# terminal_quantile
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("params", [(100.0, 0.05, 0.2, 1.0), (37.5, -0.3, 0.6, 2.5),
+                                    (1.0, 0.0, 1.5, 0.01)])
+def test_terminal_quantile_matches_terminal_theory(params):
+    theory = terminal_theory(*params)["quantiles"]
+    for p in (0.05, 0.5, 0.95):
+        assert terminal_quantile(*params, p) == pytest.approx(theory[str(p)],
+                                                               rel=1e-14)
+
+
+@pytest.mark.parametrize("params", [(100.0, 0.05, 0.2, 1.0), (37.5, -0.3, 0.6, 2.5),
+                                    (1.0, 0.0, 1.5, 0.01), (S0, MU, SIGMA, T)])
+@pytest.mark.parametrize("p", [1e-6, 0.01, 0.05, 0.3, 0.5, 0.7, 0.95, 0.999])
+def test_terminal_quantile_matches_scipy_lognorm(params, p):
+    s0, mu, sigma, horizon = params
+    ref = stats.lognorm.ppf(p, s=sigma * math.sqrt(horizon),
+                            scale=s0 * math.exp((mu - sigma**2 / 2) * horizon))
+    assert terminal_quantile(s0, mu, sigma, horizon, p) == pytest.approx(ref, rel=1e-12)
+
+
+def test_terminal_quantile_degenerate_cases():
+    # sigma = 0: S_T = s0 exp(mu T) deterministically, for every p.
+    for p in (0.01, 0.5, 0.99):
+        assert terminal_quantile(100.0, 0.05, 0.0, 2.0, p) == pytest.approx(
+            100.0 * math.exp(0.1), rel=1e-15)
+        # T = 0: S_T = s0.
+        assert terminal_quantile(100.0, 0.05, 0.3, 0.0, p) == 100.0
+    # Tiny T: quantile collapses to s0 (to float precision), no nan/underflow.
+    for p in (0.01, 0.5, 0.99):
+        q = terminal_quantile(100.0, 0.05, 0.2, 1e-300, p)
+        assert math.isfinite(q) and q == pytest.approx(100.0, rel=1e-14)
+
+
+@pytest.mark.parametrize("p", [0, 1, 0.0, 1.0, -0.1, 1.1, True, False, np.bool_(True),
+                               float("nan"), float("inf"), "0.5", None])
+def test_terminal_quantile_invalid_p(p):
+    with pytest.raises(ValueError):
+        terminal_quantile(100.0, 0.05, 0.2, 1.0, p)
+
+
+@pytest.mark.parametrize("params", [(100.0, 1000.0, 0.2, 1.0),   # overflow
+                                    (100.0, -1000.0, 0.2, 1.0),  # underflow to 0
+                                    (1e300, 10.0, 0.0, 100.0)])  # degenerate overflow
+def test_terminal_quantile_overflow_underflow_raise(params):
+    with pytest.raises(ValueError):
+        terminal_quantile(*params, 0.5)
+
+
+def test_terminal_quantile_monotone_in_p():
+    ps = np.linspace(0.001, 0.999, 201)
+    qs = np.array([terminal_quantile(S0, MU, SIGMA, T, float(p)) for p in ps])
+    assert np.all(np.diff(qs) > 0)
+
+
+def test_loss_quantile_setup_matches_analytic_prob_loss():
+    # Sanity of the target: P(L <= q_p) = p  <=>  P(S_T >= Q_{1-p}) = p.
+    q = _theoretical_loss_quantile(1 - P_LOSS)
+    assert q == pytest.approx(0.0, abs=1e-10)  # P(S_T < s0) = 0.3 by construction
+
+
+# --------------------------------------------------------------------------
+# var_interval: consistency, ranks, coverage formula
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("confidence", [0.5, 0.9, 0.95, 0.99])
+def test_var_estimate_equals_risk_summary(confidence):
+    paths = simulate_gbm(S0, MU, SIGMA, T, steps=4, n_sims=1_237, seed=4242)
+    out = var_interval(paths[-1], paths[0, 0], confidence)
+    assert out["estimate"] == risk_summary(paths, confidence)["var"]
+
+
+@pytest.mark.parametrize("n,p,level", [
+    (2_000, 0.95, 0.95), (2_000, 0.99, 0.90), (500, 0.5, 0.99), (137, 0.05, 0.95),
+    (50, 0.9, 0.8), (10, 0.95, 0.95), (30, 0.05, 0.95), (3, 0.5, 0.5),
+])
+def test_var_ranks_and_endpoints_match_independent_reference(n, p, level):
+    rng = np.random.default_rng(777 + n)
+    terminal = S0 * np.exp(rng.normal(0.0, 0.2, n))
+    out = var_interval(terminal, S0, p, level)
+    j, k, saturated, coverage = _reference_ranks(n, p, level)
+    assert (out["lower_rank"], out["upper_rank"]) == (j, k)
+    assert out["saturated"] is saturated
+    assert out["coverage"] == pytest.approx(coverage, abs=1e-10)
+    sorted_losses = np.sort(S0 - terminal)
+    assert out["lower"] == sorted_losses[j - 1]
+    assert out["upper"] == sorted_losses[k - 1]
+    assert 1 <= out["lower_rank"] <= out["upper_rank"] <= n
+    if not saturated:
+        assert out["coverage"] >= level
+
+
+def test_var_unsaturated_coverage_at_least_level_grid():
+    for n in (20, 57, 200, 2_000):
+        for p in (0.5, 0.9, 0.95, 0.99):
+            for level in (0.8, 0.9, 0.95, 0.99):
+                out = var_interval(np.linspace(1.0, 2.0, n), S0, p, level)
+                if not out["saturated"]:
+                    assert out["coverage"] >= level, (n, p, level)
+
+
+# --------------------------------------------------------------------------
+# var_interval: empirical coverage (plan E1.2: N = 2000, p = 0.95)
+# --------------------------------------------------------------------------
+
+def _var_replicates(n_reps: int, n: int, seed: int) -> np.ndarray:
+    """Independent replicates: disjoint (not nested) blocks of one i.i.d. stream."""
+    terminal = simulate_terminal_batched(S0, MU, SIGMA, T, n_reps * n, seed)
+    return np.asarray(terminal).reshape(n_reps, n)
+
+
+def _var_empirical_coverage(terminals: np.ndarray, p: float, level: float = LEVEL
+                            ) -> tuple[float, float]:
+    target = _theoretical_loss_quantile(p)
+    hits, coverage = 0, float("nan")
+    for row in terminals:
+        out = var_interval(row, S0, p, level)
+        hits += out["lower"] <= target <= out["upper"]
+        coverage = out["coverage"]  # depends only on (n, p, level)
+    return hits / terminals.shape[0], coverage
+
+
+def test_var_empirical_coverage_fast():
+    """150 replicates of N = 2000, p = 0.95.
+
+    Exact coverage c of the construction is >= 0.95 (reported, checked
+    above). Empirical coverage ~ Binom(150, c)/150, SE <= sqrt(.95*.05/150)
+    ~ 0.018; one-sided check at c - 4 SE (~0.88), per plan sec. 2.5.
+    """
+    n_reps = 150
+    emp, c = _var_empirical_coverage(_var_replicates(n_reps, VAR_N, seed=5151), VAR_P)
+    assert c >= LEVEL
+    assert emp >= c - 4 * math.sqrt(c * (1 - c) / n_reps)
+
+
+@pytest.mark.slow
+def test_var_empirical_coverage_plan_1000_replicates():
+    """Plan E1.2: 1,000 independent replicates, N = 2000, p = 0.95, >= 0.93.
+
+    Exact coverage c >= 0.95; SE ~ sqrt(.95*.05/1000) ~ 0.0069, so 0.93 is
+    ~3 SE below the nominal level (and further below c). A c-centred 4 SE
+    two-sided check is applied as well.
+    """
+    n_reps = 1_000
+    emp, c = _var_empirical_coverage(_var_replicates(n_reps, VAR_N, seed=6262), VAR_P)
+    se = math.sqrt(c * (1 - c) / n_reps)
+    assert emp >= 0.93
+    assert abs(emp - c) <= 4 * se
+
+
+# --------------------------------------------------------------------------
+# var_interval: small N and saturation
+# --------------------------------------------------------------------------
+
+def test_var_upper_saturation_n10_p095():
+    out = var_interval(S0 - np.arange(1.0, 11.0), S0, 0.95, 0.95)  # losses 1..10
+    # Unclipped upper rank is binom.ppf(0.975, 10, 0.95) + 1 = 11 > N.
+    assert out["saturated"] is True
+    assert out["upper_rank"] == 10 and out["upper"] == 10.0
+    assert out["lower_rank"] == 8 and out["lower"] == 8.0
+    # Exact: F(9) - F(7) = 1 - 0.95^10 - P(B <= 7).
+    exact = 1 - 0.95**10 - stats.binom.cdf(7, 10, 0.95)
+    assert out["coverage"] == pytest.approx(exact, rel=1e-12)
+    assert out["coverage"] < out["level"]
+
+
+def test_var_lower_saturation_n30_confidence005():
+    out = var_interval(S0 - np.arange(1.0, 31.0), S0, 0.05, 0.95)
+    # Unclipped lower rank is binom.ppf(0.025, 30, 0.05) = 0 < 1.
+    assert out["saturated"] is True
+    assert (out["lower_rank"], out["upper_rank"]) == (1, 5)
+    exact = stats.binom.cdf(4, 30, 0.05) - 0.95**30  # F(4) - F(0)
+    assert out["coverage"] == pytest.approx(exact, rel=1e-12)
+    assert out["coverage"] == pytest.approx(0.770, abs=5e-4)
+    assert out["coverage"] < out["level"]
+
+
+@pytest.mark.parametrize("n,p", [(10, 0.95), (30, 0.05)])
+def test_var_saturated_empirical_coverage_matches_reported(n, p):
+    """2,000 replicates; |empirical - reported| <= 4 SE (SE <= 0.0112)."""
+    n_reps = 2_000
+    emp, c = _var_empirical_coverage(_var_replicates(n_reps, n, seed=7000 + n), p)
+    assert abs(emp - c) <= 4 * math.sqrt(c * (1 - c) / n_reps)
+
+
+def test_var_n_equals_one():
+    out = var_interval([90.0], S0, 0.95, 0.95)
+    assert out["n"] == 1 and out["saturated"] is True
+    assert out["lower"] == out["upper"] == out["estimate"] == 10.0
+    assert (out["lower_rank"], out["upper_rank"]) == (1, 1)
+    assert out["coverage"] == 0.0
+
+
+# --------------------------------------------------------------------------
+# var_interval: degenerate laws, atoms, documented corner case
+# --------------------------------------------------------------------------
+
+def test_var_sigma_zero_degenerate_interval():
+    paths = simulate_gbm(S0, 0.05, 0.0, 1.0, steps=3, n_sims=400, seed=1)
+    out = var_interval(paths[-1], S0, 0.95, 0.95)
+    v = S0 - paths[-1, 0]
+    assert np.all(paths[-1] == paths[-1, 0])
+    assert out["lower"] == out["upper"] == out["estimate"] == v
+
+
+def test_var_ties_endpoints_are_sample_values():
+    terminal = np.repeat([95.0, 100.0, 103.0], [30, 50, 20])  # losses 5, 0, -3
+    out = var_interval(terminal, S0, 0.5, 0.95)
+    sorted_losses = np.sort(S0 - terminal)
+    assert out["lower"] == sorted_losses[out["lower_rank"] - 1]
+    assert out["upper"] == sorted_losses[out["upper_rank"] - 1]
+    assert out["lower"] == out["upper"] == 0.0
+
+
+def test_var_atoms_coverage_is_conservative():
+    """Discrete loss L uniform on {0,...,9}, p = 0.55: unique quantile q = 5
+    (P(L < 5) = 0.5 <= 0.55 <= 0.6 = P(L <= 5)). Docstring claims coverage
+    >= reported value; one-sided 4 SE check over 1,000 replicates."""
+    n, n_reps, p, level = 50, 1_000, 0.55, 0.90
+    rng = np.random.default_rng(9090)
+    losses = rng.integers(0, 10, size=(n_reps, n)).astype(float)
+    hits, c = 0, float("nan")
+    for row in losses:
+        out = var_interval(S0 - row, S0, p, level)
+        hits += out["lower"] <= 5.0 <= out["upper"]
+        c = out["coverage"]
+    emp = hits / n_reps
+    assert emp >= c - 4 * math.sqrt(c * (1 - c) / n_reps)
+
+
+def test_var_estimate_may_lie_outside_interval_without_violating_contract():
+    """Documented, not required: for small N / small level the linear
+    percentile can fall outside [lower, upper] (here N = 4, level = 0.05).
+    The ranks and coverage remain those of the order-statistic construction."""
+    out = var_interval(S0 - np.arange(4.0), S0, 0.35, 0.05)  # losses 0..3
+    assert out["saturated"] is False
+    assert not out["lower"] <= out["estimate"] <= out["upper"]
+    j, k, _, coverage = _reference_ranks(4, 0.35, 0.05)
+    assert (out["lower_rank"], out["upper_rank"]) == (j, k)
+    assert out["coverage"] == pytest.approx(coverage, abs=1e-12)
+    assert out["coverage"] >= out["level"]
+
+
+# --------------------------------------------------------------------------
+# var_interval: validation, purity, JSON
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("terminal", [
+    np.array([]), [], np.ones((2, 3)), np.array(5.0), np.array([99.0, np.nan]),
+    np.array([99.0, np.inf]), np.array([99.0 + 1j, 101.0]), np.array([True, False]),
+    np.array(["99", "101"]),
+])
+def test_var_invalid_terminal_raises(terminal):
+    with pytest.raises(ValueError):
+        var_interval(terminal, S0)
+
+
+@pytest.mark.parametrize("kwargs", [
+    {"s0": True}, {"s0": float("nan")}, {"s0": "100"}, {"s0": 10**400},
+    *({"s0": S0, "confidence": v} for v in (0, 1, -0.5, 1.5, True, np.bool_(False),
+                                            float("nan"), "0.95", None)),
+    *({"s0": S0, "level": v} for v in (0, 1, -0.5, 1.5, True, np.bool_(False),
+                                       float("nan"), "0.95", None)),
+])
+def test_var_invalid_scalars_raise(kwargs):
+    with pytest.raises(ValueError):
+        var_interval(GOOD, **kwargs)
+
+
+def test_var_nonfinite_losses_raise():
+    with pytest.raises(ValueError):
+        var_interval(np.array([-1.7e308, 1.0]), 1.7e308)
+
+
+def test_var_input_not_modified():
+    terminal = np.array([101.0, 95.0, 100.0, 80.0, 120.0])
+    original = terminal.copy()
+    as_list = terminal.tolist()
+    var_interval(terminal, S0, 0.6, 0.9)
+    var_interval(as_list, S0, 0.6, 0.9)
+    np.testing.assert_array_equal(terminal, original)
+    assert as_list == original.tolist()
+
+
+def test_var_output_contract_and_json_safe():
+    out = var_interval(np.float32([99.0, 101.0, 98.0, 97.0]), np.float64(S0),
+                       np.float64(0.75), np.float64(0.9))
+    assert set(out) == {"estimate", "lower", "upper", "lower_rank", "upper_rank",
+                        "saturated", "coverage", "method", "level", "confidence", "n"}
+    assert out["method"] == "order_statistics"
+    for key in ("lower_rank", "upper_rank", "n"):
+        assert type(out[key]) is int
+    assert type(out["saturated"]) is bool
+    for key in ("estimate", "lower", "upper", "coverage", "level", "confidence"):
+        assert type(out[key]) is float
+    assert 0.0 <= out["coverage"] <= 1.0
+    assert out["level"] == 0.9 and out["confidence"] == 0.75
+    assert json.loads(json.dumps(out, allow_nan=False)) == out
