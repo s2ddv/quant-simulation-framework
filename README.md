@@ -58,6 +58,9 @@ This project aims to:
 - An abstract simulator interface and an optional Student t shock scenario through the Python API
 - 95% Wilson score intervals for observed VaR violation rates in historical validation
 - Experimental one-session volatility forecasting (`python -m forecasting`) comparing historical, EWMA and nonnegative least-squares second moments, separate from the GBM workflow
+- Tail-risk study (`research/tail-risk/`): expanding-window 5-session backtest on SPY comparing Gaussian GBM, i.i.d. Student t and GARCH(1,1)-t (`src/backtest/`), with Kupiec/Christoffersen coverage tests, Brier scores and ES residual diagnostics
+- Event-probability validation (`src/validation/tail_probability.py`): Wilson and Clopper-Pearson intervals, exact normal loss probability and seeded batched Monte Carlo estimates
+- Optional explicit Student t degrees of freedom in `GbmSimulator(..., df=...)` for stress scenarios (`df > 2`)
 
 **Planned**
 
@@ -179,12 +182,14 @@ monte-carlo-gbm/
 │   ├── simulation/          # GBM paths, plots and JSON reports
 │   ├── calibration/         # Historical prices, parameter estimates and fundamentals
 │   ├── risk/                # Terminal loss statistics
-│   ├── validation/          # Analytical benchmarks, convergence, backtests, sensitivity
+│   ├── validation/          # Analytical benchmarks, convergence, backtests, sensitivity, tail-event probabilities
+│   ├── backtest/            # Expanding-window tail-risk backtest: GARCH(1,1)-t, engine, coverage metrics
 │   └── forecasting/         # Experimental volatility forecasting (python -m forecasting)
 ├── tests/                   # Offline tests, including test_gbm.py and test_statistics.py
 ├── notebooks/research.ipynb # Empty research workspace
 ├── research/report.md       # Research questions; no experimental results
 ├── research/notes/          # Dated execution and design notes
+├── research/tail-risk/      # SPY tail-risk study: audit, validation, backtest, figures, report
 └── figures/                 # Existing synthetic example charts and future figures
 ```
 
@@ -649,6 +654,31 @@ may violate. Samples below 30 receive warnings. Proxy noise, calibration
 uncertainty, changing regimes and distribution misspecification limit inference.
 No price-mean RMSE, trading strategy or guaranteed forecast is implied.
 
+### Tail-risk study (Gaussian vs Student t vs GARCH-t)
+
+`research/tail-risk/report.md` documents a reproducible SPY study (adjusted
+closes 2010-2025, frozen snapshot `research/experiments/frozen-network-v1/SPY.json`).
+Loss of a 5-session window is `-(exp(sum r) - 1)`. Three models are re-estimated
+every 21 sessions on an expanding window (at least 1260 returns, no look-ahead):
+Gaussian GBM (closed form), i.i.d. Student t daily shocks and GARCH(1,1)-t fitted
+by maximum likelihood with SciPy. Reported: observed vs predicted frequency of
+losses above 3/5/8/10%, VaR/ES at 95%/99%, Kupiec and Christoffersen tests
+(non-overlapping windows only), Brier scores with block-bootstrap intervals and
+Acerbi-Szekely-type ES diagnostics. Supporting documents are `audit.md`
+(reproduction of an -8.6% event probability) and `validation.md` (simulator
+validation with Wilson intervals). Main findings, with the report's own caveats:
+Gaussian underestimated tails at losses of 8% or more and at 99% VaR/ES; GARCH-t
+showed no significant advantage over static t. The sample is one ETF, 5-6 stress
+episodes and historical-measure forecasts, so this is not general evidence.
+
+```bash
+.venv/bin/python research/tail-risk/audit_reproduce.py
+.venv/bin/python research/tail-risk/validation_experiments.py
+.venv/bin/python research/tail-risk/run_backtest.py       # offline, uses the frozen snapshot
+.venv/bin/python research/tail-risk/analyze_backtest.py
+.venv/bin/python research/tail-risk/make_figures.py
+```
+
 ### Tests
 
 ### Experimental next-session simulation (offline)
@@ -709,6 +739,10 @@ statistics, nested convergence, fixed-seed simulation, degenerate cases,
 calibration, report fields, JSON round trips, snapshot integrity and offline
 CLI replay. Provider availability and interactive desktop windows are separate
 integration checks, not proven by these tests.
+
+`tests/test_backtest.py` covers the GARCH fit, absence of look-ahead and the
+coverage metrics; `tests/test_tail_probability.py` covers the event-probability
+intervals and seeded tail estimates.
 
 Company tests additionally cover ticker prompts and normalization, financial
 units, missing values, losses, provider failures and offline fundamentals replay.
@@ -782,6 +816,9 @@ mu = log_returns.mean() * 252 + 0.5 * sigma**2
 - [x] Chronological backtests with fixed, rolling and expanding calibration
 - [x] Analytical calibration sensitivity grid
 - [x] Experimental causal volatility forecasting
+- [x] Tail-risk study: Gaussian vs Student t vs GARCH(1,1)-t backtest on SPY
+- [x] Event-probability confidence intervals (Wilson, Clopper-Pearson) for tail validation
+- [x] Ruff and mypy lint job in CI
 - [ ] European option pricing and comparison with Black-Scholes
 - [ ] Variance reduction (antithetic and control variates)
 - [ ] Correlated multi-asset simulation
@@ -797,7 +834,7 @@ GBM is a simple and widely used model, but it relies on assumptions that real ma
 - **No jumps:** sudden price gaps (earnings, macro events) are not captured.
 - **Constant drift:** expected returns are estimated from the past and are inherently noisy.
 
-Extensions such as stochastic volatility models (Heston), jump-diffusion models (Merton), and GARCH-based simulation are natural next steps beyond the scope of this project.
+Extensions such as stochastic volatility models (Heston) and jump-diffusion models (Merton) are natural next steps. Student t shocks and GARCH(1,1)-t are explored only in the separate tail-risk study, not in the default CLI.
 
 ---
 
