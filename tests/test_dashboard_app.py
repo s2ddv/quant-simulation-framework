@@ -59,3 +59,49 @@ def test_dashboard_reports_empty_folder_and_unreproducible_report(report_folder,
                                                  '"model": "other"'))
     broken = run_app(folder)
     assert not broken.exception and "Unsupported report" in broken.error[0].value
+
+
+def test_new_simulation_runs_offline_with_a_fake_provider_and_saves_on_request(monkeypatch, tmp_path):
+    import calibration.data
+
+    def fake_download(ticker, period="3y"):
+        log_prices = np.cumsum(np.r_[0, np.tile([0.012, -0.008, 0.004, -0.002], 10)])
+        return pd.Series(100 * np.exp(log_prices),
+                         index=pd.date_range("2026-01-05", periods=log_prices.size, freq="B"))
+
+    monkeypatch.setattr(calibration.data, "download_prices", fake_download)
+    monkeypatch.chdir(tmp_path)
+    app = AppTest.from_file(APP, default_timeout=60)
+    app.session_state["source"] = "Nova simulação"
+    app.run()
+    assert not app.exception and "Simular" in app.info[0].value
+    app.text_input(key="ticker").set_value("petr4")
+    app.number_input(key="n_sims").set_value(400)
+    app.number_input(key="steps").set_value(20)
+    app.number_input(key="calibration").set_value(10)
+    app.selectbox(key="levels").set_value(3)
+    next(b for b in app.sidebar.button if b.label == "Simular").click()
+    app.run()
+    assert not app.exception and not app.error
+    assert app.markdown[0].value.startswith("### PETR4.SA")
+    assert not (tmp_path / "reports").exists()
+    app.button(key="save").click().run()
+    assert not app.exception and not app.error
+    saved = list((tmp_path / "reports").glob("PETR4.SA-*/report.json"))
+    assert len(saved) == 1 and app.success
+
+
+def test_new_simulation_reports_memory_limit_without_downloading(monkeypatch):
+    import calibration.data
+
+    def fail(*args, **kwargs):
+        raise AssertionError("must not download")
+
+    monkeypatch.setattr(calibration.data, "download_prices", fail)
+    app = AppTest.from_file(APP, default_timeout=60)
+    app.session_state["source"] = "Nova simulação"
+    app.run()
+    app.number_input(key="n_sims").set_value(1_000_000)
+    next(b for b in app.sidebar.button if b.label == "Simular").click()
+    app.run()
+    assert not app.exception and "limit" in app.error[0].value

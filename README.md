@@ -296,7 +296,19 @@ streamlit run dashboard.py
 ```
 
 It lists every `report.json` under a folder (default `reports/`) or accepts an
-upload. It never downloads data or writes files. Paths are not stored in the
+upload; opening a saved report never downloads data or writes files.
+
+**Nova simulação** runs a new simulation from the sidebar (ticker, calibration
+history, horizon, steps, paths, seed, VaR confidence, sensitivity grid and an
+optional rolling/expanding/fixed VaR backtest). It downloads prices from
+yfinance, so it needs network access, and records them in the same checksummed
+snapshot as the CLI. The path matrix is limited to 128 MiB
+(`(steps + 1) * n_sims * 8` bytes; for example 252 steps with 60,000 paths),
+checked before any download. Nothing is written until you press
+**Salvar em reports/**, which publishes a new `reports/<TICKER>-<UTC time>/`
+directory with `report.json` and the PNG figures (never replacing a run); the
+saved report replays offline like any CLI report. **Baixar report.json** keeps
+the report in the browser instead. Company fundamentals are not fetched here. Paths are not stored in the
 report, so the dashboard regenerates them from the saved seed and refuses to
 show charts if the regenerated terminal mean differs from the saved value (for
 example under another NumPy version). Memory is the same as the original run:
