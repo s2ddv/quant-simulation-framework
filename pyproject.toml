@@ -62,7 +62,7 @@ ignore = [
 # the lint job and are exempted rather than restyled, so their published
 # outputs stay tied to the exact code that produced them. Only the codes that
 # occur are listed; library code in src/backtest and src/validation is linted.
-"research/tail-risk/*.py" = ["B007", "E401", "E701", "E731", "E741", "F401", "UP031"]
+"research/tail-risk/*.py" = ["B007", "E401", "E402", "E701", "E731", "E741", "F401", "UP031"]
 
 [tool.mypy]
 # Non-strict on purpose: bodies of unannotated functions are not checked
