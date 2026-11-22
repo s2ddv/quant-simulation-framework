@@ -3,3 +3,4 @@ __pycache__/
 .venv/
 reports/
 .pytest-study-*/
+*.egg-info/
