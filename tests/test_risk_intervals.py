@@ -1017,3 +1017,31 @@ def test_cvar_output_contract_and_json_safe(method):
     assert out["level"] == 0.8 and out["confidence"] == 0.9
     assert out["lower"] <= out["upper"]
     assert json.loads(json.dumps(out, allow_nan=False)) == out
+
+
+@pytest.mark.parametrize("n,p", [(1, 0.99), (10, 0.99)])
+def test_cvar_bootstrap_single_tail_point_has_note(n, p):
+    # Regression: with n_tail < 2 the bootstrap returned a [CVaR, CVaR]
+    # interval with no warning; the numeric bounds stay, plus a ``note``.
+    out = cvar_interval(_small_sample(n), S0, p, method="bootstrap",
+                        n_bootstrap=20, seed=0)
+    assert out["n_tail"] < 2
+    assert isinstance(out["note"], str) and "coverage" in out["note"]
+    assert isinstance(out["lower"], float) and isinstance(out["upper"], float)
+    json.dumps(out, allow_nan=False)
+
+
+def test_cvar_bootstrap_regular_tail_has_no_note():
+    out = cvar_interval(_small_sample(2000), S0, 0.95, method="bootstrap",
+                        n_bootstrap=20, seed=0)
+    assert out["n_tail"] >= 2
+    assert "note" not in out
+
+
+@pytest.mark.parametrize("name", list(_TQ_ARGS))
+def test_terminal_quantile_huge_int_param_raises_value_error(name):
+    # Regression: 10**400 reached np.isfinite and raised TypeError.
+    kwargs = {**_TQ_ARGS, name: 10**400}
+    with pytest.raises(ValueError, match=name):
+        terminal_quantile(kwargs["s0"], kwargs["mu"], kwargs["sigma"],
+                          kwargs["horizon"], 0.5)
