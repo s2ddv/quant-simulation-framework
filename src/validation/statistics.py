@@ -1,6 +1,7 @@
 """Analytical terminal GBM benchmarks and nested-sample convergence."""
 
 import math
+from numbers import Real
 from statistics import NormalDist
 
 import numpy as np
@@ -99,3 +100,50 @@ def convergence_analysis(terminal, theory):
     return [{"n_sims": int(n), **compare_terminal(terminal[:n], theory),
              "mean_standard_error": float(np.sqrt(theory["variance"] / n))}
             for n in counts]
+
+
+def terminal_quantile(s0, mu, sigma, horizon, p):
+    """Analytical ``p``-quantile of the GBM terminal price ``S_T``.
+
+    ``Q_p(S_T) = exp(ln s0 + (mu - sigma^2/2)*T + sigma*sqrt(T)*Phi^-1(p))``,
+    evaluated in log space with the same expression and guards as
+    ``terminal_theory`` (so p in ``QUANTILES`` reproduces its values). Price in
+    asset currency, horizon T in years, mu in year^-1, sigma in year^-1/2;
+    ``p`` is a real probability strictly inside (0, 1). With sigma=0 or T=0
+    the law is degenerate and every quantile equals the deterministic mean.
+    Unlike ``terminal_theory``, the variance is not formed, so a quantile can
+    be returned even when the variance itself is not representable.
+
+    Raises:
+        ValueError: On invalid parameters or ``p`` (bool rejected), or if the
+            quantile overflows or underflows to zero in float64.
+    """
+    if (not np.isfinite([s0, mu, sigma, horizon]).all()
+            or s0 <= 0 or sigma < 0 or horizon < 0):
+        raise ValueError("Require finite parameters, s0 > 0, sigma/horizon >= 0.")
+    if (isinstance(p, (bool, np.bool_)) or not isinstance(p, Real)
+            or not 0 < p < 1):
+        raise ValueError("p must be a real number strictly between 0 and 1.")
+    s0, mu, sigma, horizon, p = map(float, (s0, mu, sigma, horizon, p))
+    message = "Theoretical terminal quantile exceeds finite precision."
+
+    def positive_exp(log_value):
+        try:
+            value = math.exp(log_value)
+        except OverflowError as exc:
+            raise ValueError(message) from exc
+        if not math.isfinite(value) or value == 0:
+            raise ValueError(message)
+        return value
+
+    log_mean = math.log(s0) + mu * horizon
+    if sigma == 0 or horizon == 0:
+        return s0 if mu == 0 or horizon == 0 else positive_exp(log_mean)
+    log_v = 2 * math.log(sigma) + math.log(horizon)
+    try:
+        v = math.exp(log_v)
+    except OverflowError as exc:
+        raise ValueError(message) from exc
+    standard_deviation_log = math.exp(log_v / 2)
+    return positive_exp(log_mean - v / 2
+                        + standard_deviation_log * NormalDist().inv_cdf(p))
