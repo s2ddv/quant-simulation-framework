@@ -406,8 +406,10 @@ Glasserman).
   `S_{i+1}` (ambos acima de `B`, barreira inferior) é
   `exp(-2·ln(S_i/B)·ln(S_{i+1}/B)/(σ²Δt))`.
 - Referência analítica contínua: Merton/Reiner–Rubinstein (Haug, cap. 4).
-  Correção de Broadie–Glasserman–Kou para o discreto:
-  `B → B·e^{±0,5826·σ√Δt}`.
+  Correção de Broadie–Glasserman–Kou para o discreto: o preço com monitoramento
+  discreto ≈ fórmula contínua com a barreira **afastada de S0**,
+  `B → B·e^{+β·σ√Δt}` para barreira superior e `B → B·e^{-β·σ√Δt}` para inferior,
+  com `β = -ζ(1/2)/√(2π) ≈ 0,5826` (BGK 1997, Teorema 1; conferir na fonte).
 - **Testes:** paridade in + out = vanilla (exata por construção, por caminho);
   barreira contínua com ponte vs. fórmula fechada a 4·SE; o discreto sem
   ponte converge para o contínuo quando `steps` cresce (testar a tendência com
@@ -423,7 +425,7 @@ Glasserman).
   Reporte o limite inferior e, opcionalmente, o dual de Andersen–Broadie como superior.
 - Memória: exige trajetórias completas; estime e respeite `_check_memory`.
 - **Testes:** put americana de Longstaff–Schwartz (2001, Tabela 1: S = 36…44,
-  K = 40, r = 0,06, σ = 0,2/0,4, T = 1/2) dentro de ±2·SE + 0,02 da referência
+  K = 40, r = 0,06, σ = 0,2/0,4, T = 1 e 2 anos; corrigido de "T = 1/2", conferir na fonte) dentro de ±2·SE + 0,02 da referência
   por diferenças finitas citada no artigo; call americana sem dividendos ≈
   europeia (a 3·SE).
 
@@ -797,6 +799,8 @@ O usuário precisa aprovar o contrato antes da implementação (§2.2).
   barrier options". *Math. Finance*, 1997.
 - Longstaff, F.; Schwartz, E. "Valuing American options by simulation".
   *Rev. Financial Studies*, 2001.
+- Merton, R. C. "Theory of rational option pricing". *Bell J. Econ. Manage. Sci.*
+  4(1), 1973 (BSM com dividendo contínuo; base de E3.1).
 - Merton, R. "Option pricing when underlying stock returns are discontinuous".
   *J. Financial Economics*, 1976.
 - Kou, S. "A jump-diffusion model for option pricing". *Management Science*, 2002.
