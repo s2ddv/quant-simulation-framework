@@ -155,7 +155,7 @@ def run_simulation(snapshot, config, out_of_sample_config=None, sensitivity_conf
         "convergence": convergence_analysis(paths[-1], theory),
         "environment": {"python": platform.python_version(),
                         **{name: version(name) for name in
-                           ("numpy", "pandas", "matplotlib", "yfinance")}},
+                           ("numpy", "pandas", "scipy", "matplotlib", "yfinance")}},
     }
     if out_of_sample_config is not None:
         if not isinstance(out_of_sample_config, dict):
