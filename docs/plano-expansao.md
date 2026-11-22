@@ -775,7 +775,10 @@ O usuário precisa aprovar o contrato antes da implementação (§2.2).
 | E2.2 | pendente | — | — | — |
 | E2.3 | pendente | — | — | — |
 | E2.4 | pendente | — | — | — |
-| E3.0–E3.8 | pendente | — | — | E3.0 é parecer |
+| E3.0 | concluído | `e8ac17b` (correções do plano) | principal | Parecer do `pesquisador_quant` (somente leitura); fontes primárias não lidas no original |
+| E3.1 | concluído | `1223d8a` + testes | `revisor_quant` (sem achados de fórmula; lacunas P2 de teste em correção pelo `testador_quant`) | `src/pricing/black_scholes.py`; P3 de robustez em extremos pendentes |
+| E3.2 | concluído | `1223d8a` + testes | `revisor_quant` | Brent; ida e volta < 1e-8 onde bem condicionado |
+| E3.3–E3.8 | **bloqueado** | — | — | Aguardam E2.1/E2.2 concluídos e revisados |
 | E4.1–E4.4 | pendente | — | — | — |
 | E5.1, E5.3 | pendente | — | — | E5.2 só parecer |
 | E6.1–E6.4 | **bloqueado** | — | — | Requer aprovação do contrato 3D |
