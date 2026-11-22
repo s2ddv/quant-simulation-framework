@@ -115,3 +115,30 @@ def test_regeneration_detects_a_report_it_cannot_reproduce(run):
     tampered["results"]["terminal"]["mean"]["estimate"] += 1e-9
     with pytest.raises(ValueError, match="reproduce"):
         regenerate_paths(tampered)
+
+
+def test_sensitivity_grid_collapses_identical_repeats_and_rejects_conflicts(run):
+    report, _ = run
+    s0, mu, sigma = report["last_price"], report["parameters"]["mu"], report["parameters"]["sigma"]
+    from validation.calibration_sensitivity import calibration_sensitivity
+    repeated = dict(report, calibration_sensitivity=calibration_sensitivity(
+        s0, mu, sigma, 0.5, alpha=0.95, mu_delta=0.0, sigma_relative_delta=0.2, scenario_levels=3))
+    grid = sensitivity_grid(repeated)
+    assert grid["mu"] == [mu] and len(grid["sigma"]) == 3
+    assert grid["metrics"]["var"][1][0] == pytest.approx(repeated["calibration_sensitivity"]["baseline"]["var"])
+    conflicting = deepcopy(repeated)
+    conflicting["calibration_sensitivity"]["scenarios"][0]["var"] += 1.0
+    with pytest.raises(ValueError, match="disagree"):
+        sensitivity_grid(conflicting)
+
+
+def test_single_path_report_builds_with_undefined_interval():
+    log_prices = np.cumsum(np.r_[0, np.tile([0.012, -0.008, 0.004, -0.002], 10)])
+    snapshot = historical_snapshot(
+        pd.Series(100 * np.exp(log_prices),
+                  index=pd.date_range("2026-01-05", periods=log_prices.size, freq="B")),
+        ticker="ONE", period="fixture", retrieved_at="2026-03-01T12:00:00+00:00")
+    report, paths = run_simulation(snapshot, SimulationConfig(horizon=0.5, steps=5, n_sims=1, seed=1))
+    data = build_dashboard_data(report)
+    json.dumps(data, allow_nan=False)
+    assert data["summary"]["terminal_mean_confidence_interval"]["lower"] is None

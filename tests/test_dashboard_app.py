@@ -105,3 +105,18 @@ def test_new_simulation_reports_memory_limit_without_downloading(monkeypatch):
     next(b for b in app.sidebar.button if b.label == "Simular").click()
     app.run()
     assert not app.exception and "limit" in app.error[0].value
+
+
+def test_dashboard_renders_a_single_path_report(tmp_path):
+    log_prices = np.cumsum(np.r_[0, np.tile([0.012, -0.008, 0.004, -0.002], 10)])
+    snapshot = historical_snapshot(
+        pd.Series(100 * np.exp(log_prices),
+                  index=pd.date_range("2026-01-05", periods=log_prices.size, freq="B")),
+        ticker="ONE", period="fixture", retrieved_at="2026-03-01T12:00:00+00:00")
+    report, _ = run_simulation(snapshot, SimulationConfig(horizon=0.5, steps=5, n_sims=1, seed=1),
+                               None, {"mu_delta": 0.0, "sigma_relative_delta": 0.2,
+                                      "scenario_levels": 3})
+    write_report(report, tmp_path / "one" / "report.json")
+    app = run_app(tmp_path)
+    assert not app.exception and not app.error
+    assert "indefinido" in app.metric[0].help

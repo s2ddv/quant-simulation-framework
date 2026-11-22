@@ -159,20 +159,26 @@ def sensitivity_grid(report: dict) -> dict | None:
     scenarios = saved["scenarios"]
     mu_axis = sorted({s["mu"] for s in scenarios})
     sigma_axis = sorted({s["sigma"] for s in scenarios})
-    if len(mu_axis) * len(sigma_axis) != len(scenarios):
-        raise ValueError("Sensitivity scenarios do not form a complete grid.")
     column = {value: j for j, value in enumerate(mu_axis)}
     row = {value: i for i, value in enumerate(sigma_axis)}
     levels = list(scenarios[0]["quantiles"])
     names = ["var", "mean"] + [f"q{float(level):g}" for level in levels]
     grid = {name: [[math.nan] * len(mu_axis) for _ in sigma_axis] for name in names}
+    # Zero volatility or a zero perturbation makes some (mu, sigma) pairs
+    # coincide; the report keeps every row, so identical repeats are collapsed.
+    filled: dict[tuple[int, int], list] = {}
     for scenario in scenarios:
-        i, j = row[scenario["sigma"]], column[scenario["mu"]]
+        cell = (row[scenario["sigma"]], column[scenario["mu"]])
         values = [scenario["var"], scenario["mean"]] + [scenario["quantiles"][level] for level in levels]
+        if cell in filled:
+            if filled[cell] != values:
+                raise ValueError("Sensitivity scenarios disagree for one (mu, sigma) cell.")
+            continue
+        filled[cell] = values
         for name, value in zip(names, values):
-            grid[name][i][j] = value
-    if any(math.isnan(value) for matrix in grid.values() for line in matrix for value in line):
-        raise ValueError("Sensitivity scenarios repeat a (mu, sigma) cell.")
+            grid[name][cell[0]][cell[1]] = value
+    if len(filled) != len(mu_axis) * len(sigma_axis):
+        raise ValueError("Sensitivity scenarios do not form a complete grid.")
     return {"mu": mu_axis, "sigma": sigma_axis, "metrics": grid,
             "baseline": {"mu": saved["baseline"]["mu"], "sigma": saved["baseline"]["sigma"]},
             "alpha": saved["configuration"]["alpha"]}

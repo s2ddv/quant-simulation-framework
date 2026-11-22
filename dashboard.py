@@ -194,9 +194,11 @@ def main() -> None:
 
     ci = s["terminal_mean_confidence_interval"]
     columns = st.columns(5)
-    columns[0].metric("E[S(T)] simulado", money(s["expected_price"]),
-                      help=f"IC {round(100 * ci['level'])}% da média: "
-                           f"{money(ci['lower'])} – {money(ci['upper'])}")
+    ci_text = (f"IC {round(100 * ci['level'])}% da média: "
+               f"{money(ci['lower'])} – {money(ci['upper'])}"
+               if ci["lower"] is not None and ci["upper"] is not None
+               else "IC da média indefinido: o erro-padrão exige ao menos 2 trajetórias.")
+    columns[0].metric("E[S(T)] simulado", money(s["expected_price"]), help=ci_text)
     columns[1].metric(f"VaR {level}%", money(s["var"]),
                       help="Perda S0 − S(T) em unidades de preço; pode ser negativa.")
     columns[2].metric(f"CVaR {level}%", money(s["cvar"]),
