@@ -10,6 +10,17 @@ from scipy.stats import t as student_t
 from calibration.estimation import TRADING_DAYS
 from calibration.prices import validate_prices
 from simulation.base import BaseStochasticSimulator
+from simulation.variance_reduction import (
+    QMC_MAX_DIMENSION,
+    VarianceReduction,
+    brownian_bridge,
+    brownian_bridge_plan,
+    qmc_points_per_scramble,
+    qmc_scramble_rng,
+    sobol_normals,
+    validate_qmc_scrambles,
+    validate_variance_reduction,
+)
 
 DistributionType = Literal["normal", "t_student"]
 
@@ -43,6 +54,10 @@ class GbmSimulator(BaseStochasticSimulator):
             if isinstance(df, bool) or not isinstance(df, Real) or not np.isfinite(df) or df <= 2:
                 raise ValueError("df must be finite and greater than 2")
             self.calibrated_df = float(df)
+        # QMC scrambles use their own SeedSequence streams (never self.rng);
+        # see simulation.variance_reduction for the stream mapping.
+        self._qmc_calls = 0
+        self._qmc_entropy: int | None = None
 
     def calibrate(self, historical_prices: pd.Series) -> None:
         """Fit annualized normal moments and t degrees of freedom to daily logs.
@@ -70,7 +85,49 @@ class GbmSimulator(BaseStochasticSimulator):
             raise ValueError("t fit returned invalid degrees of freedom")
         self.mu, self.sigma, self.calibrated_df = mu, sigma, float(df)
 
-    def generate_paths(self, dist_type: DistributionType = "normal") -> np.ndarray:
+    def _antithetic_pairs(self, variance_reduction: str, dist_type: str) -> int:
+        """Validate the sampling mode; return ``m`` pairs (0 unless antithetic)."""
+        if validate_variance_reduction(variance_reduction) != "antithetic":
+            return 0
+        if dist_type != "normal":
+            raise ValueError("antithetic sampling requires dist_type='normal'")
+        if self.n_sims % 2:
+            raise ValueError("antithetic sampling requires an even n_sims")
+        return self.n_sims // 2
+
+    def _qmc_layout(self, variance_reduction: str, dist_type: str,
+                    qmc_scrambles: int, dimension: int) -> tuple[int, int] | None:
+        """Validate QMC options; return ``(R, N)`` or ``None`` if not QMC."""
+        scrambles = validate_qmc_scrambles(qmc_scrambles)
+        if variance_reduction != "qmc":
+            return None
+        if dist_type != "normal":
+            raise ValueError("qmc sampling requires dist_type='normal'")
+        points = qmc_points_per_scramble(self.n_sims, scrambles)
+        if dimension > QMC_MAX_DIMENSION:
+            raise ValueError(
+                f"qmc paths need one Sobol dimension per step; steps={dimension} "
+                f"exceeds the SciPy Sobol limit of {QMC_MAX_DIMENSION}"
+            )
+        return scrambles, points
+
+    def _qmc_rngs(self, scrambles: int) -> list[np.random.Generator]:
+        """Scramble generators for the next QMC call (does not touch self.rng)."""
+        if self.seed is not None:
+            entropy = self.seed
+        else:
+            if self._qmc_entropy is None:
+                entropy_value = np.random.SeedSequence().entropy
+                assert isinstance(entropy_value, int)
+                self._qmc_entropy = entropy_value
+            entropy = self._qmc_entropy
+        call = self._qmc_calls
+        self._qmc_calls += 1
+        return [qmc_scramble_rng(entropy, call, r) for r in range(scrambles)]
+
+    def generate_paths(self, dist_type: DistributionType = "normal", *,
+                       variance_reduction: VarianceReduction = "none",
+                       qmc_scrambles: int = 16) -> np.ndarray:
         """Return ``(steps + 1, n_sims)`` positive prices.
 
         The output holds the working shocks and cumulative log returns in
@@ -79,9 +136,32 @@ class GbmSimulator(BaseStochasticSimulator):
         Unrepresentable increments or prices raise ``ValueError``. In t
         mode ``mu`` controls the log-return location through the normal-mode
         convention; it is not a finite expected-price growth rate.
+
+        ``variance_reduction="antithetic"`` (normal mode, even ``n_sims = 2m``)
+        draws the ``(steps, m)`` shocks ``Z`` into columns ``0..m-1`` and
+        writes ``-Z`` into columns ``m..2m-1``; column ``i`` pairs with
+        ``i + m``. Shocks are drawn row by row into the output, which gives
+        the same values as one C-order ``(steps, m)`` draw and needs no
+        extra matrix. See ``simulation.variance_reduction``. The default
+        ``"none"`` keeps the historical draw order and arithmetic.
+
+        ``variance_reduction="qmc"`` (normal mode) uses ``R = qmc_scrambles``
+        independently scrambled Sobol sequences of dimension ``steps``
+        (at most ``QMC_MAX_DIMENSION``) with ``N = n_sims / R`` points each,
+        ``N`` a power of two; scramble ``r`` fills columns ``[r*N, (r+1)*N)``.
+        A Brownian bridge maps each point to ``W`` on the grid and
+        ``log S_t = log s0 + (mu - sigma**2/2)*t + sigma*W_t`` (exact law at
+        the grid points). One scramble is processed at a time, written into
+        its output columns; the memory check adds SciPy's peak of two
+        ``(N, steps)`` float64 arrays. It does not advance ``self.rng``. Use
+        ``qmc_mean`` for estimates and standard errors; see
+        ``simulation.variance_reduction`` for streams and caveats.
         """
         if dist_type not in ("normal", "t_student"):
             raise ValueError("dist_type must be 'normal' or 't_student'")
+        pairs = self._antithetic_pairs(variance_reduction, dist_type)
+        layout = self._qmc_layout(variance_reduction, dist_type, qmc_scrambles,
+                                  self.steps)
         if self.mu is None or self.sigma is None:
             raise ValueError("calibrate or supply mu and sigma before generating paths")
         if (dist_type == "t_student" and
@@ -111,14 +191,40 @@ class GbmSimulator(BaseStochasticSimulator):
         if not np.isfinite(drift) or not np.isfinite(scale):
             raise ValueError("simulation increments exceed finite precision")
 
-        # NumPy's t sampler returns a separate full shock matrix; the normal
-        # sampler writes directly into the output. Check before either allocates.
-        self._check_memory(temporary_arrays=int(dist_type == "t_student"))
+        if layout is not None:
+            # Output plus SciPy's peak of two (N, steps) arrays per scramble.
+            output_bytes = 8 * (self.steps + 1) * self.n_sims
+            required = output_bytes + 2 * 8 * self.steps * layout[1]
+            if required > self.MAX_WORKING_BYTES:
+                raise ValueError(
+                    f"path arrays require {required} bytes (output {output_bytes}); "
+                    f"limit is {self.MAX_WORKING_BYTES} bytes"
+                )
+        else:
+            # NumPy's t sampler returns a separate full shock matrix; the normal
+            # sampler writes directly into the output. Check before either allocates.
+            self._check_memory(temporary_arrays=int(dist_type == "t_student"))
 
         paths = np.empty((self.steps + 1, self.n_sims), dtype=np.float64)
         paths[0].fill(self.s0)
         increments = paths[1:]
-        if dist_type == "normal":
+        if layout is not None:
+            scrambles, points = layout
+            log2_points = points.bit_length() - 1
+            plan = brownian_bridge_plan(self.steps, self.horizon)
+            for r, rng in enumerate(self._qmc_rngs(scrambles)):
+                normals = sobol_normals(self.steps, log2_points, rng)
+                brownian_bridge(normals.T, self.horizon,
+                                out=increments[:, r * points:(r + 1) * points],
+                                plan=plan)
+                del normals
+        elif pairs:
+            # Generator.standard_normal needs a contiguous ``out``; each row
+            # prefix is contiguous and rows are filled in C order.
+            for row in increments:
+                self.rng.standard_normal(size=pairs, out=row[:pairs])
+            np.negative(increments[:, :pairs], out=increments[:, pairs:])
+        elif dist_type == "normal":
             self.rng.standard_normal(size=increments.shape, out=increments)
         else:
             df = self.calibrated_df
@@ -126,9 +232,15 @@ class GbmSimulator(BaseStochasticSimulator):
             increments[:] = self.rng.standard_t(df=df, size=increments.shape)
 
         with np.errstate(over="ignore", invalid="ignore", under="ignore"):
-            np.multiply(increments, scale, out=increments)
-            increments += drift
-            np.cumsum(increments, axis=0, out=increments)
+            if layout is not None:
+                # Exact on the grid: sigma*W_{t_k} + (mu - sigma**2/2)*k*dt.
+                np.multiply(increments, self.sigma, out=increments)
+                increments += (drift * np.arange(1, self.steps + 1,
+                                                 dtype=np.float64))[:, None]
+            else:
+                np.multiply(increments, scale, out=increments)
+                increments += drift
+                np.cumsum(increments, axis=0, out=increments)
             # Only move the initial price into log space when exp alone would
             # overflow or enter the subnormal range before multiplication.
             # Keep the usual arithmetic order for normal-sized replays.
@@ -148,7 +260,9 @@ class GbmSimulator(BaseStochasticSimulator):
         return paths
 
     def generate_terminal(self, *, batch_size: int = 10_000,
-                          max_working_bytes: int = 256 * 1024 * 1024) -> np.ndarray:
+                          max_working_bytes: int = 256 * 1024 * 1024,
+                          variance_reduction: VarianceReduction = "none",
+                          qmc_scrambles: int = 16) -> np.ndarray:
         """Return normal GBM terminal prices as a ``float64 (n_sims,)`` array.
 
         Draw one independent standard normal Z per simulation and evaluate
@@ -169,6 +283,19 @@ class GbmSimulator(BaseStochasticSimulator):
         No elementwise identity is promised with full paths, other sampling
         formats or other NumPy versions. Prices outside finite positive
         float64 precision raise ValueError, including underflow to zero.
+
+        ``variance_reduction="antithetic"`` requires an even ``n_sims = 2m``
+        and returns ``[originals..., mirrors...]``: ``m`` normals are drawn
+        in batches of ``batch_size`` into ``terminal[:m]`` and negated into
+        ``terminal[m:]`` before the transform, within the same
+        ``8 * n_sims``-byte budget. Element ``i`` pairs with ``i + m``.
+
+        ``variance_reduction="qmc"`` uses ``R = qmc_scrambles`` scrambled
+        one-dimensional Sobol sequences with ``N = n_sims / R`` points each
+        (``N`` a power of two), ``Z = ndtri(u)``; scramble ``r`` fills
+        ``terminal[r*N:(r+1)*N]``. ``batch_size`` is not used: each scramble
+        is one block. The budget is ``8 * n_sims + 16 * N`` bytes (SciPy's
+        peak of two ``N``-point arrays). It does not advance ``self.rng``.
         """
         for name, value in (("batch_size", batch_size),
                             ("max_working_bytes", max_working_bytes)):
@@ -176,7 +303,11 @@ class GbmSimulator(BaseStochasticSimulator):
                 raise ValueError(f"{name} must be a positive integer")
         if self.mu is None or self.sigma is None:
             raise ValueError("calibrate or supply mu and sigma before generating terminal prices")
+        pairs = self._antithetic_pairs(variance_reduction, "normal")
+        layout = self._qmc_layout(variance_reduction, "normal", qmc_scrambles, 1)
         required = 8 * self.n_sims
+        if layout is not None:
+            required += 2 * 8 * layout[1]
         if required > max_working_bytes:
             raise ValueError(
                 f"terminal array requires {required} bytes; "
@@ -195,9 +326,8 @@ class GbmSimulator(BaseStochasticSimulator):
         terminal = np.empty(self.n_sims, dtype=np.float64)
         log_max = np.log(np.finfo(np.float64).max)
         log_tiny = np.log(np.finfo(np.float64).tiny)
-        for start in range(0, self.n_sims, int(batch_size)):
-            batch = terminal[start:start + int(batch_size)]
-            self.rng.standard_normal(size=batch.shape, out=batch)
+
+        def transform(batch: np.ndarray) -> None:
             with np.errstate(over="ignore", invalid="ignore", under="ignore"):
                 np.multiply(batch, scale, out=batch)
                 batch += drift
@@ -211,20 +341,48 @@ class GbmSimulator(BaseStochasticSimulator):
             low, high = np.min(batch), np.max(batch)
             if not np.isfinite(low) or not np.isfinite(high) or low <= 0:
                 raise ValueError("terminal prices exceed finite positive precision")
+
+        if layout is not None:
+            scrambles, points = layout
+            log2_points = points.bit_length() - 1
+            for r, rng in enumerate(self._qmc_rngs(scrambles)):
+                batch = terminal[r * points:(r + 1) * points]
+                batch[:] = sobol_normals(1, log2_points, rng)[:, 0]
+                transform(batch)
+            return terminal
+        if pairs:
+            for start in range(0, pairs, int(batch_size)):
+                batch = terminal[start:min(start + int(batch_size), pairs)]
+                mirror = terminal[pairs + start:pairs + start + batch.size]
+                self.rng.standard_normal(size=batch.shape, out=batch)
+                np.negative(batch, out=mirror)
+                transform(batch)
+                transform(mirror)
+            return terminal
+        for start in range(0, self.n_sims, int(batch_size)):
+            batch = terminal[start:start + int(batch_size)]
+            self.rng.standard_normal(size=batch.shape, out=batch)
+            transform(batch)
         return terminal
 
 
 def simulate_gbm(s0: float, mu: float, sigma: float, horizon: float,
-                 steps: int, n_sims: int, seed: int | None = None) -> np.ndarray:
+                 steps: int, n_sims: int, seed: int | None = None, *,
+                 variance_reduction: VarianceReduction = "none",
+                 qmc_scrambles: int = 16) -> np.ndarray:
     """Compatibility entry point for the existing normal GBM pipeline."""
     return GbmSimulator(s0, horizon, steps, n_sims, seed, mu=mu,
-                        sigma=sigma).generate_paths()
+                        sigma=sigma).generate_paths(
+                            variance_reduction=variance_reduction,
+                            qmc_scrambles=qmc_scrambles)
 
 
 def simulate_terminal_batched(s0: float, mu: float, sigma: float, horizon: float,
                               n_sims: int, seed: int | None = None, *,
                               batch_size: int = 10_000,
-                              max_working_bytes: int = 256 * 1024 * 1024) -> np.ndarray:
+                              max_working_bytes: int = 256 * 1024 * 1024,
+                              variance_reduction: VarianceReduction = "none",
+                              qmc_scrambles: int = 16) -> np.ndarray:
     """Sample exact normal GBM terminal prices with a local seeded RNG.
 
     See ``GbmSimulator.generate_terminal`` for units, memory accounting and
@@ -233,5 +391,6 @@ def simulate_terminal_batched(s0: float, mu: float, sigma: float, horizon: float
     those additional arrays are outside this function's memory budget.
     """
     return GbmSimulator(s0, horizon, 1, n_sims, seed, mu=mu, sigma=sigma).generate_terminal(
-        batch_size=batch_size, max_working_bytes=max_working_bytes
+        batch_size=batch_size, max_working_bytes=max_working_bytes,
+        variance_reduction=variance_reduction, qmc_scrambles=qmc_scrambles,
     )

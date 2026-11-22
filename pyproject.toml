@@ -28,6 +28,9 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+# "slow": full-size Monte Carlo coverage studies (E1). They still run by
+# default; `-m "not slow"` keeps only their fast counterparts.
+markers = ["slow: full-size Monte Carlo coverage studies (deselect with -m 'not slow')"]
 
 [tool.ruff]
 target-version = "py310"
