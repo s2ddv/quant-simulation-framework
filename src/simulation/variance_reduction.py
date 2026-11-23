@@ -180,6 +180,32 @@ RNG streams: antithetic sampling consumes the instance's existing
 ``self.rng`` (PCG64 via ``default_rng``) and opens no new stream. It draws
 ``steps * m`` normals instead of ``steps * n_sims``, so its prices are not
 elementwise comparable with ``"none"`` for the same seed.
+
+When each technique does NOT help (summary, E2.4)
+-------------------------------------------------
+* Antithetic: needs ``f`` monotone in ``Z``. For even or non-monotone
+  payoffs (straddle at the median) the pair covariance is positive and the
+  VRF falls below 1, towards 0.5 when ``f`` is even in ``Z``; for the
+  terminal mean the VRF ``1/(-expm1(-sigma**2*T))`` tends to 1 as
+  ``sigma**2*T`` grows.
+* Control variate (``X = S_T``): the VRF is ``1/(1 - rho**2)``, so weakly
+  correlated targets (far out-of-the-money calls, far puts, digitals) gain
+  little. Only expectations, never quantiles, VaR or CVaR. The same-sample
+  ``beta`` adds an ``O(1/N)`` bias and its normal interval under-covers at
+  small ``N``; use a pilot or fixed ``beta`` there.
+* QMC: gains shrink for discontinuous integrands (barriers, digitals on the
+  path), high effective dimension, long grids without the Brownian bridge
+  and non-power-of-two prefixes; a small ``R`` gives a noisy SE whose
+  ``t_{R-1}`` interval under-covers; Sobol set-up memory and time grow with
+  the dimension ``steps``.
+* All of them (and any mode other than ``"none"``): the i.i.d. intervals of
+  E1 in ``risk.intervals`` (Wilson for the loss probability, order-statistic
+  VaR interval, bootstrap CVaR) are not valid on antithetic or QMC samples,
+  and the report's ``risk_intervals`` assume ``variance_reduction="none"``.
+  For expectations use the technique's own estimator and SE
+  (``antithetic_mean``, ``control_variate_mean``, ``qmc_mean``), e.g. with
+  ``validation.statistics.convergence_with_estimator`` to compare them at
+  equal cost.
 """
 
 from __future__ import annotations
@@ -788,8 +814,11 @@ def qmc_mean(values: object, scrambles: int) -> QmcMean:
     standard error is ``None`` and ``note`` explains why; otherwise ``note``
     is ``None``. ``standard_error**2`` is unbiased, but a ``t_{R-1}``
     interval can under-cover because the block means of terminal prices
-    are skewed and heavy-tailed: a nominal 95% interval covered 0.929 with
-    ``R = 16, N = 64`` and 0.885 with ``R = 8, N = 256`` (4000 seeds).
+    are skewed and heavy-tailed: a nominal 95% interval covered about
+    0.89-0.93 for ``R = 16, N = 64`` and ``R = 8, N = 256`` (terminal mean
+    via ``GbmSimulator.generate_terminal`` + ``qmc_mean`` with ``S0 = 100``,
+    ``mu = 0.07``, ``sigma = 0.3``, ``T = 1``, seeds 0-3999; independent
+    reproductions gave 0.926 +- 0.004 and 0.905 +- 0.005, respectively).
 
     Only expectations: the i.i.d. intervals of ``risk.intervals`` (Wilson,
     order-statistic VaR, bootstrap CVaR) do **not** hold on QMC points.
