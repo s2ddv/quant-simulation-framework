@@ -63,8 +63,6 @@ This project aims to:
 **Planned**
 
 - European option pricing via Monte Carlo, validated against the Black-Scholes closed-form solution
-- Variance reduction techniques (antithetic variates, control variates)
-- Confidence intervals for simulated VaR, CVaR and probability of loss
 - Multi-asset simulation with correlated returns (Cholesky decomposition)
 - Configuration files
 
@@ -484,6 +482,35 @@ matrix `(steps + 1, n_sims)` remains unchanged. The terminal API has a
 different random draw shape, so equal seeds do not imply element-wise equality
 with full paths. Cross-version equality is not guaranteed.
 
+### Variance reduction (opt-in)
+
+All techniques are opt-in; the default `variance_reduction="none"` is
+bit-identical to the previous sampler, and the path contract
+`(steps + 1, n_sims)` with row 0 equal to `s0` is unchanged.
+
+- **Antithetic variates:** `GbmSimulator(...).generate_paths(variance_reduction="antithetic")`
+  (or `generate_terminal`) uses `[Z, -Z]`; `n_sims` must be even and columns are
+  ordered `[originals..., mirrors...]`. Use `antithetic_mean` (the pair is the
+  statistical unit). Theoretical VRF of the terminal mean: `1/(1 - exp(-sigma² T))`.
+- **Control variate:** `control_variate_mean(values, control, control_mean)` with
+  `X = S_T` and `E[X] = S0 exp(mu T)` (`gbm_terminal_control_mean`); beta from the
+  same sample (O(1/N) bias), an independent pilot prefix or a fixed value. Reports
+  `beta`, `rho2` and the achieved VRF.
+- **Randomized QMC:** `variance_reduction="qmc"` with `qmc_scrambles=R` (default 16)
+  uses scrambled Sobol points (`scipy.stats.qmc`), a Brownian-bridge construction for
+  paths, and `n_sims = R·N` with `N` a power of two. Use `qmc_mean`: the standard
+  error comes from the `R` independent scrambles.
+- `validation.statistics.convergence_with_estimator` compares estimators at equal
+  cost (`n_evaluations`), with pair prefixes for antithetic samples and
+  power-of-two prefixes for QMC.
+
+The i.i.d. risk intervals (Wilson, order-statistic VaR, CVaR bootstrap) are not
+valid for antithetic or QMC samples; reports keep using plain Monte Carlo. See the
+module docstring for when each technique does not help (even payoffs for
+antithetics, low correlation with `S_T` for controls, discontinuous or
+high-effective-dimension integrands for QMC) and the research note
+`research/notes/2026-11-23-e2-reducao-variancia.md` for measured gains.
+
 ### Analytical validation and convergence
 
 For fixed calibrated parameters, the terminal law is
@@ -832,8 +859,8 @@ implemented yet; see `docs/plano-expansao.md`.
 - [x] Analytical calibration sensitivity grid
 - [x] Experimental causal volatility forecasting
 - [x] European option pricing: analytical Black-Scholes-Merton prices, Greeks and implied volatility
-- [ ] Monte Carlo European pricing compared with Black-Scholes (blocked on variance reduction)
-- [ ] Variance reduction (antithetic and control variates)
+- [x] Variance reduction: antithetic variates, control variates and randomized QMC (scrambled Sobol + Brownian bridge) with correct standard errors (`src/simulation/variance_reduction.py`)
+- [ ] Monte Carlo European pricing compared with Black-Scholes
 - [ ] Correlated multi-asset simulation
 
 ---
