@@ -720,8 +720,11 @@ def brownian_bridge_plan(steps: int, horizon: float) -> BridgePlan:
         mid = (left + right) // 2
         t_l, t_m, t_r = time(left), time(mid), time(right)
         span = t_r - t_l
-        plan.append((mid, left, right, (t_r - t_m) / span, (t_m - t_l) / span,
-                     math.sqrt((t_m - t_l) * (t_r - t_m) / span)))
+        # Divide before multiplying: (t_m - t_l)*(t_r - t_m) underflows for
+        # tiny horizons, while the ratio lies in [0, 1].
+        w_right = (t_m - t_l) / span
+        plan.append((mid, left, right, (t_r - t_m) / span, w_right,
+                     math.sqrt(w_right * (t_r - t_m))))
         queue.append((left, mid))
         queue.append((mid, right))
     return tuple(plan)
