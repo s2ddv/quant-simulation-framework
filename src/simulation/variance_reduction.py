@@ -138,7 +138,9 @@ before ``ndtri`` because a 30-bit scrambled point can be exactly 0.
   (``Sobol.MAXDIM``, 21201 in SciPy 1.18) is rejected.
 
 Error estimate: the points inside one scramble are dependent by design, so
-the scramble is the independent unit. ``qmc_mean`` averages each block and
+the scramble is the independent unit; each scramble mean is unbiased up to
+the ``2**-30`` quantization of the Sobol points (``bits=30``), negligible
+(~1e-9 in ``E[Z]``). ``qmc_mean`` averages each block and
 returns ``estimate = mean(block_means)`` with ``SE = std(block_means,
 ddof=1)/sqrt(R)``. With ``R = 1`` there is no estimable standard error
 (``None`` plus a note). The i.i.d. intervals of ``risk.intervals`` (Wilson,
@@ -154,7 +156,9 @@ effective dimension. Discontinuous payoffs in several dimensions
 grids without the bridge reordering show much smaller gains, possibly none;
 the ``R``-replicate SE stays valid in every case. Measured over 50 seeds
 (``S0 = 100``, ``mu = 0.07``, ``sigma = 0.3``, ``T = 1``, ``R = 16``,
-``N = 2**12`` against plain MC with ``R*N`` draws; variance ratios): terminal
+``N = 2**12`` against plain MC with ``R*N`` draws; each figure is the ratio
+of the empirical MSEs against the analytic value over the 50 seeds, with a
+relative uncertainty of roughly +-25%): terminal
 mean about 5950, 252-step arithmetic-average mean about 14000 with the
 bridge but about 580 with sequential increments, a one-dimensional digital
 ``1{S_T < 80}`` still about 9700, and a 252-step barrier indicator
@@ -646,8 +650,9 @@ def sobol_normals(dimension: int, log2_points: int,
     Draws ``random_base2(log2_points)`` from a fresh ``Sobol(dimension,
     scramble=True, bits=QMC_SOBOL_BITS, rng=rng)``, clips ``u`` to
     ``[2**-53, 1 - 2**-53]`` and applies ``ndtri`` in place, so every value
-    is finite (``|Z| <= 8.3``). SciPy's peak storage is about two arrays of
-    the returned size.
+    is finite (``|Z| <= 8.3``). SciPy's peak storage is the larger of its
+    scrambling set-up and two arrays of the returned size; see
+    ``qmc_sobol_bytes``.
     """
     if not 1 <= dimension <= QMC_MAX_DIMENSION:
         raise ValueError(
@@ -659,6 +664,24 @@ def sobol_normals(dimension: int, log2_points: int,
     np.clip(u, QMC_CLIP_EPSILON, 1.0 - QMC_CLIP_EPSILON, out=u)
     ndtri(u, out=u)
     return u
+
+
+def qmc_sobol_bytes(dimension: int, points: int) -> int:
+    """Upper estimate of SciPy's peak storage in one ``sobol_normals`` call.
+
+    ``Sobol(scramble=True, bits=QMC_SOBOL_BITS)`` first builds ``dimension``
+    lower-triangular ``bits x bits`` int64 scrambling matrices
+    (``8*bits**2`` bytes per dimension, plus temporaries: 7.3-7.5 KB per
+    dimension traced with SciPy 1.18) and frees them before drawing; the
+    draw then holds two ``(points, dimension)`` float64 arrays plus about
+    140 bytes of state per dimension. The peak is the larger phase. A
+    fixed overhead of a few KiB per call and SciPy's one-time load of its
+    direction-number table (~6 MiB transient, once per process) are not
+    included.
+    """
+    setup = 8 * QMC_SOBOL_BITS ** 2 + 512
+    draw = 2 * 8 * int(points) + 256
+    return int(dimension) * max(setup, draw)
 
 
 BridgePlan = tuple[tuple[int, int, int, float, float, float], ...]
@@ -755,10 +778,15 @@ def qmc_mean(values: object, scrambles: int) -> QmcMean:
     ``values`` is a finite real 1-D array of length ``R*N`` in the QMC
     layout: scramble ``r`` occupies ``values[r*N:(r+1)*N]`` (``N`` points
     per scramble, any ``N >= 1`` is accepted here). Each block mean
-    ``m_r`` is an unbiased estimate of the expectation and the blocks are
-    independent; ``estimate = mean(m_r)`` and ``standard_error =
-    std(m_r, ddof=1)/sqrt(R)``. With ``R = 1`` the standard error is
-    ``None`` and ``note`` explains why; otherwise ``note`` is ``None``.
+    ``m_r`` is an unbiased estimate of the expectation, up to the ``2**-30``
+    quantization of the Sobol points (``bits=30``), negligible (~1e-9 in
+    ``E[Z]``), and the blocks are independent; ``estimate = mean(m_r)`` and
+    ``standard_error = std(m_r, ddof=1)/sqrt(R)``. With ``R = 1`` the
+    standard error is ``None`` and ``note`` explains why; otherwise ``note``
+    is ``None``. ``standard_error**2`` is unbiased, but a ``t_{R-1}``
+    interval can under-cover because the block means of terminal prices
+    are skewed and heavy-tailed: a nominal 95% interval covered 0.929 with
+    ``R = 16, N = 64`` and 0.885 with ``R = 8, N = 256`` (4000 seeds).
 
     Only expectations: the i.i.d. intervals of ``risk.intervals`` (Wilson,
     order-statistic VaR, bootstrap CVaR) do **not** hold on QMC points.

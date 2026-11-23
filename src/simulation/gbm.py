@@ -17,6 +17,7 @@ from simulation.variance_reduction import (
     brownian_bridge_plan,
     qmc_points_per_scramble,
     qmc_scramble_rng,
+    qmc_sobol_bytes,
     sobol_normals,
     validate_qmc_scrambles,
     validate_variance_reduction,
@@ -152,8 +153,11 @@ class GbmSimulator(BaseStochasticSimulator):
         A Brownian bridge maps each point to ``W`` on the grid and
         ``log S_t = log s0 + (mu - sigma**2/2)*t + sigma*W_t`` (exact law at
         the grid points). One scramble is processed at a time, written into
-        its output columns; the memory check adds SciPy's peak of two
-        ``(N, steps)`` float64 arrays. It does not advance ``self.rng``. Use
+        its output columns; the memory check adds SciPy's Sobol peak (the
+        larger of ``steps`` 30x30 int64 scrambling matrices, ~7.3 KB per
+        step, and two ``(N, steps)`` float64 arrays; ``qmc_sobol_bytes``)
+        and the Brownian bridge plan (~512 bytes per step). It does not
+        advance ``self.rng``. Use
         ``qmc_mean`` for estimates and standard errors; see
         ``simulation.variance_reduction`` for streams and caveats.
         """
@@ -192,9 +196,13 @@ class GbmSimulator(BaseStochasticSimulator):
             raise ValueError("simulation increments exceed finite precision")
 
         if layout is not None:
-            # Output plus SciPy's peak of two (N, steps) arrays per scramble.
+            # Output, SciPy's per-scramble Sobol peak (scrambling matrices or
+            # two (N, steps) arrays), the bridge plan (~250 B/step retained,
+            # ~330 B/step while built) with the drift ramp, and two N-point
+            # bridge row temporaries.
             output_bytes = 8 * (self.steps + 1) * self.n_sims
-            required = output_bytes + 2 * 8 * self.steps * layout[1]
+            required = (output_bytes + qmc_sobol_bytes(self.steps, layout[1])
+                        + 512 * self.steps + 2 * 8 * layout[1])
             if required > self.MAX_WORKING_BYTES:
                 raise ValueError(
                     f"path arrays require {required} bytes (output {output_bytes}); "
@@ -265,7 +273,9 @@ class GbmSimulator(BaseStochasticSimulator):
                           qmc_scrambles: int = 16) -> np.ndarray:
         """Return normal GBM terminal prices as a ``float64 (n_sims,)`` array.
 
-        Draw one independent standard normal Z per simulation and evaluate
+        In the default ``variance_reduction="none"`` mode, draw one
+        independent standard normal Z per simulation (the antithetic and
+        qmc modes, described below, draw dependent Z) and evaluate
         S(T) = s0 * exp((mu - sigma**2/2)*T + sigma*sqrt(T)*Z).
         Prices use the asset currency, T years, mu year^-1 and sigma
         year^-1/2. The instance's ``steps`` is unused: this exact terminal
