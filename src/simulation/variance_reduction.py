@@ -192,7 +192,12 @@ When each technique does NOT help (summary, E2.4)
   correlated targets (far out-of-the-money calls, far puts, digitals) gain
   little. Only expectations, never quantiles, VaR or CVaR. The same-sample
   ``beta`` adds an ``O(1/N)`` bias and its normal interval under-covers at
-  small ``N``; use a pilot or fixed ``beta`` there.
+  small ``N``. A pilot or fixed ``beta`` removes that bias and reduces, but
+  does not remove, the under-coverage at small ``N``: for an ATM call under
+  P (``S0 = 100``, ``mu = 0.05``, ``sigma = 0.2``, ``T = 1``, 20000
+  replications) the nominal 95% normal interval covered 0.765 (same
+  sample), 0.815 (pilot 0.5), 0.899 (fixed optimal ``beta``) and 0.869
+  (plain MC) at ``N = 10``; 0.886, 0.908, 0.933 and 0.923 at ``N = 30``.
 * QMC: gains shrink for discontinuous integrands (barriers, digitals on the
   path), high effective dimension, long grids without the Brownian bridge
   and non-power-of-two prefixes; a small ``R`` gives a noisy SE whose

@@ -212,6 +212,10 @@ def _checkpoint_counts(n_units, counts, schedule, min_units):
         start = max(min(2, n_units), min_units)
         grid = np.geomspace(start, n_units, num=min(12, n_units)).astype(int)
         return [int(n) for n in np.unique(np.append(grid, n_units))]
+    # np.asarray turns a mixed list such as [True, 10] into integers.
+    if any(isinstance(n, (bool, np.bool_))
+           for n in np.asarray(counts, dtype=object).reshape(-1)):
+        raise ValueError("counts must be a nonempty 1-D sequence of integers.")
     array = np.asarray(counts)
     if (array.ndim != 1 or array.size == 0 or array.dtype == np.bool_
             or not np.issubdtype(array.dtype, np.integer)):
@@ -352,12 +356,26 @@ def qmc_units(values, scrambles):
 
 
 def mean_estimator(prefix):
-    """i.i.d. sample mean and ``SE = std(ddof=1)/sqrt(n)`` (``None`` for n=1)."""
+    """i.i.d. sample mean and ``SE = std(ddof=1)/sqrt(n)`` (``None`` for n=1).
+
+    As in ``antithetic_mean``, large finite values whose plain reductions
+    overflow are rescaled by ``max |x|``; a result that is still not finite
+    raises ``ValueError``.
+    """
     array = _real_units("prefix", prefix, ndim=1)
+    root_n = math.sqrt(array.size)
     with np.errstate(over="ignore", invalid="ignore"):
         estimate = float(np.mean(array))
-        se = (float(np.std(array, ddof=1)) / math.sqrt(array.size)
-              if array.size > 1 else None)
+        se = float(np.std(array, ddof=1)) / root_n if array.size > 1 else None
+        if not math.isfinite(estimate) or (se is not None and not math.isfinite(se)):
+            scale = float(np.max(np.abs(array)))
+            scaled = array / scale
+            estimate = float(np.mean(scaled)) * scale
+            # Divide by sqrt(n) before rescaling: std itself may exceed float64.
+            se = (float(np.std(scaled, ddof=1)) / root_n * scale
+                  if array.size > 1 else None)
+    if not math.isfinite(estimate) or (se is not None and not math.isfinite(se)):
+        raise ValueError("mean_estimator result exceeds finite precision.")
     return {"estimate": estimate, "standard_error": se}
 
 
