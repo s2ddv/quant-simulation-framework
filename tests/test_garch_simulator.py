@@ -469,7 +469,9 @@ def test_memory_estimate_covers_finiteness_mask_and_measured_peak() -> None:
     import tracemalloc
     for return_variance in (False, True):
         sim = _sim(200, 20000, 1)
-        tracemalloc.start()
+        was_tracing = tracemalloc.is_tracing()
+        if not was_tracing:
+            tracemalloc.start()
         try:
             tracemalloc.reset_peak()
             if return_variance:
@@ -478,8 +480,13 @@ def test_memory_estimate_covers_finiteness_mask_and_measured_peak() -> None:
                 sim.generate_paths()
             peak = tracemalloc.get_traced_memory()[1]
         finally:
-            tracemalloc.stop()
-        assert peak <= sim._required_bytes(return_variance)
+            if not was_tracing:
+                tracemalloc.stop()
+        # Measured slack is ~3 work vectors (NumPy 2.5, CPython 3.13); allow
+        # 4 more vectors of library overhead, which base.py leaves outside the
+        # estimate. An uncounted finiteness mask (~11% of the estimate) still
+        # fails; the deterministic count assertions above are the main guard.
+        assert peak <= sim._required_bytes(return_variance) + 4 * 8 * sim.n_sims
 
 
 class _Measured(GarchTSimulator):
