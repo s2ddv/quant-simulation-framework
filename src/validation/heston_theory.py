@@ -40,12 +40,25 @@ Contents
       D = ((b - d)/xi^2) (1 - E)/(1 - g E)
       phi(u) = exp(i u (ln S0 + (r - q) T) + C + D v0)
 
-  Stable evaluation: ``b - d = -xi^2 (i u + u^2)/(b + d)`` (no cancellation;
-  ``Re(b + d) >= kappa > 0``) and ``ln((1 - gE)/(1 - g)) =
+  Stable evaluation: ``(b + d)(b - d) = b^2 - d^2 = -xi^2 (i u + u^2)``.
+  ``Re b = kappa + rho xi Im u`` and ``Re d >= 0``. Where ``Re b >= 0``,
+  ``b + d`` is formed directly (``|b + d| >= Re b + Re d``, no
+  cancellation) and ``b - d = -xi^2 (i u + u^2)/(b + d)``. Where
+  ``Re b < 0`` (possible off the real axis, e.g. ``Im u = -1`` with
+  ``kappa < rho xi``) ``b + d`` would cancel near ``i u + u^2 = 0``, so
+  ``b - d`` is formed directly (``|b - d| >= |Re b| > 0``) and
+  ``b + d = -xi^2 (i u + u^2)/(b - d)``. Both are the same algebraic
+  expression; only the rounding differs. ``ln((1 - gE)/(1 - g)) =
   log1p(g (1 - E)/(1 - g))`` (one complex log of the quotient, on its
-  principal branch; ``|g|`` may exceed 1). At ``i u + u^2 = 0``
-  (``u = 0`` or ``u = -i``) ``b - d = 0`` is set exactly, which also removes
-  the ``0/0`` of ``u = -i`` when ``kappa < rho xi``.
+  principal branch; ``|g|`` may exceed 1), used while ``|g (1 - E)/(1 - g)|
+  <= 1/2``; otherwise ``ln`` of the quotient ``(1 - gE)/(1 - g)`` formed
+  directly (``log1p`` of an argument near ``-1`` cancels). ``i u + u^2`` is
+  evaluated as ``u (u + i)`` and ``E = exp(-d T)`` directly (both avoid
+  cancellation near ``u = -i`` and for ``E << 1``; this is what makes the
+  Gil-Pelaez ``P1`` integrand smooth for ``kappa < rho xi`` and long ``T``).
+  At ``i u + u^2 = 0`` (``u = 0`` or ``u = -i``) ``b - d = 0`` and
+  ``phi = 1`` are set exactly, which also removes the ``0/0`` of ``u = -i``
+  when ``kappa < rho xi``.
 * European prices by the Lewis (2001) formula centred on the forward
   (Lewis, A. L., "A simple option formula for general jump-diffusion and
   other exponential Levy processes", 2001; also Lewis, "Option Valuation
@@ -97,9 +110,10 @@ Degenerate cases
   ``v_t = theta + (v0 - theta) e^{-kappa t}``, and the price is exactly
   Black-Scholes with ``sigma^2 T = theta T + (v0 - theta)(1 - e^{-kappa T})/kappa``
   (``pricing.black_scholes.bs_price``). The CF has the matching Gaussian form.
-* ``0 < xi < XI_MIN = 1e-4``: ``heston_price`` and ``heston_price_gil_pelaez``
-  raise ``ValueError``. The ``kappa theta / xi^2`` scaling makes the price
-  ill conditioned there (measured by the researcher: errors 1e-4 at
+* ``0 < xi < XI_MIN = 1e-4``: ``heston_price``, ``heston_price_gil_pelaez``
+  and ``heston_characteristic_function`` raise ``ValueError`` (the CF itself
+  was measured to err by 0.04 at ``xi = 1e-8``). The ``kappa theta / xi^2``
+  scaling makes the price ill conditioned there (measured by the researcher: errors 1e-4 at
   ``xi = 1e-6`` and 0.6 at ``xi = 1e-8``); the exact limit is ``xi = 0``.
   Near the limit the price differs from Black-Scholes by ``O(xi)``.
 * ``T == 0``: discounted intrinsic value ``max(+/-(S - K), 0)`` (same
@@ -293,7 +307,10 @@ def _cf_core(u: ComplexArray, T: float, v0: float, kappa: float, theta: float,
     Inputs are validated floats; ``u`` complex. Returns complex128.
     """
     iu = 1j * u
-    w = iu + u * u  # i u + u^2
+    # w = i u + u^2 as the product u (u + i): no cancellation of the +-1 of
+    # i u and u^2 near u = -i (e.g. the P1 integrand, u = x - i with tiny x,
+    # where the sum loses the real part x^2 entirely).
+    w = u * (u + 1j)
     if xi == 0.0:
         iv = theta * T + (v0 - theta) * (-math.expm1(-kappa * T)) / kappa
         with np.errstate(over="ignore", under="ignore", invalid="ignore"):
@@ -302,15 +319,29 @@ def _cf_core(u: ComplexArray, T: float, v0: float, kappa: float, theta: float,
                      divide="ignore"):
         b = kappa - rho * xi * iu
         d = np.sqrt(b * b + (xi * xi) * w)  # principal root, Re d >= 0
-        bpd = b + d
         zero = w == 0
-        safe_bpd = np.where(zero, 1.0, bpd)
-        bmd_over_xi2 = np.where(zero, 0.0, -w / safe_bpd)  # (b - d)/xi^2
-        bmd = (xi * xi) * bmd_over_xi2
+        # (b + d)(b - d) = -xi^2 w. Form directly the factor that does not
+        # cancel (b + d where Re b >= 0, b - d where Re b < 0) and get the
+        # other one from the product (module docstring).
+        direct_plus = b.real >= 0.0
+        bpd_direct = np.where(zero, 1.0, b + d)
+        bmd_direct = np.where(zero, 1.0, b - d)
+        safe_bpd = np.where(direct_plus, bpd_direct,
+                            np.where(zero, 1.0, -(xi * xi) * w / bmd_direct))
+        bmd_over_xi2 = np.where(zero, 0.0, np.where(direct_plus, -w / bpd_direct,
+                                                    bmd_direct / (xi * xi)))
+        bmd = (xi * xi) * bmd_over_xi2  # b - d
         g = bmd / safe_bpd
-        one_minus_e = -np.expm1(-d * T)  # 1 - E
-        e = 1.0 - one_minus_e
-        log_q = np.log1p(g * one_minus_e / (1.0 - g))  # ln((1 - gE)/(1 - g))
+        one_minus_e = -np.expm1(-d * T)  # 1 - E, accurate for small d T
+        e = np.exp(-d * T)  # E, accurate when tiny (not 1 - (1 - E))
+        # ln((1 - gE)/(1 - g)) = ln(1 + q), q = g (1 - E)/(1 - g): log1p(q)
+        # while |q| <= 1/2; otherwise the log of the quotient formed directly,
+        # because 1 + q cancels when q is near -1 (|g| >> 1 and E << 1).
+        # Same principal-branch log of the same number either way.
+        q_small = g * one_minus_e / (1.0 - g)
+        near = np.abs(q_small) <= 0.5
+        log_q = np.where(near, np.log1p(np.where(near, q_small, 0.0)),
+                         np.log(np.where(near, 1.0, (1.0 - g * e) / (1.0 - g))))
         c = (kappa * theta) * (bmd_over_xi2 * T - 2.0 * log_q / (xi * xi))
         dd = bmd_over_xi2 * one_minus_e / (1.0 - g * e)
         out = np.exp(c + dd * v0)
@@ -326,12 +357,25 @@ def heston_characteristic_function(u: Any, T: float, v0: float, kappa: float,
     ``u`` may be a real or complex scalar or array (vectorized); the result
     is complex (scalar or complex128 array of the same shape). See the module
     docstring for the formula (Albrecher et al. 2007). ``xi == 0`` uses the
-    exact Gaussian CF with the deterministic integrated variance. Values of
-    ``u`` with ``Im u`` outside the strip where ``E[S_T^{-Im u}]`` is finite
-    may overflow; non-finite results raise ``ValueError``.
+    exact Gaussian CF with the deterministic integrated variance;
+    ``0 < xi < XI_MIN`` raises ``ValueError`` (ill conditioned, module
+    docstring).
+
+    Valid only inside the moment strip: for ``Im u`` such that
+    ``E[S_T^{-Im u}]`` is finite at maturity ``T``. Outside it (e.g.
+    ``u = -2i`` with ``kappa = 0.5, xi = 1, rho = 0.9`` and ``T = 3``, beyond
+    the moment explosion time ``T* ~ 1.45``) the formula may return a
+    **finite but wrong** value; this is **not detected**. Non-finite results
+    raise ``ValueError``. The pricers in this module only use
+    ``Im u in {0, -1/2, -1}``, which lie in the strip (``E[S_T]`` finite).
     """
     t = _positive("T", T)
     v0_f, k, th, x = _variance_params(v0, kappa, theta, xi)
+    if 0.0 < x < XI_MIN:
+        raise ValueError(
+            f"0 < xi < {XI_MIN:g} is ill conditioned for the characteristic "
+            "function (kappa*theta/xi^2 scaling); use xi = 0 (exact Gaussian "
+            f"limit) or xi >= {XI_MIN:g}")
     rh = _rho(rho)
     s = _positive("s0", s0)
     rr = _real("r", r)

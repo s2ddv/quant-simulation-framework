@@ -528,3 +528,62 @@ def test_moment_and_feller_input_validation() -> None:
         ht.feller_condition(1.0, -0.04, 0.3)
     with pytest.raises(ValueError):
         ht.heston_expected_terminal(0.0, 0.05, 1.0)
+
+
+# ---------------------------------------------------------------------------
+# Regressions of the independent review of d64c716 (P3-3, P3-5)
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("xi", [1e-5, 9.99e-5, 1e-8])
+def test_cf_rejects_tiny_positive_xi(xi: float) -> None:
+    # P3-3: at xi = 1e-8 the CF erred by ~0.04 against the xi = 0 limit.
+    with pytest.raises(ValueError, match="xi"):
+        ht.heston_characteristic_function(1.3, 1.0, 0.04, 1.5, 0.04, xi, -0.7)
+    for ok in (0.0, ht.XI_MIN):
+        assert np.isfinite(ht.heston_characteristic_function(1.3, 1.0, 0.04, 1.5, 0.04,
+                                                             ok, -0.7))
+
+
+# kappa < rho xi with long T: Re b = kappa - rho xi < 0 on the P1 contour
+# u = x - i, and the share-measure law of ln S_T is extremely wide, so the
+# P1 integrand varies on the scale x ~ 1e-9.
+_KAPPA_LT_RHO_XI = [(15.0, 0.5, 2.0, 0.9), (20.0, 0.2, 1.5, 0.95)]
+
+
+@pytest.mark.parametrize("T, kappa, xi, rho", _KAPPA_LT_RHO_XI)
+def test_p1_integrand_is_smooth_near_u_minus_i(T: float, kappa: float, xi: float,
+                                               rho: float) -> None:
+    # P3-5: cancellation in i u + u^2, in b + d (Re b < 0), in E = 1 - (1 - E)
+    # and in log1p(q) with q near -1 made the P1 integrand noisy (relative
+    # third differences 5e-9 .. 1.3e-7 here); smooth now (measured ~6e-12).
+    for c in (1e-8, 1e-6, 1e-4):
+        x = np.linspace(c, 1.01 * c, 101)
+        f = (ht.heston_characteristic_function(x - 1j, T, 0.04, kappa, 0.04, xi, rho)
+             / (1j * x)).real
+        assert float(np.max(np.abs(np.diff(f, 3)))) <= 1e-10 * float(np.max(np.abs(f)))
+
+
+@pytest.mark.parametrize("T, kappa, xi, rho", _KAPPA_LT_RHO_XI)
+def test_gil_pelaez_converges_when_kappa_below_rho_xi(T: float, kappa: float,
+                                                      xi: float, rho: float) -> None:
+    # P3-5: Gil-Pelaez raised ValueError (30 bisections) for these inputs.
+    for K in STRIKES:
+        for kind in ("call", "put"):
+            lewis = ht.heston_price(S0, K, T, 0.01, 0.0, 0.04, kappa, 0.04, xi, rho, kind)
+            gp = ht.heston_price_gil_pelaez(S0, K, T, 0.01, 0.0, 0.04, kappa, 0.04, xi,
+                                            rho, kind)
+            assert abs(gp - lewis) <= PRICE_TOL, (K, kind, gp, lewis)
+
+
+def test_cf_stable_form_matches_plain_trap_where_well_conditioned() -> None:
+    # The b +/- d switch, u (u + i), E = exp(-dT) and the log of the quotient
+    # are the same algebra as the plain trap formula: compare where the plain
+    # formula is accurate (|x| >= 0.05), on the pricing contours, including
+    # Re b < 0 (kappa < rho xi) on Im u = -1/2 and -1.
+    u = np.concatenate([np.linspace(-30, -0.05, 90), np.linspace(0.05, 30, 90)])
+    for (T, kappa, xi, rho) in [(2.0, 0.5, 2.0, 0.9), (5.0, 0.2, 1.5, 0.95),
+                                (1.0, 2.0, 0.5, -0.7)]:
+        for shift in (0.0, -0.5j, -1j):
+            got = ht.heston_characteristic_function(u + shift, T, 0.04, kappa, 0.04, xi,
+                                                    rho, s0=S0)
+            ref = cf_trap_ref(u + shift, S0, T, 0.0, 0.0, 0.04, kappa, 0.04, xi, rho)
+            np.testing.assert_allclose(got, ref, rtol=1e-10, atol=1e-13)

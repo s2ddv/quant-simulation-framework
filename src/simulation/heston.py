@@ -28,7 +28,7 @@ Schemes (``scheme`` is explicit):
   sections "QE scheme", "log-price discretization" and "martingale
   correction"). With ``E = e^{-kappa dt}``::
 
-      m   = theta + (v - theta) E
+      m   = theta (1 - E) + v E
       s2  = v xi^2 E (1 - E)/kappa + theta xi^2 (1 - E)^2/(2 kappa)
       psi = s2 / m^2
       psi <= psi_c = 1.5:  b^2 = 2/psi - 1 + sqrt(2/psi) sqrt(2/psi - 1),
@@ -75,7 +75,15 @@ Schemes (``scheme`` is explicit):
   ODE ``v' = theta + (v - theta) E`` and ``ln S`` moves by a Gaussian with
   the step's exact integrated variance ``I = theta dt + (v - theta)(1 - E)/kappa``:
   ``ln S' = ln S + mu dt - I/2 + sqrt(I) Z``. This branch is exact on the
-  grid. Any ``xi > 0``, however small, uses the selected scheme.
+  grid. ``"full_truncation"`` accepts any ``xi > 0``. ``"andersen_qe"``
+  rejects ``0 < xi < QE_XI_MIN = 1e-4`` with ``ValueError``: ``K1`` and
+  ``K2`` contain ``-/+ rho/xi`` and the log-price step cancels
+  ``(rho/xi)(v' - v)`` against the ``K0`` terms, so a tiny ``xi`` silently
+  loses the martingale property (measured: ``xi = 1e-14``, ``rho = 0.9``
+  gave ``E[S_T] - S0 = +0.33``, 5 SE). Use ``xi = 0`` (exact) instead. The
+  threshold equals ``validation.heston_theory.XI_MIN`` (replicated here so
+  that ``simulation`` does not import ``validation``; a test checks that
+  the two agree).
 
 RNG streams (plan section 2.3): ``np.random.SeedSequence(seed).spawn(3)``
 gives NumPy ``default_rng``/PCG64 generators ``[0] variance_rng`` (``Z_v`` of
@@ -105,12 +113,20 @@ from simulation.base import BaseStochasticSimulator
 
 SCHEMES = ("andersen_qe", "full_truncation")
 PSI_C = 1.5
+#: Smallest positive ``xi`` accepted by the QE scheme (module docstring);
+#: equal to ``validation.heston_theory.XI_MIN``.
+QE_XI_MIN = 1e-4
 GAMMA1 = 0.5
 GAMMA2 = 0.5
-# Upper bound on float64 vectors of batch length alive in one step: state
-# (log price, v), the draws (Z_v, U, Z) and the QE temporaries (m, s2, psi,
-# b2, a, p, beta, K0*, branch results, masks) with headroom.
-_WORK_VECTORS = 20
+# Bound on float64-equivalent vectors of batch length alive at once: state
+# (log price, v), the draws (Z_v, U, Z), the QE temporaries (m, s2, psi, b2,
+# a, p, beta, K0*, branch results) and the boolean masks (quad, u <= p, the
+# per-step finiteness check). tracemalloc measured at most ~25.1 for QE
+# (``generate_paths`` with steps = 1 and ``generate_terminal``) and ~9 for
+# full truncation (NumPy 2.x, CPython 3.13); 32 leaves ~7 vectors of slack.
+# No (steps + 1, n_sims) boolean matrix is ever allocated: finiteness is
+# checked per step on the state and by max/min reductions on the output.
+_WORK_VECTORS = 32
 _DEFAULT_MAX_BATCH = 100_000
 _RNG_CONVENTION = ("NumPy default_rng/PCG64; SeedSequence(seed).spawn(3): "
                    "[0] variance normals, [1] QE uniforms, [2] price normals")
@@ -163,6 +179,12 @@ class HestonSimulator(BaseStochasticSimulator):
             raise ValueError(f"scheme must be one of {SCHEMES}, got {scheme!r}")
         if not isinstance(martingale_correction, (bool, np.bool_)):
             raise ValueError("martingale_correction must be a bool")
+        if scheme == "andersen_qe" and 0.0 < self.xi < QE_XI_MIN:
+            raise ValueError(
+                f"0 < xi < {QE_XI_MIN:g} is ill conditioned for the andersen_qe "
+                "scheme (K1, K2 contain rho/xi and cancel; the martingale property "
+                f"is lost); use xi = 0 (exact deterministic variance), xi >= "
+                f"{QE_XI_MIN:g} or scheme='full_truncation'")
         self.scheme: str = scheme
         self.martingale_correction: bool = bool(martingale_correction)
 
@@ -296,7 +318,10 @@ class HestonSimulator(BaseStochasticSimulator):
         zv = self.variance_rng.standard_normal(n)
         u = self.uniform_rng.random(n)
         z = self.price_rng.standard_normal(n)
-        m = self.theta + (v - self.theta) * self._e  # >= theta (1 - E) > 0
+        # m = theta (1 - E) + v E: a sum of nonnegative terms, so m >= theta
+        # (1 - E) > 0 without cancellation (theta + (v - theta) E rounds to 0
+        # for v = 0 when kappa dt is so small that E == 1.0).
+        m = self.theta * self._one_minus_e + v * self._e
         s2 = v * self._s2_v + self._s2_c
         psi = s2 / (m * m)
         quad = psi <= PSI_C
@@ -348,8 +373,10 @@ class HestonSimulator(BaseStochasticSimulator):
         """Estimated peak bytes of ``generate_paths``(``_and_variance``).
 
         Output matrix ``8 (steps + 1) n_sims`` (+ the same for the variance
-        matrix) plus ``_WORK_VECTORS`` float64 vectors of length ``n_sims``.
-        No ``(steps, n_sims)`` temporary is allocated.
+        matrix) plus ``_WORK_VECTORS`` float64 vectors of length ``n_sims``
+        (measured bound, including the boolean masks). No ``(steps, n_sims)``
+        temporary of any dtype is allocated (finiteness is checked per step
+        and by reductions).
         """
         rows = (self.steps + 1) * self.n_sims
         return 8 * rows * (1 + int(return_variance)) + 8 * _WORK_VECTORS * self.n_sims
@@ -369,20 +396,23 @@ class HestonSimulator(BaseStochasticSimulator):
         with np.errstate(over="ignore", invalid="ignore", under="ignore"):
             for step in range(self.steps):
                 v = self._step(step, x, v)
+                # Row-wise checks (an n_sims bool vector, counted in
+                # _WORK_VECTORS) instead of a (steps + 1, n_sims) mask.
+                if not np.isfinite(x).all():
+                    raise ValueError("Heston log price is not finite (overflow or "
+                                     "invalid operation); reduce xi, v0, theta or "
+                                     "the horizon")
                 out[step + 1] = x
                 if var is not None:
+                    row = var[step + 1]
                     if truncate:
-                        np.maximum(v, 0.0, out=var[step + 1])
+                        np.maximum(v, 0.0, out=row)
                     else:
-                        var[step + 1] = v
-        if not np.isfinite(out).all():
-            raise ValueError("Heston log price is not finite (overflow or invalid "
-                             "operation); reduce xi, v0, theta or the horizon")
-        if var is not None:
-            if not np.isfinite(var).all():
-                raise ValueError("Heston variance is not finite (overflow)")
-            if np.min(var) < 0.0:  # cannot happen: QE >= 0, FT returns v+
-                raise ValueError("Heston variance output is negative")
+                        row[...] = v
+                    if not np.isfinite(row).all():
+                        raise ValueError("Heston variance is not finite (overflow)")
+                    if np.min(row) < 0.0:  # cannot happen: QE >= 0, FT returns v+
+                        raise ValueError("Heston variance output is negative")
         return out, var
 
     def _prices(self, return_variance: bool) -> tuple[np.ndarray, np.ndarray | None]:
@@ -395,7 +425,10 @@ class HestonSimulator(BaseStochasticSimulator):
             else:
                 np.exp(increments, out=increments)
                 increments *= self.s0
-        if not np.isfinite(increments).all() or np.min(increments) <= 0:
+            # max/min reductions allocate nothing; nan propagates through max.
+            top = float(np.max(increments))
+            bottom = float(np.min(increments))
+        if not math.isfinite(top) or not bottom > 0.0:
             raise ValueError("Heston prices overflow or underflow float64")
         cum[0].fill(self.s0)
         return cum, var
@@ -467,6 +500,8 @@ class HestonSimulator(BaseStochasticSimulator):
                                      "the horizon")
                 x += log_s0
                 np.exp(x, out=out[start:stop])
-        if not np.isfinite(out).all() or np.min(out) <= 0:
+        top = float(np.max(out))
+        bottom = float(np.min(out))
+        if not math.isfinite(top) or not bottom > 0.0:
             raise ValueError("Heston terminal prices overflow or underflow float64")
         return out

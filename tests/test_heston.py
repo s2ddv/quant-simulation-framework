@@ -54,7 +54,7 @@ an independent ``quad`` Gil-Pelaez integral.
 
 Memory (``MAX_WORKING_BYTES`` = 256 MiB): the largest matrix pair of the fast
 tests is ``2 * 8 * 101 * 50_000`` B ~ 81 MB (full-truncation moments). Prices
-use ``generate_terminal`` (state + ~20 vectors of a 100k batch ~ 16 MB plus
+use ``generate_terminal`` (state + ~32 vectors of a 100k batch ~ 26 MB plus
 the 8 N B output). Slow tests (``@pytest.mark.slow``; they run by default,
 deselect with ``-m "not slow"``) use N = 1e6 in batches of 100k (output 8 MB).
 """
@@ -71,8 +71,9 @@ import pandas as pd
 import pytest
 from scipy import stats
 
-from simulation.heston import HestonSimulator
-from validation.heston_theory import feller_condition, heston_price
+import simulation.heston as heston_module
+from simulation.heston import QE_XI_MIN, HestonSimulator
+from validation.heston_theory import XI_MIN, feller_condition, heston_price
 
 K_SE = 4.0
 KS_MIN_P = 1e-3
@@ -568,6 +569,187 @@ def test_keyword_only_parameters() -> None:
     assert HestonSimulator(S0, 1.0, 4, 10, None, **GOOD).seed is None
     assert _sim(1.0, 4, 10, v0=0.0).generate_paths().shape == (5, 10)   # v0 = 0 valid
     assert _sim(1.0, 4, 10, martingale_correction=np.bool_(True)).martingale_correction is True
+
+
+# ---------------------------------------------------------------------------
+# 9b. Regressions of the independent review of d64c716 (P2-1, P3-1, P3-2, S1-S3)
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("scheme", SCHEMES)
+@pytest.mark.parametrize("steps, n", [(1, 200_000), (500, 4_000)])
+def test_memory_estimate_is_an_upper_bound(scheme: str, steps: int, n: int) -> None:
+    # P2-1: the estimate is 8 (steps + 1) n per matrix plus _WORK_VECTORS
+    # vectors of n float64; no (steps + 1, n) bool mask may exist (it added
+    # 12.5% of the output for long paths and made peak/estimate 1.12-1.23).
+    # (1, 200k) stresses the QE temporaries, (500, 4k) the output-sized mask.
+    # Measured margin (NumPy 2.x, CPython 3.13): >= 5.8 vectors for QE, ~22
+    # for full truncation, so the peak must stay below the estimate itself.
+    assert heston_module._WORK_VECTORS >= 26   # measured QE peak ~25.1 vectors
+    for return_variance in (False, True):
+        sim = _sim(1.0, steps, n, 3, scheme=scheme)
+        assert sim.required_bytes(return_variance) == (
+            8 * (steps + 1) * n * (1 + int(return_variance))
+            + 8 * heston_module._WORK_VECTORS * n)
+        was_tracing = tracemalloc.is_tracing()
+        if not was_tracing:
+            tracemalloc.start()
+        try:
+            tracemalloc.reset_peak()
+            if return_variance:
+                sim.generate_paths_and_variance()
+            else:
+                sim.generate_paths()
+            peak = tracemalloc.get_traced_memory()[1]
+        finally:
+            if not was_tracing:
+                tracemalloc.stop()
+        assert peak <= sim.required_bytes(return_variance), (peak, return_variance)
+
+
+@pytest.mark.parametrize("scheme", SCHEMES)
+def test_terminal_memory_estimate_is_an_upper_bound(scheme: str) -> None:
+    # P2-1 for generate_terminal: output 8 N plus _WORK_VECTORS vectors of one
+    # batch (measured QE ~25.1 vectors per batch).
+    n, batch = 200_000, 50_000
+    sim = _sim(1.0, 5, n, 3, scheme=scheme)
+    budget = 8 * n + 8 * heston_module._WORK_VECTORS * batch
+    was_tracing = tracemalloc.is_tracing()
+    if not was_tracing:
+        tracemalloc.start()
+    try:
+        tracemalloc.reset_peak()
+        sim.generate_terminal(batch_size=batch)
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        if not was_tracing:
+            tracemalloc.stop()
+    assert peak <= budget, (peak, budget)
+
+
+@pytest.mark.parametrize("xi", [1e-14, 1e-8, 9.99e-5])
+def test_qe_rejects_tiny_positive_xi(xi: float) -> None:
+    # P3-1: K1, K2 contain -/+ rho/xi; with xi = 1e-14, rho = 0.9 the QE step
+    # lost the martingale silently (E[S_T] - S0 = +0.33, 5 SE).
+    for correction in (True, False):
+        with pytest.raises(ValueError, match="xi"):
+            _sim(1.0, 12, 10, xi=xi, rho=0.9, martingale_correction=correction)
+    # Full truncation and the exact xi = 0 branch remain available.
+    ft = _sim(1.0, 12, 10, xi=xi, rho=0.9, scheme="full_truncation").generate_paths()
+    assert np.all(np.isfinite(ft))
+    assert np.all(np.isfinite(_sim(1.0, 12, 10, xi=0.0, rho=0.9).generate_paths()))
+
+
+def test_qe_xi_threshold_matches_theory() -> None:
+    # The simulator replicates the pricer threshold without importing it.
+    assert QE_XI_MIN == XI_MIN == 1e-4
+    assert np.all(np.isfinite(_sim(1.0, 4, 10, xi=QE_XI_MIN).generate_paths()))
+
+
+def test_qe_tiny_kappa_is_finite_with_driftless_cir_moments() -> None:
+    # P3-2: with kappa = 1e-20, E = e^{-kappa dt} == 1.0 and the old
+    # m = theta + (v - theta) E rounded to 0 for v = 0 -> nan. With
+    # m = theta (1 - E) + v E the limit kappa -> 0 is the driftless CIR:
+    # E[v_T] = v0, Var[v_T] = v0 xi^2 T (theta is irrelevant), and QE matches
+    # both exactly on the grid; QE-M keeps E[S_T] = S0 e^{mu T}.
+    # N = 200_000, 4 steps, seed 61; 4 SE (SE of the variance from m4).
+    v0, xi, T, mu = 0.04, 0.5, 1.0, 0.03
+    sim = _sim(T, 4, 200_000, 61, mu=mu, v0=v0, kappa=1e-20, theta=0.09, xi=xi,
+               rho=-0.5)
+    paths, var = sim.generate_paths_and_variance()
+    assert np.all(np.isfinite(paths)) and np.all(np.isfinite(var))
+    assert float(np.min(var)) >= 0.0 and float(np.mean(var[-1] == 0.0)) > 0.0
+    mean, se = _mean_se(var[-1])
+    assert abs(mean - v0) <= K_SE * se
+    variance, se_v = _var_se(var[-1])
+    assert abs(variance - v0 * xi * xi * T) <= K_SE * se_v
+    s_mean, s_se = _mean_se(paths[-1])
+    assert abs(s_mean - S0 * math.exp(mu * T)) <= K_SE * s_se
+
+
+class _FixedDraws:
+    """Stand-in for a ``np.random.Generator`` returning fixed draws."""
+
+    def __init__(self, values: list[float]) -> None:
+        self.values = np.asarray(values, dtype=np.float64)
+
+    def standard_normal(self, n: int) -> np.ndarray:
+        assert n == self.values.size
+        return self.values.copy()
+
+    def random(self, n: int) -> np.ndarray:
+        assert n == self.values.size
+        return self.values.copy()
+
+
+_ZV = [-1.3, 0.2, 2.1]
+_U = [0.2, 0.7, 0.95]
+_Z = [0.5, -1.1, 1.7]
+
+
+def _qe_one_step_reference(v: float, dt: float, mu: float, kappa: float,
+                           theta: float, xi: float, rho: float,
+                           correction: bool) -> tuple[np.ndarray, np.ndarray, float]:
+    """Andersen (2008) QE / QE-M step written independently of the simulator.
+
+    Returns ``(ln(S'/S), v', psi)`` for the draws ``_ZV``, ``_U``, ``_Z``.
+    """
+    e = math.exp(-kappa * dt)
+    m = theta + (v - theta) * e
+    s2 = v * xi * xi * e * (1 - e) / kappa + theta * xi * xi * (1 - e) ** 2 / (2 * kappa)
+    psi = s2 / (m * m)
+    k0 = -rho * kappa * theta * dt / xi
+    k1 = 0.5 * dt * (kappa * rho / xi - 0.5) - rho / xi
+    k2 = 0.5 * dt * (kappa * rho / xi - 0.5) + rho / xi
+    k3 = k4 = 0.5 * dt * (1 - rho * rho)
+    big_a = k2 + k4 / 2
+    v_new, x_new = [], []
+    for zv, u, z in zip(_ZV, _U, _Z):
+        if psi <= 1.5:
+            b2 = 2 / psi - 1 + math.sqrt(2 / psi) * math.sqrt(2 / psi - 1)
+            a = m / (1 + b2)
+            vn = a * (math.sqrt(b2) + zv) ** 2
+            k0_star = (-big_a * b2 * a / (1 - 2 * big_a * a)
+                       + 0.5 * math.log(1 - 2 * big_a * a) - (k1 + k3 / 2) * v)
+        else:
+            p = (psi - 1) / (psi + 1)
+            beta = (1 - p) / m
+            vn = 0.0 if u <= p else math.log((1 - p) / (1 - u)) / beta
+            k0_star = -math.log(p + beta * (1 - p) / (beta - big_a)) - (k1 + k3 / 2) * v
+        kk = k0_star if correction else k0
+        v_new.append(vn)
+        x_new.append(mu * dt + kk + k1 * v + k2 * vn + math.sqrt(k3 * v + k4 * vn) * z)
+    return np.asarray(x_new), np.asarray(v_new), psi
+
+
+# v0 chosen (kappa = 0.5, theta = 0.04, xi = 0.5, dt = 1/4) so that psi falls
+# in (1, 1.5] (quadratic, exponential if psi_c were 1.0), (0.5, 1] (quadratic,
+# exponential if psi_c were 0.5), (0, 0.5] and > 1.5 (exponential, with U on
+# both sides of p).
+_PSI_CASES = [(0.04, 1.0, 1.5), (0.06, 0.5, 1.0), (0.3, 0.0, 0.5), (0.01, 1.5, math.inf)]
+
+
+@pytest.mark.parametrize("v0, psi_lo, psi_hi", _PSI_CASES)
+@pytest.mark.parametrize("rho", [-0.9, 0.5])
+@pytest.mark.parametrize("correction", [True, False])
+def test_qe_one_step_matches_written_formulas(v0: float, psi_lo: float, psi_hi: float,
+                                              rho: float, correction: bool,
+                                              monkeypatch: pytest.MonkeyPatch) -> None:
+    # S1-S3: deterministic check of one QE(-M) step (gamma1 = gamma2 = 1/2,
+    # psi_c = 1.5) through the public generators. Kills sign errors in K1/K2,
+    # an omitted or altered K0*, and a wrong psi_c (the branch changes).
+    dt, mu, kappa, theta, xi = 0.25, 0.03, 0.5, 0.04, 0.5
+    sim = HestonSimulator(S0, dt, 1, 3, 1, mu=mu, v0=v0, kappa=kappa, theta=theta,
+                          xi=xi, rho=rho, martingale_correction=correction)
+    monkeypatch.setattr(sim, "variance_rng", _FixedDraws(_ZV))
+    monkeypatch.setattr(sim, "uniform_rng", _FixedDraws(_U))
+    monkeypatch.setattr(sim, "price_rng", _FixedDraws(_Z))
+    paths, var = sim.generate_paths_and_variance()
+    x_ref, v_ref, psi = _qe_one_step_reference(v0, dt, mu, kappa, theta, xi, rho,
+                                               correction)
+    assert psi_lo < psi <= psi_hi
+    if psi > 1.5:
+        assert np.any(v_ref == 0.0) and np.any(v_ref > 0.0)   # both sides of p
+    np.testing.assert_allclose(var[1], v_ref, rtol=1e-12, atol=1e-15)
+    np.testing.assert_allclose(np.log(paths[1] / S0), x_ref, rtol=1e-11, atol=1e-13)
 
 
 # ---------------------------------------------------------------------------
