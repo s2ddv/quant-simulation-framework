@@ -454,3 +454,73 @@ def test_calibrate_invalid_fit_raises(monkeypatch: pytest.MonkeyPatch,
     with pytest.raises(ValueError):
         sim.calibrate(_synthetic_prices(400))
     assert sim.omega is None and sim.fit_result is None  # state left untouched
+
+
+# --------------------------------------------------------------------------
+# 10. Regressions of the independent review (P3-1 .. P3-5)
+# --------------------------------------------------------------------------
+def test_memory_estimate_covers_finiteness_mask_and_measured_peak() -> None:
+    # P3-1: np.isfinite over the (steps + 1, n_sims) output allocates a bool
+    # matrix of (steps + 1) * n_sims bytes on top of the float64 output.
+    sim = _sim(200, 20000, 1)
+    cells = 201 * 20000
+    assert sim._required_bytes(False) >= 9 * cells
+    assert sim._required_bytes(True) >= 17 * cells
+    import tracemalloc
+    for return_variance in (False, True):
+        sim = _sim(200, 20000, 1)
+        tracemalloc.start()
+        try:
+            tracemalloc.reset_peak()
+            if return_variance:
+                sim.generate_paths_and_variance()
+            else:
+                sim.generate_paths()
+            peak = tracemalloc.get_traced_memory()[1]
+        finally:
+            tracemalloc.stop()
+        assert peak <= sim._required_bytes(return_variance)
+
+
+class _Measured(GarchTSimulator):
+    MEASURE = "test_measure"
+    RISK_NEUTRALIZATION = "test_rule"
+
+
+def test_model_info_measure_follows_class_attributes() -> None:
+    # P3-2: a subclass declaring its measure is reported as such.
+    assert GarchTSimulator.MEASURE == "physical"
+    assert GarchTSimulator.RISK_NEUTRALIZATION == "not_implemented"
+    info = _Measured.from_days(S0, 10, 5, 1, mu=MU, **PARAMS).model_info()
+    assert info["measure"] == "test_measure"
+    assert info["risk_neutralization"] == "test_rule"
+
+
+@pytest.mark.parametrize("bad", [True, False, np.bool_(True),
+                                 lambda n: np.ones(n, dtype=bool),
+                                 lambda n: np.zeros(n, dtype=np.bool_)])
+def test_boolean_adjustment_rejected(bad: Any) -> None:
+    # P3-4: bool is rejected as elsewhere in the module, not read as 1/0.
+    with pytest.raises(ValueError, match="_drift_adjustment"):
+        _hooked(bad).generate_paths()
+
+
+def test_model_info_flags_infinite_terminal_mean() -> None:
+    # P3-5: Student-t innovations have no MGF, so E[S_T] is infinite.
+    info = _sim(10, 5).model_info()
+    assert info["terminal_price_mean_finite"] is False
+    assert "infinite" in info["terminal_price_mean_note"]
+    json.dumps(info, allow_nan=False)
+
+
+@pytest.mark.parametrize("s0, mu", [(1e-300, 7.2), (1e300, -7.4)])
+def test_extreme_s0_uses_log_space_prices(s0: float, mu: float) -> None:
+    # P3-3: cumulative log return ~ +720 (exp overflows) or ~ -740 (exp is
+    # subnormal, ~1% precision); s0 * exp(cum) is representable only via
+    # exp(log(s0) + cum).
+    kw: dict[str, Any] = dict(mu=mu, omega=1e-20, alpha=0.0, beta=0.0, nu=8.0)
+    paths = GarchTSimulator.from_days(s0, 100, 4, 9, **kw).generate_paths()
+    cum, _ = GarchTSimulator.from_days(s0, 100, 4, 9, **kw)._simulate_log()
+    assert abs(cum[-1]).min() > 709.8               # beyond exp's finite range
+    assert np.isfinite(paths).all() and np.all(paths > 0) and np.all(paths[0] == s0)
+    np.testing.assert_allclose(paths[1:], np.exp(math.log(s0) + cum[1:]), rtol=1e-12)

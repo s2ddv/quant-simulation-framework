@@ -9,9 +9,16 @@ Model (discrete time, one step = one trading day, decimal units)::
     h_1     = h0                       (variance of the first simulated day)
 
 ``a_t`` is an optional per-step drift adjustment (``_drift_adjustment``),
-zero by default; it is the extension point for a future risk-neutral rule
-(plan E3.9.0/E3.9.1), which is **not implemented** here. The simulated law is
-the physical measure P of the fitted model.
+zero by default. It only supports **predictable additive** rules on the log
+return (a function of the day and of ``h_t``, without access to ``z_t``); the
+variance recursion always uses the unadjusted shocks ``e_t``. That is not
+enough for the risk-neutral options of plan E3.9.0 with t innovations
+(``E[exp(sqrt(h) z)]`` is infinite; truncated t changes ``z``, simple-return
+rules are multiplicative, Duan-Simonato EMS is a cross-sectional
+post-processing, Duan's LRNVR changes the ``h`` recursion): the design of a
+Q hook is left to E3.9.0/E3.9.1, with review. No risk-neutral rule is
+implemented here; the simulated law is the physical measure P of the
+fitted model.
 
 Units and conventions:
     * ``mu`` is the **daily log-return location** (decimal per trading day).
@@ -113,6 +120,9 @@ def _validate_h0(h0: Any) -> float:
 class GarchTSimulator(BaseStochasticSimulator):
     """Daily GARCH(1,1)-t price paths ``(steps + 1, n_sims)``; row zero is ``s0``.
 
+    ``MEASURE`` and ``RISK_NEUTRALIZATION`` are reported by ``model_info``;
+    a subclass that overrides ``_drift_adjustment`` must set both.
+
     Parameters are in daily decimal units (see the module docstring); ``mu``
     is the daily log-return location, not an annual price drift. ``omega``,
     ``alpha``, ``beta`` and ``nu`` are supplied together or left ``None``
@@ -122,6 +132,9 @@ class GarchTSimulator(BaseStochasticSimulator):
     ``calibrate`` replaces all parameters and sets ``h0`` to the filtered
     one-step-ahead variance after the sample.
     """
+
+    MEASURE: str = "physical"
+    RISK_NEUTRALIZATION: str = "not_implemented"
 
     def __init__(self, s0: float, horizon: float, steps: int, n_sims: int,
                  seed: int | None = None, *, mu: float = 0.0,
@@ -224,20 +237,29 @@ class GarchTSimulator(BaseStochasticSimulator):
         ``step`` is the 0-based day index (the return of day ``step + 1``);
         ``h`` is the read-only ``(n_sims,)`` conditional variance of that day,
         known before the shock is drawn, so any rule built on it is
-        predictable. Return a scalar or an ``(n_sims,)`` array of finite
-        values. Subclasses implementing a risk-neutral rule (E3.9.1) must
-        not draw from ``self.rng`` here, or the stream alignment with
-        ``simulate_cumulative`` is lost. No Q rule is implemented here.
+        predictable. Return a finite real scalar or ``(n_sims,)`` array
+        (bool is rejected). The adjustment is added to the log return only;
+        ``h`` keeps following the unadjusted shocks. This hook is NOT
+        sufficient for the E3.9.0 risk-neutral options with t innovations
+        (see the module docstring); no Q rule is implemented here.
+        Overrides must not draw from ``self.rng`` (the stream alignment with
+        ``simulate_cumulative`` would be lost) and must set the class
+        attributes ``MEASURE`` and ``RISK_NEUTRALIZATION`` reported by
+        ``model_info``.
         """
         return 0.0
 
     # -------------------------------------------------------------- sampling
     def _required_bytes(self, return_variance: bool) -> int:
         rows = (self.steps + 1) * self.n_sims
-        return 8 * rows * (1 + int(return_variance)) + 8 * _WORK_VECTORS * self.n_sims
+        # float64 output (+ variance) and the bool mask of np.isfinite over
+        # one such matrix (the masks are created one at a time).
+        return (8 * rows * (1 + int(return_variance)) + rows
+                + 8 * _WORK_VECTORS * self.n_sims)
 
     def _check_garch_memory(self, return_variance: bool) -> None:
-        """Output matrix (+ variance matrix) and ``n_sims``-length work vectors.
+        """Output matrix (+ variance matrix), the ``(steps + 1) * n_sims``-byte
+        bool mask of the finiteness checks and ``n_sims``-length work vectors.
 
         The recursion is sequential in time, so no ``(steps, n_sims)``
         temporary is allocated; ``_check_memory`` counts temporaries of that
@@ -283,6 +305,8 @@ class GarchTSimulator(BaseStochasticSimulator):
                 if isinstance(adj, (int, float)) and not isinstance(adj, bool) and adj == 0.0:
                     total += mu + e
                 else:
+                    if np.asarray(adj).dtype == np.bool_:
+                        raise ValueError("_drift_adjustment must not return bool values")
                     adj_arr = np.asarray(adj, dtype=np.float64)
                     if adj_arr.shape not in ((), (n,)) or not np.isfinite(adj_arr).all():
                         raise ValueError(
@@ -327,8 +351,9 @@ class GarchTSimulator(BaseStochasticSimulator):
         ``exp``/``log`` (a few ulp), because prices are ``s0 * exp(cum)``.
         Repeated calls advance ``self.rng``.
 
-        Peak memory is the output and about ``8 * n_sims`` float64 work
-        vectors; no ``(steps, n_sims)`` temporary is created. Non-finite
+        Peak memory is the output, the bool finiteness mask
+        (``(steps + 1) * n_sims`` bytes) and about ``8 * n_sims`` float64 work
+        vectors; no ``(steps, n_sims)`` float temporary is created. Non-finite
         variances or prices, or prices that underflow to zero, raise
         ``ValueError``.
         """
@@ -376,8 +401,11 @@ class GarchTSimulator(BaseStochasticSimulator):
             "exact_on_grid": True,
             "rng": _RNG_CONVENTION,
             "numpy_version": np.__version__,
-            "measure": "physical",
-            "risk_neutralization": "not_implemented",
+            "measure": self.MEASURE,
+            "risk_neutralization": self.RISK_NEUTRALIZATION,
+            "terminal_price_mean_finite": False,
+            "terminal_price_mean_note": "Student-t innovations have no MGF; E[S_T] is "
+                                        "infinite; quantile/VaR/CVaR are well defined",
             "fit": None if self.fit_result is None else dict(self.fit_result),
         }
         return info
