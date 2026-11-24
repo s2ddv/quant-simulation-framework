@@ -771,6 +771,18 @@ The exploratory tail-risk scripts in `research/tail-risk/*.py` are exempt from
 mypy and from the ruff codes they trigger (see `pyproject.toml`); the library
 code they use (`src/backtest`, `src/validation`) is fully linted.
 
+Tests that need the optional `dashboard` extra (Streamlit and Plotly figures,
+the Streamlit app via `AppTest`, and `--interactive`) are skipped when those
+packages are missing, as in the main `test` job. A separate `dashboard` CI job
+(Python 3.12) installs `.[dev,dashboard]`, fails if either package cannot be
+imported, runs those tests and re-runs mypy against the real Streamlit types.
+Locally:
+
+```bash
+pip install -e ".[dev,dashboard]"
+python -m pytest -rs tests/test_dashboard_*.py tests/test_interactive_plot.py
+```
+
 The pytest suite runs offline using dated synthetic historical inputs. It checks
 analytical formulas against SciPy's lognormal distribution, explicit sample
 statistics, nested convergence, fixed-seed simulation, degenerate cases,

@@ -53,3 +53,36 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Tests
         run: python -m pytest
+  # The `test` job installs only `.[dev]`, so tests that need the optional
+  # `dashboard` extra (Streamlit, Plotly) are skipped there by importorskip.
+  # This job installs the extra and runs them; the import step fails the job
+  # instead of letting a missing package turn these tests into silent skips.
+  # mypy runs again so dashboard.py is checked against the real Streamlit types.
+  dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: python -m pip install -e ".[dev,dashboard]"
+      - name: Check optional dependencies
+        run: python -c "import plotly, streamlit; print('streamlit', streamlit.__version__, 'plotly', plotly.__version__)"
+      - name: Dashboard tests
+        run: >-
+          python -m pytest -rs
+          tests/test_dashboard_data.py tests/test_dashboard_figures.py
+          tests/test_dashboard_app.py tests/test_dashboard_run.py
+          tests/test_interactive_plot.py
+      - name: Mypy with dashboard dependencies
+        run: python -m mypy
