@@ -861,7 +861,7 @@ implemented yet; see `docs/plano-expansao.md`.
 - [x] European option pricing: analytical Black-Scholes-Merton prices, Greeks and implied volatility
 - [x] Variance reduction: antithetic variates, control variates and randomized QMC (scrambled Sobol + Brownian bridge) with correct standard errors (`src/simulation/variance_reduction.py`)
 - [ ] Monte Carlo European pricing compared with Black-Scholes
-- [ ] Correlated multi-asset simulation
+- [x] Correlated multi-asset simulation: exact correlated GBM, buy-and-hold portfolio value, multi-asset calibration and CVaR contributions (`src/simulation/multi_asset.py`, `src/calibration/multi_asset.py`, `src/risk/decomposition.py`; library only, not yet in the CLI/report)
 
 ---
 
