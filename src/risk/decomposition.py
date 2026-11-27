@@ -218,18 +218,21 @@ def portfolio_cvar_contributions(asset_paths: Any, weights: Any,
     bit for bit (same functions, same mask). Component losses are
     ``L_i = q_i (S_i0 - S_iT)`` with ``q = portfolio_quantities(...)``; their
     row sums can differ from ``L`` by rounding, so ``sum_i C_i = cvar`` holds
-    up to rounding (typically a few ulps of ``sum_identity_scale``; reported
-    as ``sum_identity_error``), not exactly. Also returns ``quantities``
+    up to rounding, not exactly. The error (reported as ``sum_identity_error``)
+    scales with the position notional, not with ``sum_identity_scale``: with
+    offsetting long/short positions or tiny returns it can be many ulps of
+    the scale. Also returns ``quantities``
     (list) and ``initial_value`` (``V0``).
 
     Both quantities are built here, so their row mismatch is pure rounding of
-    order ``(k + 2) eps sum_i |q_i| max(S_i0, S_iT)`` (the position notional,
+    order ``2 (k - 1) eps sum_i |q_i| max(S_i0, S_iT)`` (rounding of both
+    ``V0`` and ``V_T`` plus the subtraction) (the position notional,
     which can be far larger than ``sum_i |L_ti|`` for short horizons or tiny
     volatilities). The row check of ``cvar_contributions`` is therefore
     applied with magnitudes ``a_ti = |q_i| max(S_i0, S_iT) >= |L_ti|``:
     ``|L_t - sum_i L_ti| <= 1e-9 sum_i a_ti + tiny``. It only guards against
     internal inconsistency; it cannot fail by rounding for ``k`` below
-    ~``4e6`` assets.
+    ~``2e6`` assets.
     """
     p = _validate_level(confidence, "confidence")
     values = portfolio_paths(asset_paths, weights, kind, initial_value=initial_value)

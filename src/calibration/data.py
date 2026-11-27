@@ -96,7 +96,10 @@ def prices_from_multi_asset_snapshot(snapshot: Mapping[str, Any]) -> dict[str, p
             raise ValueError(f"Multi-asset snapshot entry {ticker!r} must be a mapping.")
         if entry.get("ticker") != ticker:
             raise ValueError(f"Multi-asset snapshot entry {ticker!r} names another ticker.")
-        result[ticker] = prices_from_snapshot(assets[ticker])
+        try:
+            result[ticker] = prices_from_snapshot(entry)
+        except (KeyError, TypeError) as exc:
+            raise ValueError(f"Invalid multi-asset snapshot entry {ticker!r}: {exc!r}.") from exc
     return result
 
 

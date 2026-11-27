@@ -418,3 +418,15 @@ def test_malformed_multi_asset_snapshot_raises_value_error(ten_days):
     mixed_keys = {"tickers": ["A", "B"], "assets": {"A": good["assets"]["A"], 1: {}}}
     with pytest.raises(ValueError, match="assets must match tickers"):
         prices_from_multi_asset_snapshot(mixed_keys)
+
+
+def test_snapshot_entry_missing_fields_raises_value_error(ten_days):
+    """Regression (E6 re-review P3-R3): a missing field raised KeyError."""
+    from calibration.data import multi_asset_snapshot, prices_from_multi_asset_snapshot
+
+    good = multi_asset_snapshot({"A": _series([1.0, 2.0, 3.0], ten_days[:3])}, period="fixture",
+                                retrieved_at="2026-11-27T00:00:00+00:00")
+    for field in ("observations", "sha256"):
+        entry = {k: v for k, v in good["assets"]["A"].items() if k != field}
+        with pytest.raises(ValueError, match="Invalid multi-asset snapshot entry"):
+            prices_from_multi_asset_snapshot({"tickers": ["A"], "assets": {"A": entry}})
