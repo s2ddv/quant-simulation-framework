@@ -85,11 +85,16 @@ def prices_from_multi_asset_snapshot(snapshot: Mapping[str, Any]) -> dict[str, p
         assets = snapshot["assets"]
     except (KeyError, TypeError) as exc:
         raise ValueError("Invalid multi-asset snapshot: require tickers and assets.") from exc
-    if not isinstance(assets, Mapping) or sorted(assets) != sorted(names):
+    # Compare as sets: keys of mixed types cannot be sorted (TypeError).
+    if (not isinstance(assets, Mapping) or len(assets) != len(names)
+            or set(assets) != set(names)):
         raise ValueError("Invalid multi-asset snapshot: assets must match tickers.")
     result = {}
     for ticker in names:
-        if assets[ticker].get("ticker") != ticker:
+        entry = assets[ticker]
+        if not isinstance(entry, Mapping):
+            raise ValueError(f"Multi-asset snapshot entry {ticker!r} must be a mapping.")
+        if entry.get("ticker") != ticker:
             raise ValueError(f"Multi-asset snapshot entry {ticker!r} names another ticker.")
         result[ticker] = prices_from_snapshot(assets[ticker])
     return result

@@ -402,3 +402,19 @@ def test_multi_asset_snapshot_rejects_bad_inputs(ten_days):
         multi_asset_snapshot({"AAA": good.iloc[:2]}, period="1y",
                              retrieved_at="2026-11-27T12:00:00Z")
     assert data.multi_asset_snapshot is multi_asset_snapshot
+
+
+def test_malformed_multi_asset_snapshot_raises_value_error(ten_days):
+    """Regression (E6 review P3-data-1): malformed entries raised AttributeError/TypeError."""
+    from calibration.data import multi_asset_snapshot, prices_from_multi_asset_snapshot
+
+    prices = {"A": _series([1.0, 2.0, 3.0], ten_days[:3]),
+              "B": _series([3.0, 2.0, 4.0], ten_days[:3])}
+    good = multi_asset_snapshot(prices, period="fixture",
+                                retrieved_at="2026-11-27T00:00:00+00:00")
+    not_mapping = {"tickers": ["A", "B"], "assets": {"A": good["assets"]["A"], "B": "oops"}}
+    with pytest.raises(ValueError, match="must be a mapping"):
+        prices_from_multi_asset_snapshot(not_mapping)
+    mixed_keys = {"tickers": ["A", "B"], "assets": {"A": good["assets"]["A"], 1: {}}}
+    with pytest.raises(ValueError, match="assets must match tickers"):
+        prices_from_multi_asset_snapshot(mixed_keys)
