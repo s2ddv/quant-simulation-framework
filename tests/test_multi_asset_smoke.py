@@ -129,9 +129,18 @@ def test_contribution_bootstrap_is_reproducible_and_batch_independent():
     second = cvar_contribution_bootstrap(losses, 0.9, n_bootstrap=50, seed=1)
     assert first["contribution_standard_errors"] == second["contribution_standard_errors"]
     assert all(se > 0 for se in first["contribution_standard_errors"])
-    # Two i.i.d. identical components: equal contributions within the SE.
-    c, se = point["contributions"], first["contribution_standard_errors"]
-    assert abs(c[0] - c[1]) < 4 * np.hypot(*se)
+    # Two i.i.d. identical components: equal contributions within 4 SE of the
+    # difference. C0 and C1 share the tail mask (negatively correlated), so
+    # hypot(SE0, SE1) is not that SE. Reparametrize the components as
+    # (L0 - L1, 2 L1) with the same portfolio losses L0 + L1 (same mask): the
+    # first contribution is C0 - C1 and its bootstrap SE resamples the
+    # difference with the same indices.
+    c = point["contributions"]
+    paired = cvar_contribution_bootstrap(
+        np.column_stack([losses[:, 0] - losses[:, 1], 2 * losses[:, 1]]), 0.9,
+        n_bootstrap=200, seed=1, portfolio_losses=losses.sum(axis=1))
+    assert paired["contributions"][0] == pytest.approx(c[0] - c[1], abs=1e-12)
+    assert abs(c[0] - c[1]) < 4 * paired["contribution_standard_errors"][0]
 
 
 def _dated(values, start="2024-01-01"):

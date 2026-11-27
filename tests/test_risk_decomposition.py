@@ -6,6 +6,7 @@ C_i = mean(L_i | tail), so sum_i C_i = CVaR by linearity (up to rounding).
 Statistical tolerances: 4 standard errors (docs/plano-expansao.md Sec. 2.5).
 """
 
+import tracemalloc
 import zlib
 
 import numpy as np
@@ -282,3 +283,86 @@ def test_portfolio_contributions_reject_bad_portfolios():
     summary = risk_summary(paths[:, :, 0])
     assert single["cvar"] == summary["cvar"] and single["var"] == summary["var"]
     assert single["contributions"][0] == pytest.approx(single["cvar"], rel=1e-14)
+
+
+# --------------------------------------------------------------------------- regressions (E6.4 review)
+
+_R3 = [[1.0, 0.5, 0.2], [0.5, 1.0, -0.1], [0.2, -0.1, 1.0]]
+
+
+@pytest.mark.parametrize("mu, sigma, horizon", [
+    ([0.05, 0.03, 0.08], [0.2, 0.3, 0.25], 1e-14),  # prices barely move: T -> 0
+    ([0.0, 0.0, 0.0], [1e-9, 1e-9, 1e-9], 1.0),  # ... or sigma -> 0
+])
+def test_portfolio_contributions_tolerate_notional_rounding(mu, sigma, horizon):
+    # P3-E6.4-1: V0 - V_T rounds at ~eps * notional (1e6 here) while sum_i |L_i| is
+    # ~1e-2; the old global check (1e-9 * max_t sum_i |L_i|) raised on pure rounding.
+    paths = MultiAssetGbmSimulator([100.0, 50.0, 20.0], horizon, 1, 20_000, 3, mu=mu,
+                                   sigma=sigma, correlation=_R3).generate_paths()
+    weights, v0 = [0.5, 0.3, 0.2], 1e6
+    summary = risk_summary(portfolio_paths(paths, weights, "initial_weights", initial_value=v0))
+    result = portfolio_cvar_contributions(paths, weights, "initial_weights", initial_value=v0)
+    assert result["var"] == summary["var"] and result["cvar"] == summary["cvar"]
+    # Identity error is rounding of the notional: (k + 2) eps V0 ~ 1.1e-9; allow 1e-14 V0.
+    assert result["sum_identity_error"] <= 1e-14 * v0
+
+
+def test_row_check_is_per_row_and_never_skipped():
+    # P3-E6.4-2: one extreme row must not loosen the tolerance of the others.
+    rng = np.random.default_rng(5)
+    comps = rng.standard_normal((1000, 2))
+    comps[0] = 1e12
+    bad = comps.sum(axis=1)
+    bad[1:] = rng.standard_normal(999) * 100
+    with pytest.raises(ValueError, match=r"portfolio_losses\[1\]"):
+        cvar_contributions(comps, 0.95, portfolio_losses=bad)
+    with pytest.raises(ValueError, match=r"portfolio_losses\[1\]"):
+        cvar_contribution_bootstrap(comps, 0.95, n_bootstrap=2, seed=0, portfolio_losses=bad)
+    # Rounding-size perturbations relative to each row's own sum_i |L_i| pass.
+    scale = np.abs(comps).sum(axis=1)
+    ok = comps.sum(axis=1) + 1e-12 * scale * rng.choice([-1.0, 1.0], size=1000)
+    assert cvar_contributions(comps, 0.95, portfolio_losses=ok)["n"] == 1000
+    # sum_i |L_i| = 3e308 overflows: the check runs in units of max_i |L_i| instead.
+    big = rng.standard_normal((50, 3))
+    big[0] = [-1e308, -1e308, 1e308]  # L_0 = -1e308, outside the tail
+    consistent = np.append(-1e308, big[1:].sum(axis=1))
+    result = cvar_contributions(big, 0.9, portfolio_losses=consistent)
+    assert np.isfinite(result["cvar"])
+    inconsistent = consistent.copy()
+    inconsistent[0] = -0.5e308
+    with pytest.raises(ValueError, match=r"portfolio_losses\[0\]"):
+        cvar_contributions(big, 0.9, portfolio_losses=inconsistent)
+    # All-zero row: the loss must be zero up to the smallest normal float64.
+    zero = np.vstack([np.zeros((1, 2)), comps[1:]])
+    losses = zero.sum(axis=1)
+    losses[0] = 1e-300
+    with pytest.raises(ValueError, match=r"portfolio_losses\[0\]"):
+        cvar_contributions(zero, 0.95, portfolio_losses=losses)
+
+
+def _documented_peak(n, k, n_bootstrap, batch):
+    """Bound in the cvar_contribution_bootstrap docstring (bytes)."""
+    return (batch * (24 * n + 32) + max(n * (25 + 8 * k), 2**20)
+            + 8 * n_bootstrap * (k + 3) + 8 * n)
+
+
+@pytest.mark.parametrize("ties", [True, False])
+@pytest.mark.parametrize("given", [True, False])
+def test_bootstrap_peak_memory_within_documented_bound(ties, given):
+    # P3-E6.4-3: the old code allocated an 8 n k |L| temporary and a second tail
+    # copy that the documented formula omitted (all-ties peak 1.14x the bound).
+    # With ties every row is in the tail (n_tail = n), the worst case of the bound
+    # (measured ~0.84x of it); continuous losses use ~0.36x. Slack 256 KiB: two
+    # 64 KiB ufunc buffers and Python objects (lists of k floats, dicts).
+    n, k, replicates = 20_000, 20, 4
+    comps = (np.ones((n, k)) if ties
+             else np.random.default_rng(0).standard_normal((n, k)))
+    kwargs = {"portfolio_losses": comps.sum(axis=1)} if given else {}
+    batch = min(replicates, contribution_batch_size(n, k))
+    tracemalloc.start()
+    try:
+        cvar_contribution_bootstrap(comps, 0.95, n_bootstrap=replicates, seed=0, **kwargs)
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    assert peak <= _documented_peak(n, k, replicates, batch) + 256 * 1024

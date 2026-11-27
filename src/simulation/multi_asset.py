@@ -278,6 +278,23 @@ class MultiAssetGbmSimulator:
 
     RNG: one local ``numpy.random.Generator`` (``self.rng``, PCG64) is the
     only stream; every call advances it.
+
+    Memory of ``__init__`` (not checked against ``MAX_WORKING_BYTES``):
+    validation and factorization of ``R`` hold several float64
+    ``n_assets x n_assets`` arrays at once (copy, ``R - R^T``, ``eigvalsh``
+    workspace, Cholesky or ``eigh`` factor): about ``4-5 * 8 n_assets**2``
+    bytes at peak (``tracemalloc`` at ``n_assets = 1500``: 4.0x for a float64
+    array, one more copy for other inputs such as nested lists), plus LAPACK
+    workspace not seen by ``tracemalloc``. ``path_bytes``/``terminal_bytes``
+    count only the ``16 n_assets**2`` bytes kept for ``generate_*``.
+
+    Known limitation of ``validate_correlation``: the eigenvalue test uses
+    the absolute tolerance ``-1e-12`` (plan contract). Rounding of
+    ``eigvalsh`` grows roughly like ``eps * n_assets * ||R||``, so a valid
+    PSD matrix of large order can be rejected; e.g. ``R = ones((1000, 1000))``
+    (rank 1, exactly PSD) gives ``lambda_min ~ -4.9e-12``. Behaviour is
+    unchanged; such matrices currently need ``nearest_correlation`` or a
+    smaller model.
     """
 
     MAX_WORKING_BYTES = BaseStochasticSimulator.MAX_WORKING_BYTES
@@ -371,7 +388,10 @@ class MultiAssetGbmSimulator:
                 raise ValueError("simulated prices exceed finite positive precision")
 
     def path_bytes(self) -> int:
-        """Checked array bytes of ``generate_paths`` (see ``estimate_path_bytes``)."""
+        """Checked array bytes of ``generate_paths`` (see ``estimate_path_bytes``).
+
+        Excludes the ``O(n_assets**2)`` memory already used by ``__init__`` to
+        validate and factor the correlation (see the class docstring)."""
         return estimate_path_bytes(self.steps, self.n_sims, self.n_assets, 2)
 
     def generate_paths(self) -> np.ndarray:
@@ -430,8 +450,14 @@ class MultiAssetGbmSimulator:
         one ``Z ~ N(0, I)`` row per simulation (``steps`` unused: exact law).
         Shocks are drawn in batches of ``batch_size`` rows (default
         ``min(n_sims, 65536)``) into a reused buffer and correlated straight
-        into the output. The values do not depend on ``batch_size`` (sequential
-        draws from the same generator). The sequence differs from
+        into the output. The shocks ``Z`` do not depend on ``batch_size``
+        (sequential draws from the same generator: the same values as one C-order
+        ``(n_sims, n_assets)`` draw, and the same final generator state). The
+        prices agree across batch sizes only up to the rounding of the BLAS
+        product ``Z L^T``: the BLAS may use a different kernel for a different
+        block shape (e.g. a 1-row block), so bitwise equality is not
+        guaranteed (relative differences of a few ``eps`` were observed with
+        ``batch_size=1``). The sequence differs from
         ``generate_paths(...)[-1]`` with the same seed; the laws are equal.
 
         Memory checked before allocation (``terminal_bytes``):

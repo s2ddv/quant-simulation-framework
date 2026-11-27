@@ -411,19 +411,38 @@ def test_generate_terminal_independent_of_batch_size():
     sim_ref = _sim(10_001, seed=12).generate_terminal()
     for batch in (2, 7, 4096, 10_000, 10_001, 10**6):
         np.testing.assert_array_equal(_sim(10_001, seed=12).generate_terminal(batch), sim_ref)
-    # batch_size=1: same draws; equal to rounding (see the xfail below).
+    # batch_size=1: same draws; equal to rounding (see the next test).
     np.testing.assert_allclose(_sim(10_001, seed=12).generate_terminal(1), sim_ref,
                                rtol=4e-15, atol=0)
 
 
-@pytest.mark.xfail(strict=False, reason=(
-    "generate_terminal docstring says values do not depend on batch_size, but a "
-    "1-row block takes a different BLAS matmul path (OpenBLAS 0.3.34): ~1286/30003 "
-    "values differ by <= 6.7e-16 relative. Law unaffected; tracked, not hidden. "
-    "Non-strict: other BLAS builds may give bitwise equality."))
-def test_generate_terminal_bitwise_independent_of_batch_size_one():
-    np.testing.assert_array_equal(_sim(10_001, seed=12).generate_terminal(1),
-                                  _sim(10_001, seed=12).generate_terminal())
+def test_generate_terminal_batch_size_changes_only_blas_rounding():
+    """Documented contract: the shocks Z never depend on batch_size; the values
+    agree up to the rounding of the BLAS product Z L^T (a 1-row block may take a
+    different matmul kernel, e.g. OpenBLAS 0.3.34: ~6.7e-16 relative), not bitwise.
+
+    Tolerance per element (k = 3 assets, eps = 2^-52): two evaluations of
+    x_i = sum_j Z_j L_ij in any order each err by <= (k - 1) eps sum_j |Z_j L_ij|
+    (Higham 2002, ch. 4), so ln S differs by <= 2 (k - 1) eps sigma_i sqrt(T)
+    sum_j |Z_j L_ij|; the shared drift add, exp and the s0 multiply add <= 4 eps
+    relative. Taking the absolute values makes the bound independent of cancellation.
+    """
+    n, seed, eps, k = 10_001, 12, np.finfo(float).eps, 3
+    one, default = _sim(n, seed=seed), _sim(n, seed=seed)
+    values_one, values_default = one.generate_terminal(1), default.generate_terminal()
+    # Same draws: the generators consumed exactly the same stream...
+    assert one.rng.bit_generator.state == default.rng.bit_generator.state
+    # ...which is one C-order (n, k) standard-normal draw from default_rng(seed).
+    z = np.random.default_rng(seed).standard_normal((n, k))
+    factor = one.factor
+    log_scale = SIGMA * np.sqrt(HORIZON) * (np.abs(z) @ np.abs(factor).T)
+    bound = 2 * (k - 1) * eps * log_scale + 4 * eps
+    reference = S0 * np.exp((MU - SIGMA**2 / 2) * HORIZON + SIGMA * np.sqrt(HORIZON) * (z @ factor.T))
+    for values in (values_one, values_default):
+        relative = np.abs(values / reference - 1)
+        assert np.all(relative <= bound + 4 * eps), float(np.max(relative / (bound + 4 * eps)))
+    relative = np.abs(values_one / values_default - 1)
+    assert np.all(relative <= 2 * bound), float(np.max(relative / (2 * bound)))
 
 
 def test_generate_terminal_rejects_bad_batch_size():
