@@ -559,6 +559,12 @@ def heston_price_gil_pelaez(S: float, K: float, T: float, r: float, q: float,
     integrand (Gil-Pelaez inversion, module docstring). The integrands are
     finite at ``u -> 0`` but the Gauss nodes never touch 0. Agreement with
     ``heston_price`` is a check of the CF and of the quadrature.
+
+    With ``kappa << rho*xi`` and long ``T`` (e.g. kappa=0.1, xi=3, rho=0.99,
+    T=30) the variance explodes under the share measure, the ``P1``
+    integrand becomes steep near ``u = 0`` and this check may raise
+    ``ValueError`` (bisection limit). ``heston_price`` (Lewis) remains the
+    reference price in that regime.
     """
     inp = _Inputs(S, K, T, r, q, v0, kappa, theta, xi, rho, kind)
     m, t = _quad_params(nodes, tol)

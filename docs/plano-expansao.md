@@ -883,9 +883,11 @@ O usuário precisa aprovar o contrato antes da implementação (§2.2).
 | E3.1 | concluído | `1223d8a` + testes | `revisor_quant` (sem achados de fórmula; lacunas P2 de teste fechadas e mutantes detectados) | `src/pricing/black_scholes.py`; P3 de robustez em extremos pendentes |
 | E3.2 | concluído | `1223d8a` + testes | `revisor_quant` | Brent; ida e volta < 1e-8 onde bem condicionado |
 | E3.3–E3.8 | **bloqueado** | — | — | Aguardam E2.1/E2.2 concluídos e revisados |
-| E3.9.0–E3.9.5 | **bloqueado** | — | — | Decisão do usuário: esperar E2; depende também de E3.3 e E5.3 |
+| E3.9.0–E3.9.5 | **bloqueado** | — | — | Decisão do usuário: esperar E2; depende também de E3.3 e E5.3. Dependência E5.3 atendida (concluído e revisado em 2026-11-24); ainda falta E3.3 |
 | E4.1–E4.4 | pendente | — | — | — |
-| E5.1, E5.3 | pendente | — | — | E5.2 só parecer |
+| E5.1 | concluído | `d64c716` + testes `321d90f`; correções `d581a89` | `revisor_quant` (P2 de memória e P3 corrigidos; nova revisão aprovada) | QE-M (ψc=1,5, γ1=γ2=½, K0*) e full truncation; `exact_on_grid: false`; CF "little trap" + Lewis com GL geométrico adaptativo (NumPy). Casos I–III de Andersen: QE-M a 4·SE em Δt=1/4 e 1/8 (N=1e5) e 1/8, 1/32 (N=1e6, slow); FT caso I K=100: viés +2,09 (1/4) → +1,14 (1/8). Desvios: `generate_paths_and_variance()` em vez de `return_variance=True`; QE rejeita 0<ξ<1e-4. Fontes primárias não lidas no original (proxy/paywall); verificação por EDO de Riccati, quad e MC. Nota: `research/notes/2026-11-24-e5-volatilidade-estocastica.md` |
+| E5.2 | parecer entregue | — | — | Recomendação: não implementar calibração histórica agora; parâmetros do usuário + sensibilidade; GMM com variância realizada só com intradiário; precificação requer cotações de opções (opção A). Decisão do usuário |
+| E5.3 | concluído | `d87df56` + testes `2386cfe`; correções `c6fd6d0`, `0b14018` | `revisor_quant` (P2 de documentação do gancho e P3 corrigidos; nova revisão aprovada) | `GarchTSimulator` importa `backtest.garch` (inalterado); igualdade bit a bit com `simulate_cumulative`; `mu` = localização do log-retorno diário; `E[S_T]=∞` com inovações t (`terminal_price_mean_finite: false`). Gancho `_drift_adjustment` só aditivo/previsível: insuficiente para E3.9.0 com t (desenho Q fica no E3.9). Pendência E9: CLI/relatório |
 | E6.1–E6.4 | **bloqueado** | — | — | Requer aprovação do contrato 3D |
 | E7.1–E7.3 | pendente | — | — | — |
 | E8.1–E8.4 | pendente | — | — | E8.3/E8.4 condicionados a E8.1 |
